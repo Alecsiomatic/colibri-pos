@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 15% 90%;
+    --foreground: 142 39% 14%;
+
+    --card: 42 22% 91%;
+    --card-foreground: 142 39% 14%;
+
+    --popover: 42 22% 91%;
+    --popover-foreground: 142 39% 14%;
+
+    --primary: 142 39% 22%;
+    --primary-foreground: 42 22% 91%;
+
+    --secondary: 33 22% 57%;
+    --secondary-foreground: 142 39% 14%;
+
+    --muted: 40 9% 70%;
+    --muted-foreground: 142 20% 30%;
+
+    --accent: 355 53% 28%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 85% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 40 9% 75%;
+    --input: 40 9% 75%;
+    --ring: 142 39% 22%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: url("/resta.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .colibri-gradient {
+    background: linear-gradient(135deg, #1f4f37 0%, #ab9976 50%, #d9d5c8 100%);
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(31, 79, 55, 0.3);
+    box-shadow: 0 0 20px rgba(31, 79, 55, 0.4), 0 0 40px rgba(31, 79, 55, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(31, 79, 55, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(31, 79, 55, 0.4);
+    box-shadow: 0 0 15px rgba(31, 79, 55, 0.5), 0 0 30px rgba(31, 79, 55, 0.3);
+  }
+
+  .text-elegant {
+    text-shadow: 0 2px 4px rgba(31, 79, 55, 0.1);
+  }
+
+  .accent-wine {
+    color: #6c222a;
+    text-shadow: 0 0 10px rgba(108, 34, 42, 0.3);
+  }
+
+  .border-wine-glow {
+    border-color: #6c222a;
+    box-shadow: 0 0 15px rgba(108, 34, 42, 0.4), 0 0 30px rgba(108, 34, 42, 0.2);
+  }
+}
+
+/* DatePicker Dark Theme */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  background-color: #1e293b !important;
+  border: 1px solid #475569 !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: #334155 !important;
+  border-bottom: 1px solid #475569 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: #f1f5f9 !important;
+}
+
+.react-datepicker__day {
+  color: #cbd5e1 !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+.react-datepicker__day--in-range {
+  background-color: #1e40af !important;
+  color: white !important;
+}
+
+.react-datepicker__day--in-selecting-range {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+.react-datepicker__navigation {
+  border: none !important;
+}
+
+.react-datepicker__navigation--previous {
+  border-right-color: #cbd5e1 !important;
+}
+
+.react-datepicker__navigation--next {
+  border-left-color: #cbd5e1 !important;
+}
+
+/* Responsive tabs scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari and Opera */
+}
+
+/* Smooth horizontal scroll for tabs */
+.tabs-scroll {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+}
+
+.tabs-scroll > * {
+  scroll-snap-align: start;
+}

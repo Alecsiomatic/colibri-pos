@@ -1,0 +1,11 @@
+# Servidor de Impresión - Archivos del proyecto
+node_modules/
+logs/
+*.log
+.env
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

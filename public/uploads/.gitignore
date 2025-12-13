@@ -1,0 +1,8 @@
+# Permitir imágenes de productos (necesarias para producción)
+# Solo ignorar archivos temporales
+*.tmp
+*.temp
+
+# Excepto este archivo
+!.gitignore
+!README.md

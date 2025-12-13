@@ -1,0 +1,32 @@
+{
+  "name": "thermal-print-server",
+  "version": "1.0.0",
+  "description": "Servidor de impresión ESC/POS para impresora térmica 80-VIII",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node test-print.js"
+  },
+  "keywords": [
+    "escpos",
+    "thermal",
+    "printer",
+    "raspberry-pi"
+  ],
+  "author": "SuperNova Burgers",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-network": "^3.0.0-alpha.5",
+    "moment-timezone": "^0.5.43"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

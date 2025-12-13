@@ -1,0 +1,793 @@
+﻿"use client"
+
+import Link from "next/link"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import {
+  Check,
+  Zap,
+  TrendingUp,
+  Users,
+  ShoppingCart,
+  Smartphone,
+  Truck,
+  CreditCard,
+  BarChart3,
+  Clock,
+  Receipt,
+  Utensils,
+  QrCode,
+  Printer,
+  ChefHat,
+  DollarSign,
+  Target,
+  Sparkles,
+  ArrowRight,
+  Star,
+  Shield,
+  Wifi,
+  Cloud,
+  MessageSquare,
+  PlayCircle,
+  ExternalLink,
+} from "lucide-react"
+
+export default function LandingPage() {
+  const demoLinks = [
+    {
+      title: "ðŸ  Demo Tienda Online",
+      description: "Experimenta cÃ³mo tus clientes ordenan desde la web",
+      href: "/demo",
+      icon: ShoppingCart,
+      color: "from-colibri-green to-colibri-gold",
+    },
+    {
+      title: "ðŸ“± Kiosko Touch",
+      description: "Pantalla de autoservicio para tus clientes",
+      href: "/kiosk",
+      icon: Smartphone,
+      color: "from-colibri-gold to-colibri-wine",
+    },
+    {
+      title: "ðŸ’° Punto de Venta",
+      description: "Sistema POS completo para cajeros",
+      href: "/caja",
+      icon: CreditCard,
+      color: "from-colibri-wine to-colibri-green",
+    },
+    {
+      title: "ðŸ‘¨â€ðŸ’¼ Panel Admin",
+      description: "Control total del negocio",
+      href: "/admin/dashboard",
+      icon: BarChart3,
+      color: "from-colibri-green to-colibri-wine",
+    },
+    {
+      title: "ðŸ½ï¸ GestiÃ³n de Mesas",
+      description: "Panel para meseros y comedor",
+      href: "/mesero/mesas-abiertas",
+      icon: Utensils,
+      color: "from-colibri-wine to-colibri-gold",
+    },
+  ]
+
+  const features = [
+    {
+      icon: ShoppingCart,
+      title: "Sistema POS Completo",
+      description: "Terminal punto de venta profesional con gestiÃ³n de productos, categorÃ­as, modificadores y inventario en tiempo real.",
+      highlight: "Control total",
+    },
+    {
+      icon: Utensils,
+      title: "GestiÃ³n de Mesas",
+      description: "Administra tu comedor con sistema de mesas interactivo. AsignaciÃ³n de meseros, divisiÃ³n de cuentas y cierre automÃ¡tico.",
+      highlight: "Para restaurantes",
+    },
+    {
+      icon: Truck,
+      title: "Delivery Integrado",
+      description: "Sistema completo de pedidos a domicilio con tracking GPS en tiempo real, asignaciÃ³n automÃ¡tica de repartidores y gestiÃ³n de zonas.",
+      highlight: "Aumenta ventas 40%",
+    },
+    {
+      icon: QrCode,
+      title: "MenÃº Digital QR",
+      description: "Tus clientes ordenan desde su celular escaneando QR. Sin apps, sin contacto, sin errores. Actualizaciones instantÃ¡neas.",
+      highlight: "Sin meseros",
+    },
+    {
+      icon: Smartphone,
+      title: "Kiosko de Autoservicio",
+      description: "Pantalla tÃ¡ctil para que clientes ordenen directamente. Reduce tiempos de espera y aumenta ticket promedio 30%.",
+      highlight: "MÃ¡s ventas",
+    },
+    {
+      icon: CreditCard,
+      title: "MÃºltiples MÃ©todos de Pago",
+      description: "Efectivo, tarjetas, transferencias y MercadoPago integrado. Cobra como quieras, donde quieras.",
+      highlight: "Todo incluido",
+    },
+    {
+      icon: Receipt,
+      title: "Turnos de Caja",
+      description: "Control exhaustivo de apertura y cierre de caja. Arqueos automÃ¡ticos, reportes de diferencias y cuadre perfecto.",
+      highlight: "Cero errores",
+    },
+    {
+      icon: BarChart3,
+      title: "Reportes Avanzados",
+      description: "AnalÃ­tica en tiempo real: ventas, productos mÃ¡s vendidos, horarios pico, desempeÃ±o de meseros y mucho mÃ¡s.",
+      highlight: "Data que vende",
+    },
+    {
+      icon: Printer,
+      title: "ImpresiÃ³n AutomÃ¡tica",
+      description: "Comandas a cocina por USB, red o Bluetooth. Separa por estaciones: grill, frÃ­os, bar. Cero confusiÃ³n.",
+      highlight: "Cocina ordenada",
+    },
+    {
+      icon: Users,
+      title: "Multi-Usuario con Roles",
+      description: "Admin, cajeros, meseros, cocineros, repartidores. Cada uno ve y hace solo lo que debe. Seguridad total.",
+      highlight: "Control empresarial",
+    },
+    {
+      icon: ChefHat,
+      title: "Modificadores Ilimitados",
+      description: "Extras, tamaÃ±os, ingredientes, personalizaciones. Todo lo que tus clientes pidan, el sistema lo maneja.",
+      highlight: "Sin lÃ­mites",
+    },
+    {
+      icon: Cloud,
+      title: "100% En La Nube",
+      description: "Accede desde cualquier dispositivo, en cualquier lugar. Backups automÃ¡ticos. Nunca pierdes informaciÃ³n.",
+      highlight: "Siempre disponible",
+    },
+  ]
+
+  const benefits = [
+    {
+      metric: "$15,000",
+      label: "En bonos incluidos",
+      description: "IngenierÃ­a + CapacitaciÃ³n + RenovaciÃ³n",
+    },
+    {
+      metric: "< 24h",
+      label: "GarantÃ­a de reemplazo",
+      description: "O tu mensualidad es gratis",
+    },
+    {
+      metric: "+20%",
+      label: "Ticket promedio",
+      description: "Con kiosko o devolvemos tu dinero",
+    },
+    {
+      metric: "$60K",
+      label: "Ahorras en hardware",
+      description: "Sin descapitalizar tu negocio",
+    },
+  ]
+
+  const testimonials = [
+    {
+      name: "Carlos Mendoza",
+      business: "Tacos El PatrÃ³n - CDMX",
+      image: "/testimonial-1.jpg",
+      quote: "En 2 meses recuperamos la inversiÃ³n. El delivery integrado y el kiosko nos permitieron atender 3x mÃ¡s pedidos en hora pico. Nuestras ventas subieron 45% sin contratar mÃ¡s personal.",
+      rating: 5,
+    },
+    {
+      name: "Ana GarcÃ­a",
+      business: "CafÃ© La Esquina - Guadalajara",
+      image: "/testimonial-2.jpg",
+      quote: "El menÃº QR y el sistema de mesas nos cambiÃ³ la vida. Los clientes piden desde su mesa y todo llega directo a cocina. Cero errores, cero papelitos. El ticket promedio subiÃ³ 30%.",
+      rating: 5,
+    },
+    {
+      name: "Roberto Silva",
+      business: "Wings & Beer - Monterrey",
+      image: "/testimonial-3.jpg",
+      quote: "Los reportes son increÃ­bles. Ahora sÃ© quÃ© producto vende mÃ¡s, en quÃ© horario y cuÃ¡nto gano realmente. Optimizamos el menÃº y eliminamos lo que no servÃ­a. Rentabilidad +35%.",
+      rating: 5,
+    },
+  ]
+
+  const pricing = {
+    monthly: {
+      basico: { price: 1290, label: "mensual", setup: 3900 },
+      profesional: { price: 3330, label: "mensual", setup: 9700 },
+      empresarial: { price: 5310, label: "mensual", setup: 13200 },
+    },
+    annual: {
+      basico: { price: 1290, label: "mensual", setup: 3900, total: 15480 },
+      profesional: { price: 3330, label: "mensual", setup: 9700, total: 39960 },
+      empresarial: { price: 5310, label: "mensual", setup: 13200, total: 63720 },
+    },
+  }
+
+  const plans = [
+    {
+      name: "BÃ¡sico",
+      description: "EstaciÃ³n Central (Renta)",
+      color: "from-colibri-green to-colibri-gold",
+      features: [
+        "ðŸ–¥ï¸ Mini PC i5 + Monitor Touch 16.1\"",
+        "ðŸ“‹ Licencia de Software Ilimitada",
+        "ðŸŽ¨ IngenierÃ­a de MenÃº ($6,000 incluido)",
+        "ðŸŽ“ CapacitaciÃ³n Completa ($5,000 incluido)",
+        "ðŸ”„ RenovaciÃ³n TecnolÃ³gica ($4,000 incluido)",
+        "âš¡ GarantÃ­a: Reemplazo < 24h o paga cero",
+        "ðŸ›¡ï¸ ProtecciÃ³n total sin lÃ­mites",
+        "ðŸ”§ Soporte tÃ©cnico prioritario",
+        "ðŸ“Š Sistema POS completo",
+        "ðŸ½ï¸ GestiÃ³n de productos y mesas",
+      ],
+      popular: false,
+      setupFee: "$3,900 MXN Ãºnico",
+      bonuses: "$15,000 MXN en bonos incluidos",
+    },
+    {
+      name: "Profesional",
+      description: "Central + Kiosko + Cocina",
+      color: "from-colibri-wine to-colibri-green",
+      features: [
+        "âœ… Todo en BÃ¡sico +",
+        "ðŸ“± Kiosko Auto-Servicio Touch",
+        "ðŸŽ¯ GarantÃ­a +20% ticket o dinero de vuelta",
+        "ðŸ–¨ï¸ Impresora o Kitchen Display",
+        "ðŸšš Delivery Propio + QR en Mesa ($990/mes)",
+        "âš¡ Venta sugestiva automÃ¡tica",
+        "ðŸ“ˆ Aumenta ventas sin presiÃ³n humana",
+        "ðŸ”„ 3 mÃ³dulos de hardware incluidos",
+        "ðŸ‘¥ Usuarios ilimitados",
+        "ðŸ“Š Reportes avanzados en tiempo real",
+        "ðŸ’³ MercadoPago integrado",
+        "ðŸŽ Bonos totales: $15,000 + garantÃ­as",
+      ],
+      popular: true,
+      setupFee: "$9,700 MXN Ãºnico",
+      bonuses: "Incluye todos los bonos + garantÃ­a de ticket",
+    },
+    {
+      name: "Empresarial",
+      description: "SoluciÃ³n completa multi-sucursal",
+      color: "from-colibri-gold to-colibri-wine",
+      features: [
+        "âœ… Todo en Profesional +",
+        "ðŸ¢ Dashboard CEO Multi-Sucursal ($690/mes)",
+        "ðŸ“Š Control total desde un solo lugar",
+        "ðŸ” Decisiones basadas en datos",
+        "ðŸ“ˆ InformaciÃ³n consolidada al instante",
+        "ðŸ”„ MÃ³dulos ilimitados",
+        "ðŸ‘¥ Equipo completo capacitado",
+        "ðŸŽ¯ Gerente de cuenta dedicado",
+        "âš¡ Soporte 24/7 prioritario",
+        "ðŸ›¡ï¸ Todas las garantÃ­as premium",
+        "ðŸ”§ PersonalizaciÃ³n avanzada",
+        "ðŸ’¼ Ideal para cadenas y franquicias",
+      ],
+      popular: false,
+      setupFee: "$13,200 MXN Ãºnico",
+      bonuses: "MÃ¡ximo valor + soporte empresarial",
+    },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-colibri-beige/30 to-white">
+      {/* Hero Section */}
+      <div
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage: "url(/resta.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-colibri-green/95 via-colibri-wine/90 to-colibri-gold/85" />
+
+        <div className="relative z-10 container mx-auto px-4 py-20">
+          <div className="max-w-5xl mx-auto text-center">
+            {/* Logo */}
+            <div className="flex justify-center mb-8">
+              <Image
+                src="/logo-colibri.png"
+                alt="ColibrÃ­-REST"
+                width={120}
+                height={120}
+                className="drop-shadow-2xl animate-float"
+              />
+            </div>
+
+            {/* Badge */}
+            <Badge className="mb-6 bg-white/20 text-white border-white/30 text-sm px-4 py-2 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 mr-2 inline" />
+              Sistema #1 para restaurantes en MÃ©xico
+            </Badge>
+
+            {/* Headline */}
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+              Reinventamos Tu Restaurante
+              <br />
+              <span className="text-colibri-beige">Con TecnologÃ­a Que Funciona</span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Cada pedido fluye sin esfuerzo. Cada mesa atendida con precisiÃ³n. Cada decisiÃ³n respaldada por datos.
+              <br />
+              <span className="font-semibold text-colibri-beige">Elige entre Renta con garantÃ­a total o Compra para mÃ¡xima flexibilidad fiscal.</span>
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Button
+                asChild
+                size="lg"
+                className="bg-white text-colibri-green hover:bg-colibri-beige text-lg px-8 py-6 shadow-2xl"
+              >
+                <Link href="#pricing">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Ver Planes y Precios
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 backdrop-blur-sm"
+              >
+                <Link href="#demo">
+                  <MessageSquare className="w-5 h-5 mr-2" />
+                  Ver Demo en Vivo
+                </Link>
+              </Button>
+            </div>
+
+            {/* Social Proof */}
+            <div className="flex flex-wrap justify-center items-center gap-8 text-white/80">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                <span>Hosting seguro en MÃ©xico</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                <span>4.9/5 en Google</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                <span>+300 restaurantes confÃ­an en nosotros</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <ArrowRight className="w-8 h-8 text-white rotate-90" />
+        </div>
+      </div>
+
+      {/* Demo Links Section */}
+      <section className="py-20 bg-white" id="demo">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20">
+              <PlayCircle className="w-4 h-4 mr-2 inline" />
+              Demos en Vivo
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
+              Prueba El Sistema Ahora Mismo
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              No necesitas registrarte. Entra a cualquier demo y experimenta el poder de ColibrÃ­-REST.
+              <br />
+              <span className="font-semibold text-colibri-wine">Cada demo es 100% funcional y con datos reales.</span>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {demoLinks.map((demo, index) => {
+              const Icon = demo.icon
+              return (
+                <Link key={index} href={demo.href}>
+                  <Card
+                    className="p-6 glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 hover:scale-105 transition-all duration-300 group cursor-pointer h-full"
+                  >
+                    <div className={`inline-block p-4 bg-gradient-to-br ${demo.color} rounded-xl mb-4 group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-colibri-green mb-2 group-hover:text-colibri-wine transition-colors">
+                      {demo.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4">{demo.description}</p>
+                    <div className="flex items-center text-colibri-wine font-semibold">
+                      Probar ahora
+                      <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Card>
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-600 mb-4">
+              ðŸ’¡ <span className="font-semibold">Tip:</span> Usa las credenciales de demo para acceder al panel admin:
+            </p>
+            <div className="inline-block bg-colibri-beige/30 rounded-lg p-4 text-left">
+              <div className="font-mono text-sm">
+                <div className="mb-1">
+                  <span className="text-gray-600">Email:</span>{" "}
+                  <span className="font-semibold text-colibri-green">admin@supernova.com</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Password:</span>{" "}
+                  <span className="font-semibold text-colibri-green">admin123</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20">
+              <Target className="w-4 h-4 mr-2 inline" />
+              Resultados Reales
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
+              Los NÃºmeros No Mienten
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Esto es lo que logran nuestros clientes en promedio durante los primeros 90 dÃ­as
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {benefits.map((benefit, index) => (
+              <Card
+                key={index}
+                className="p-8 text-center glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 transition-all duration-300"
+              >
+                <div className="text-5xl font-bold text-colibri-wine mb-2">{benefit.metric}</div>
+                <div className="text-lg font-semibold text-colibri-green mb-2">{benefit.label}</div>
+                <div className="text-sm text-gray-600">{benefit.description}</div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-gradient-to-b from-colibri-beige/20 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-colibri-green/10 text-colibri-green border-colibri-green/20">
+              <Sparkles className="w-4 h-4 mr-2 inline" />
+              Todo Incluido
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
+              12 Sistemas En Uno Solo
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              No necesitas contratar 10 proveedores diferentes. ColibrÃ­-REST lo tiene TODO.
+              <br />Y cada mÃ³dulo habla con los demÃ¡s en tiempo real.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {features.map((feature, index) => {
+              const Icon = feature.icon
+              return (
+                <Card
+                  key={index}
+                  className="p-6 glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 transition-all duration-300 group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-gradient-to-br from-colibri-green to-colibri-wine rounded-xl text-white group-hover:scale-110 transition-transform">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <Badge className="mb-2 bg-colibri-wine/10 text-colibri-wine text-xs border-0">
+                        {feature.highlight}
+                      </Badge>
+                      <h3 className="text-xl font-bold text-colibri-green mb-2">{feature.title}</h3>
+                      <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                    </div>
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20">
+              <MessageSquare className="w-4 h-4 mr-2 inline" />
+              Testimonios
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
+              Ellos Ya Lo EstÃ¡n Usando
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Y estÃ¡n ganando mÃ¡s dinero, con menos estrÃ©s, y clientes mÃ¡s felices
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <Card
+                key={index}
+                className="p-6 glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 transition-all duration-300"
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.quote}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-colibri-green to-colibri-wine rounded-full flex items-center justify-center text-white font-bold">
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-colibri-green">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.business}</div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 bg-gradient-to-b from-colibri-beige/20 to-white" id="pricing">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-colibri-green/10 text-colibri-green border-colibri-green/20">
+              <DollarSign className="w-4 h-4 mr-2 inline" />
+              Precios Transparentes
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
+              Planes Para Cada Tipo De Negocio
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+              Elige entre <strong>Renta</strong> (garantÃ­a total, cero preocupaciones) o <strong>Compra</strong> (deducible fiscalmente). Todos los planes incluyen $15,000 MXN en bonos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {plans.map((plan, index) => {
+              // Normalizar el nombre del plan para buscar el precio
+              const normalizedName = plan.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+              const priceKey = normalizedName as keyof typeof pricing.monthly
+              const price = pricing.monthly[priceKey]
+
+              return (
+                <Card
+                  key={index}
+                  className={`relative p-8 glass-effect ${
+                    plan.popular
+                      ? "border-colibri-wine/50 shadow-colibri-wine/50 shadow-2xl scale-105"
+                      : "border-colibri-gold/30 hover:shadow-colibri-green/50"
+                  } hover:shadow-2xl transition-all duration-300`}
+                >
+                  {plan.popular && (
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-colibri-wine text-white border-0">
+                      <Star className="w-3 h-3 mr-1 fill-white" />
+                      MÃ¡s Popular
+                    </Badge>
+                  )}
+
+                  <div className="text-center mb-6">
+                    <div className={`inline-block p-3 bg-gradient-to-br ${plan.color} rounded-xl mb-4`}>
+                      <TrendingUp className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-colibri-green mb-2">{plan.name}</h3>
+                    <p className="text-gray-600 text-sm">{plan.description}</p>
+                  </div>
+
+                  <div className="text-center mb-6">
+                    <div className="text-sm text-gray-600 mb-2">Setup Fee Ãšnico</div>
+                    <div className="text-3xl font-bold text-colibri-green mb-3">
+                      {plan.setupFee}
+                    </div>
+                    <div className="text-sm text-gray-500 mb-4">{plan.bonuses}</div>
+                    <div className="border-t pt-4">
+                      <div className="text-sm text-gray-600 mb-1">Mensualidad</div>
+                      <div className="text-5xl font-bold text-colibri-wine mb-1">
+                        ${price.price}
+                        <span className="text-xl text-gray-600">/mes</span>
+                      </div>
+                      <div className="text-xs text-gray-500">+ IVA</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, fIndex) => (
+                      <li key={fIndex} className="flex items-start gap-2">
+                        <Check className="w-5 h-5 text-colibri-green shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    asChild
+                    className={`w-full ${
+                      plan.popular
+                        ? "bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-wine/90 hover:to-colibri-green/90"
+                        : "bg-colibri-green hover:bg-colibri-green/90"
+                    } text-white shadow-lg`}
+                  >
+                    <Link href="#demo">
+                      Solicitar CotizaciÃ³n
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section
+        className="py-20 relative overflow-hidden"
+        style={{
+          backgroundImage: "url(/resta.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-colibri-green/95 via-colibri-wine/90 to-colibri-gold/95" />
+
+        <div className="relative z-10 container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Â¿Listo Para Transformar Tu Restaurante?
+            </h2>
+            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+              MÃ¡s de $15,000 MXN en bonos incluidos. GarantÃ­a de reemplazo en 24h o paga cero ese mes.
+              <br />
+              <span className="font-semibold text-colibri-beige">Renta desde $1,290/mes o compra con deducciÃ³n fiscal completa.</span>
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Button asChild size="lg" className="bg-white text-colibri-green hover:bg-colibri-beige text-lg px-8 py-6 shadow-2xl">
+                <Link href="#pricing">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Ver Planes Completos
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 backdrop-blur-sm"
+              >
+                <Link href="#demo">
+                  <MessageSquare className="w-5 h-5 mr-2" />
+                  Contactar Ventas
+                </Link>
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap justify-center items-center gap-6 text-white/80 text-sm">
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5" />
+                <span>$15,000 en bonos incluidos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5" />
+                <span>GarantÃ­a < 24h o paga cero</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5" />
+                <span>Soporte premium 24/7</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5" />
+                <span>Renta o compra, tÃº decides</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-colibri-green text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Image src="/logo-colibri.png" alt="ColibrÃ­-REST" width={40} height={40} />
+                <span className="font-bold text-xl">ColibrÃ­-REST</span>
+              </div>
+              <p className="text-white/80 text-sm">
+                El sistema completo para restaurantes que quieren vender mÃ¡s y trabajar menos.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Producto</h4>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    CaracterÃ­sticas
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#pricing" className="hover:text-white transition-colors">
+                    Precios
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Demo
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Empresa</h4>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Sobre Nosotros
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Contacto
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    TÃ©rminos
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/20 pt-8 text-center text-sm text-white/60">
+            <p>&copy; 2025 ColibrÃ­-REST. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+

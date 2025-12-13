@@ -1,0 +1,21 @@
+{
+  "printer": {
+    "ip": "192.168.100.101",
+    "port": 9100,
+    "model": "80-VIII",
+    "protocol": "ESC/POS",
+    "paperWidth": 80,
+    "encoding": "utf8"
+  },
+  "server": {
+    "port": 3001,
+    "host": "0.0.0.0",
+    "timezone": "America/Mexico_City"
+  },
+  "settings": {
+    "autoReconnect": true,
+    "reconnectInterval": 5000,
+    "timeout": 10000,
+    "logLevel": "info"
+  }
+}
