@@ -694,12 +694,12 @@ export default function CajaPage() {
                 </div>
 
                 {/* Categories */}
-                <div className="flex gap-2 overflow-x-auto pb-2 px-1 snap-x snap-mandatory scrollbar-hide">
+                <div className="flex flex-wrap gap-2 pb-2 px-1">
                   <Button
                     size="sm"
                     variant={selectedCategory === 'all' ? 'default' : 'outline'}
                     onClick={() => setSelectedCategory('all')}
-                    className={selectedCategory === 'all' ? 'bg-colibri-wine text-white flex-shrink-0 whitespace-nowrap px-4 snap-start' : 'border-colibri-green text-colibri-green hover:bg-colibri-green/10 flex-shrink-0 whitespace-nowrap px-4 snap-start'}
+                    className={selectedCategory === 'all' ? 'bg-colibri-wine text-white whitespace-nowrap px-4' : 'border-colibri-green text-colibri-green hover:bg-colibri-green/10 whitespace-nowrap px-4'}
                   >
                     Todos ({products.length})
                   </Button>
@@ -711,7 +711,7 @@ export default function CajaPage() {
                         size="sm"
                         variant={selectedCategory === cat.id.toString() ? 'default' : 'outline'}
                         onClick={() => setSelectedCategory(cat.id.toString())}
-                        className={selectedCategory === cat.id.toString() ? 'bg-colibri-wine text-white flex-shrink-0 whitespace-nowrap px-4 snap-start' : 'border-colibri-green text-colibri-green hover:bg-colibri-green/10 flex-shrink-0 whitespace-nowrap px-4 snap-start'}
+                        className={selectedCategory === cat.id.toString() ? 'bg-colibri-wine text-white whitespace-nowrap px-4' : 'border-colibri-green text-colibri-green hover:bg-colibri-green/10 whitespace-nowrap px-4'}
                       >
                         {cat.name} ({count})
                       </Button>

@@ -1,190 +1,347 @@
 import { executeQuery } from '@/lib/db'
 
+type ProductSeed = {
+  name: string
+  description: string
+  price: number
+  imageUrl: string | null
+  isAvailable: boolean
+  sortOrder?: number
+}
+
+type CategorySeed = {
+  name: string
+  description: string
+  isActive: boolean
+  sortOrder: number
+  products: ProductSeed[]
+}
+
+const RESET_EXISTING_MENU = true
+
+const menuData: CategorySeed[] = [
+  {
+    name: 'BITES',
+    description: 'Manzanas y fresas cubiertas con chocolate y toppings.',
+    isActive: false,
+    sortOrder: 0,
+    products: [
+      {
+        name: 'Manzana Cubierta de Chocolate con Nuez',
+        description: 'Manzana cubierta de chocolate con nuez en trozos.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763693183/restaurants/items/pwxsorcyszdodxnvsioo.jpg',
+        isAvailable: false,
+      },
+      {
+        name: 'Manzana Cubierta con Chocolate y Lotus Biscoff',
+        description: 'Manzana cubierta con chocolate y galleta Lotus Biscoff pulverizada.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763692822/restaurants/items/xa03caggsfmlq4iarraz.jpg',
+        isAvailable: false,
+      },
+      {
+        name: 'Fresas Cubiertas de Chocolate con Nuez',
+        description: 'Charola de seis piezas de fresas cubiertas de chocolate con nuez en trozos.',
+        price: 150,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763693703/restaurants/items/lgzi5c6vjudjpquicd5k.jpg',
+        isAvailable: false,
+      },
+    ],
+  },
+  {
+    name: 'Ychilito Dulces Enchilados',
+    description: 'Dulces enchilados con chamoy y chilito estilo Ychilito.',
+    isActive: true,
+    sortOrder: 1,
+    products: [
+      {
+        name: 'WINIS Enchilados',
+        description: '200 gramos de Winis enchilados Ychilito.',
+        price: 125,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764532452/restaurants/items/xypq56a3pzmvfkoxp9vp.png',
+        isAvailable: true,
+      },
+      {
+        name: 'Skittles Enchilados',
+        description: '162 gramos de Skittles enchilados con chamoy y chilito en polvo de Ychilito.',
+        price: 135,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764531604/restaurants/items/lsn462tg2xne8p5awmdh.png',
+        isAvailable: true,
+      },
+      {
+        name: 'Xtremes Belts Ychilito',
+        description: '171 gramos de Xtremes Belts enchilados con chamoy y chilito en polvo de Ychilito.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764531704/restaurants/items/mggnodoiceowugey71gu.png',
+        isAvailable: true,
+      },
+      {
+        name: 'Salvavidas Ychilito',
+        description: '150 gramos de Salvavidas enchilados con chamoy y chilito en polvo de Ychilito.',
+        price: 150,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764532125/restaurants/items/hehdyngyvu0fu3z3d1op.png',
+        isAvailable: true,
+      },
+      {
+        name: 'Sour Patch Ychilito',
+        description: '168 gramos de Sour Patch enchilados con chamoy y chilito en polvo de Ychilito.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764531819/restaurants/items/gnkzsdjsz3ekj2z7pwn1.png',
+        isAvailable: true,
+      },
+      {
+        name: 'Mix Golos. Gajos de Naranja, Frutitas y Manguitos Ychilito',
+        description: '200 gramos de Golos, Gajos de Naranja, Frutitas y Manguitos enchilados con chamoy y chilito en polvo de Ychilito.',
+        price: 120,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764532341/restaurants/items/ni5intnjt9kjlytli9dk.png',
+        isAvailable: true,
+      },
+      {
+        name: 'Frutitas Ychilito',
+        description: '200 gramos de Frutitas enchiladas con chamoy y chilito en polvo de Ychilito.',
+        price: 105,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1764532009/restaurants/items/nxy5mbbvlgv6vrxefl9v.png',
+        isAvailable: true,
+      },
+    ],
+  },
+  {
+    name: 'SNACKERY',
+    description: 'Snacks preparados con la mezcla especial de Provi.',
+    isActive: true,
+    sortOrder: 2,
+    products: [
+      {
+        name: 'Provi',
+        description: 'Papitas preparadas en un mix de Provi, repollo, cueritos, cacahuates y salsas.',
+        price: 90,
+        imageUrl: null,
+        isAvailable: true,
+      },
+    ],
+  },
+  {
+    name: 'CHEESECAKE CUPS (SOBRE EXISTENCIA)',
+    description: 'Cheesecake cups disponibles según existencia diaria.',
+    isActive: true,
+    sortOrder: 3,
+    products: [
+      {
+        name: 'Lotus Biscoff',
+        description: 'Mix de fresas, capa de cheesecake dulce y untable Lotus Biscoff (Creamy).',
+        price: 115,
+        imageUrl: null,
+        isAvailable: false,
+      },
+      {
+        name: 'Galleta Oreo',
+        description: 'Mix de fresas, capa de cheesecake, Nutella y galleta Oreo pulverizada.',
+        price: 100,
+        imageUrl: null,
+        isAvailable: false,
+      },
+    ],
+  },
+  {
+    name: 'FRESAS',
+    description: 'Fresas con crema en versiones clásicas y especiales.',
+    isActive: true,
+    sortOrder: 4,
+    products: [
+      {
+        name: 'Fresas Cheescake Tortuga',
+        description: 'Mix de fresas, crema tradicional, Nutella, nuez y cheesecake de tortuga del Costco.',
+        price: 100,
+        imageUrl: null,
+        isAvailable: true,
+      },
+      {
+        name: 'Fresas Cheescake Frambuesa',
+        description: 'Mix de fresas, crema tradicional, Nutella, nuez y cheesecake de frambuesa del Costco.',
+        price: 100,
+        imageUrl: null,
+        isAvailable: true,
+      },
+      {
+        name: 'De Lotus Biscoff',
+        description: 'Mix de fresas, crema tradicional y preparado cremoso sabor Lotus Biscoff.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763609116/restaurants/items/rlhvebuu9qtm4mgifkf5.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'Fresas Con Miel de Abelha',
+        description: 'Mix de fresas y almendras con crema tradicional y preparado Miel de Abelha.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763690680/restaurants/items/n6brhbfdaaorx0lqzuiq.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'De Gloria Untable Las Sevillanas',
+        description: 'Mix de fresas, crema tradicional y preparado cremoso Gloria Untable con obleas.',
+        price: 160,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763608505/restaurants/items/f2wlfuiytvl1ytpyq4vp.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'Cocada de Coro (Coronado)',
+        description: 'Mix de fresas, crema tradicional y preparado cremoso sabor Cocada de Coro.',
+        price: 145,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763609476/restaurants/items/lkxkibigdqhmwgdbqupq.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'Chocolate',
+        description: 'Mix de fresas, crema tradicional, Nutella, Kinder Délice y Kit Kat.',
+        price: 125,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763608938/restaurants/items/gbdp3kvibrus4onzfsyf.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'Con Queso Crema Dulce (Philadelphia)',
+        description: 'Mix de fresas, crema tradicional y preparado de queso crema dulce (Philadelphia).',
+        price: 115,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763691468/restaurants/items/eoe5c0ht0mun9hbmhuh9.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'Tradicional',
+        description: 'Mix de fresas con la crema tradicional de la casa.',
+        price: 90,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763692287/restaurants/items/jnfbok0qfqjlu4gxrudt.jpg',
+        isAvailable: true,
+      },
+      {
+        name: 'Toques de Otoño (Por Temporada)',
+        description: 'Mix de fresas con crema mezcla otoñal con canela, nuez moscada y clavo.',
+        price: 80,
+        imageUrl: null,
+        isAvailable: false,
+      },
+      {
+        name: 'Sour x Ychilito',
+        description: 'Mix de fresas frescas con preparado de chamoy y chilito en polvo receta Ychilito.',
+        price: 90,
+        imageUrl: 'https://res.cloudinary.com/drswibb0s/image/upload/v1763596243/restaurants/items/b6nxez2saemhcgydeeny.jpg',
+        isAvailable: true,
+      },
+    ],
+  },
+  {
+    name: 'CREPAS',
+    description: 'Crepas dulces con rellenos inspirados en los favoritos de la casa.',
+    isActive: true,
+    sortOrder: 5,
+    products: [
+      {
+        name: 'Lucía',
+        description: 'Crepa con fresas, nuez y untable de queso crema dulce (con Philadelphia).',
+        price: 125,
+        imageUrl: null,
+        isAvailable: true,
+      },
+      {
+        name: 'Isabel',
+        description: 'Crepa con queso crema dulce, Nutella, fresas y plátano.',
+        price: 125,
+        imageUrl: null,
+        isAvailable: true,
+      },
+      {
+        name: 'Norma (Lotus)',
+        description: 'Crepa con queso crema dulce, Lotus Biscoff, fresas y crema tradicional.',
+        price: 145,
+        imageUrl: null,
+        isAvailable: true,
+      },
+      {
+        name: 'Marita (Glorias)',
+        description: 'Crepa con queso crema dulce, Gloria Las Sevillanas, fresas y obleas en trozos.',
+        price: 145,
+        imageUrl: null,
+        isAvailable: true,
+      },
+    ],
+  },
+]
+
+async function clearExistingMenu() {
+  console.log('\n🔄 Limpiando menú previo...')
+  await executeQuery('DELETE FROM products')
+  await executeQuery('DELETE FROM categories')
+}
+
+async function ensureCategory(category: CategorySeed) {
+  const existing = (await executeQuery('SELECT id FROM categories WHERE name = ? LIMIT 1', [category.name])) as Array<{ id: number }>
+
+  if (existing && existing.length > 0) {
+    const categoryId = existing[0].id
+    await executeQuery(
+      'UPDATE categories SET description = ?, is_active = ?, sort_order = ? WHERE id = ?',
+      [category.description, category.isActive, category.sortOrder, categoryId],
+    )
+    return categoryId
+  }
+
+  const result = (await executeQuery(
+    'INSERT INTO categories (name, description, is_active, sort_order) VALUES (?, ?, ?, ?)',
+    [category.name, category.description, category.isActive, category.sortOrder],
+  )) as { insertId: number }
+
+  return result.insertId
+}
+
+async function ensureProduct(product: ProductSeed, categoryId: number, sortOrder: number) {
+  const existing = (await executeQuery('SELECT id FROM products WHERE name = ? LIMIT 1', [product.name])) as Array<{ id: number }>
+
+  if (existing && existing.length > 0) {
+    await executeQuery(
+      `UPDATE products
+         SET description = ?, price = ?, image_url = ?, is_available = ?, category_id = ?
+       WHERE id = ?`,
+      [product.description, product.price, product.imageUrl, product.isAvailable, categoryId, existing[0].id],
+    )
+    return
+  }
+
+  await executeQuery(
+    `INSERT INTO products (name, description, price, category_id, is_available, image_url)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [product.name, product.description, product.price, categoryId, product.isAvailable, product.imageUrl],
+  )
+}
+
 async function loadMenu() {
-  console.log('🚀 Iniciando carga del menú completo...')
+  console.log('🚀 Iniciando carga del menú Liciosos...')
 
   try {
-    // 1. CATEGORÍA: HAMBURGUESAS
-    console.log('\n🟡 Cargando Hamburguesas...')
-    
-    const hamburguesasResult = await executeQuery(
-      `INSERT INTO categories (name, description) 
-       VALUES (?, ?) 
-       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-      ['Hamburguesas', 'Deliciosas hamburguesas con papas incluidas']
-    )
-    const hamburguesasId = (hamburguesasResult as any).insertId || 1
+    if (RESET_EXISTING_MENU) {
+      await clearExistingMenu()
+    }
 
-    // Productos - Clásicas
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Galaxy Burger', 'Hamburguesa clásica. Incluye papas a la francesa', 120, ?, TRUE, '/uploads/products/galaxy-burger.jpg'),
-       ('Orbit Burger', 'Hamburguesa clásica. Incluye papas a la francesa', 130, ?, TRUE, '/uploads/products/orbit-burger.jpg'),
-       ('Orion Burger', 'Hamburguesa clásica. Incluye papas a la francesa', 135, ?, TRUE, '/uploads/products/orion-burger.jpg')`,
-      [hamburguesasId, hamburguesasId, hamburguesasId]
-    )
+    let categoryCount = 0
+    let productCount = 0
 
-    // Productos - Especiales
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Gravity Burger', 'Con camarones, piña y mango habanero. Incluye papas a la francesa', 155, ?, TRUE, '/uploads/products/gravity-burger.jpg'),
-       ('Planet Burger', 'Con jalapeños empanizados. Incluye papas a la francesa', 150, ?, TRUE, '/uploads/products/planet-burger.jpg'),
-       ('Moon Burger', 'Con huevo estrellado y maple. Incluye papas a la francesa', 145, ?, TRUE, '/uploads/products/moon-burger.jpg'),
-       ('Supermassive Burger', 'Con aros de cebolla y BBQ. Incluye papas a la francesa', 135, ?, TRUE, '/uploads/products/supermassive-burger.jpg'),
-       ('Nebula Burger', 'Con pollo empanizado. Incluye papas a la francesa', 135, ?, TRUE, '/uploads/products/nebula-burger.jpg'),
-       ('Big Bang Burger', 'Con cerdo al pastor. Incluye papas a la francesa', 150, ?, TRUE, '/uploads/products/bigbang-burger.jpg')`,
-      [hamburguesasId, hamburguesasId, hamburguesasId, hamburguesasId, hamburguesasId, hamburguesasId]
-    )
+    for (const category of menuData) {
+      console.log(`\n📂 Cargando categoría: ${category.name}`)
 
-    // Productos - Veganas
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES ('Hamburguesa Vegana', 'Opción 100% vegana. Incluye papas a la francesa', 120, ?, TRUE, '/uploads/products/vegana-burger.jpg')`,
-      [hamburguesasId]
-    )
+      const categoryId = await ensureCategory(category)
 
-    console.log('✅ Hamburguesas cargadas (10 productos)')
+      for (const [index, product] of category.products.entries()) {
+        await ensureProduct(product, categoryId, index)
+      }
 
-    // 2. CATEGORÍA: BONELESS & WINGS
-    console.log('\n🔴 Cargando Boneless & Wings...')
-    
-    const bonelessResult = await executeQuery(
-      `INSERT INTO categories (name, description) 
-       VALUES (?, ?) 
-       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-      ['Boneless & Wings', 'Boneless y alitas con salsas deliciosas. Incluye bastones de zanahoria, apio y ranch']
-    )
-    const bonelessId = (bonelessResult as any).insertId || 2
+      categoryCount += 1
+      productCount += category.products.length
+      console.log(`✅ ${category.name}: ${category.products.length} productos sincronizados`)
+    }
 
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Asteroid Boneless', '10 piezas de boneless con tu salsa favorita (Mango Habanero, BBQ, BBQ Hot, Búfalo, Lemon Pepper). Incluye bastones de zanahoria, apio y ranch', 150, ?, TRUE, '/uploads/products/asteroid-boneless.jpg'),
-       ('Galactic Wings', '10 piezas de alitas con tu salsa favorita (Mango Habanero, BBQ, BBQ Hot, Búfalo, Lemon Pepper). Incluye bastones de zanahoria, apio y ranch', 160, ?, TRUE, '/uploads/products/galactic-wings.jpg')`,
-      [bonelessId, bonelessId]
-    )
-
-    console.log('✅ Boneless & Wings cargados (2 productos)')
-
-    // 3. CATEGORÍA: MENÚ INFANTIL
-    console.log('\n🟢 Cargando Menú Infantil...')
-    
-    const infantilResult = await executeQuery(
-      `INSERT INTO categories (name, description) 
-       VALUES (?, ?) 
-       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-      ['Menú Infantil', 'Para los pequeños astronautas. Incluye juguito (manzana, mango o durazno)']
-    )
-    const infantilId = (infantilResult as any).insertId || 3
-
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Pyxis Burger', 'Carne de res, queso americano + juguito (manzana, mango o durazno)', 120, ?, TRUE, '/uploads/products/pyxis-burger.jpg'),
-       ('Apollo Burger', 'Pollo empanizado, queso americano + juguito (manzana, mango o durazno)', 120, ?, TRUE, '/uploads/products/apollo-burger.jpg'),
-       ('Meteor Nuggets', '8 piezas de nuggets + papas + juguito (manzana, mango o durazno)', 120, ?, TRUE, '/uploads/products/meteor-nuggets.jpg'),
-       ('Polaris Bites', '100g mini boneless + papas + juguito (manzana, mango o durazno)', 120, ?, TRUE, '/uploads/products/polaris-bites.jpg')`,
-      [infantilId, infantilId, infantilId, infantilId]
-    )
-
-    console.log('✅ Menú Infantil cargado (4 productos)')
-
-    // 4. CATEGORÍA: ACOMPAÑAMIENTOS
-    console.log('\n🟤 Cargando Acompañamientos...')
-    
-    const acompResult = await executeQuery(
-      `INSERT INTO categories (name, description) 
-       VALUES (?, ?) 
-       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-      ['Acompañamientos', 'Complementa tu comida con nuestros deliciosos acompañamientos']
-    )
-    const acompId = (acompResult as any).insertId || 4
-
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Papas a la Francesa', 'Lemon pepper, cajun o natural', 60, ?, TRUE, '/uploads/products/papas-francesa.jpg'),
-       ('Sweet Potatoes', 'Papas dulces crujientes', 70, ?, TRUE, '/uploads/products/sweet-potatoes.jpg'),
-       ('Aros de Cebolla', 'Crujientes aros de cebolla', 75, ?, TRUE, '/uploads/products/aros-cebolla.jpg'),
-       ('Papas Crisscut', 'Papas en corte especial', 75, ?, TRUE, '/uploads/products/papas-crisscut.jpg'),
-       ('Papas Gajo', 'Papas en gajos con especias', 75, ?, TRUE, '/uploads/products/papas-gajo.jpg'),
-       ('Papas Nacho', 'Con queso gratinado y tocino', 90, ?, TRUE, '/uploads/products/papas-nacho.jpg')`,
-      [acompId, acompId, acompId, acompId, acompId, acompId]
-    )
-
-    console.log('✅ Acompañamientos cargados (6 productos)')
-
-    // 5. CATEGORÍA: POSTRES
-    console.log('\n🟣 Cargando Postres...')
-    
-    const postresResult = await executeQuery(
-      `INSERT INTO categories (name, description) 
-       VALUES (?, ?) 
-       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-      ['Postres', 'Deliciosos postres para cerrar con broche de oro']
-    )
-    const postresId = (postresResult as any).insertId || 5
-
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Waffle con Helado', 'Waffle con helado, cajeta y nuez', 60, ?, TRUE, '/uploads/products/waffle.jpg'),
-       ('Affogato', 'Helado con espresso', 70, ?, TRUE, '/uploads/products/affogato.jpg'),
-       ('Pan de Elote', 'Con helado', 75, ?, TRUE, '/uploads/products/pan-elote.jpg'),
-       ('Paletita', 'Paleta de hielo', 10, ?, TRUE, '/uploads/products/paletita.jpg')`,
-      [postresId, postresId, postresId, postresId]
-    )
-
-    console.log('✅ Postres cargados (4 productos)')
-
-    // 6. CATEGORÍA: BEBIDAS
-    console.log('\n🔵 Cargando Bebidas...')
-    
-    const bebidasResult = await executeQuery(
-      `INSERT INTO categories (name, description) 
-       VALUES (?, ?) 
-       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-      ['Bebidas', 'Refrescos, aguas y cafés para acompañar']
-    )
-    const bebidasId = (bebidasResult as any).insertId || 6
-
-    await executeQuery(
-      `INSERT INTO products (name, description, price, category_id, is_available, image_url) 
-       VALUES 
-       ('Refresco Coca-Cola', 'Variedad Coca-Cola', 35, ?, TRUE, '/uploads/products/coca-cola.jpg'),
-       ('Agua Natural', 'Agua purificada', 10, ?, TRUE, '/uploads/products/agua-natural.jpg'),
-       ('Agua Mineral', 'Agua mineral natural', 25, ?, TRUE, '/uploads/products/agua-mineral.jpg'),
-       ('Agua Mineral con Sabor', 'Agua mineral con sabor', 30, ?, TRUE, '/uploads/products/agua-sabor.jpg'),
-       ('Café Americano', 'Café americano recién hecho', 25, ?, TRUE, '/uploads/products/cafe-americano.jpg'),
-       ('Capuchino', 'Capuchino cremoso', 45, ?, TRUE, '/uploads/products/capuchino.jpg'),
-       ('Café Espresso', 'Espresso intenso', 30, ?, TRUE, '/uploads/products/espresso.jpg')`,
-      [bebidasId, bebidasId, bebidasId, bebidasId, bebidasId, bebidasId, bebidasId]
-    )
-
-    console.log('✅ Bebidas cargadas (7 productos)')
-
-    // RESUMEN
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.log('✅ MENÚ COMPLETO CARGADO EXITOSAMENTE')
+    console.log('✅ MENÚ LICIOSOS CARGADO EXITOSAMENTE')
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.log('\n📊 Resumen:')
-    console.log('🟡 Hamburguesas: 10 productos (Clásicas, Especiales, Veganas)')
-    console.log('🔴 Boneless & Wings: 2 productos')
-    console.log('🟢 Menú Infantil: 4 productos')
-    console.log('🟤 Acompañamientos: 6 productos')
-    console.log('🟣 Postres: 4 productos')
-    console.log('🔵 Bebidas: 7 productos')
-    console.log('\n📦 Total: 33 productos en 6 categorías')
-    console.log('\n💡 Notas:')
-    console.log('   • Todas las hamburguesas incluyen papas a la francesa')
-    console.log('   • Boneless y Wings incluyen bastones de zanahoria, apio y ranch')
-    console.log('   • Menú infantil incluye juguito (manzana, mango o durazno)')
-    console.log('   • Ingredientes extra tienen costo adicional')
-    console.log('\n🖼️  Imágenes placeholder agregadas (actualizar luego con fotos reales)')
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
-
+    console.log(`\n📊 Categorías: ${categoryCount}`)
+    console.log(`📦 Productos: ${productCount}`)
   } catch (error) {
     console.error('❌ Error cargando menú:', error)
     throw error
@@ -193,10 +350,10 @@ async function loadMenu() {
 
 loadMenu()
   .then(() => {
-    console.log('✅ Script completado exitosamente')
+    console.log('\n✅ Script completado exitosamente')
     process.exit(0)
   })
   .catch((error) => {
-    console.error('❌ Error fatal:', error)
+    console.error('\n❌ Error fatal:', error)
     process.exit(1)
   })
