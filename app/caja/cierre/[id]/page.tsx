@@ -360,7 +360,7 @@ export default function ShiftClosurePage() {
               <Button
                 onClick={handleCloseShift}
                 disabled={!closingCash || processing}
-                className="flex-1 bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-green hover:to-colibri-wine text-white py-6 text-lg font-bold shadow-lg">
+                className="flex-1 bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-green hover:to-colibri-wine text-white py-6 text-lg font-bold shadow-lg"
               >
                 {processing ? 'Cerrando...' : 'Cerrar Turno'}
               </Button>

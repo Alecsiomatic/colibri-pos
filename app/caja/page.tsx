@@ -415,7 +415,7 @@ export default function CajaPage() {
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="bg-green-600/20 text-green-400 px-2 sm:px-3 py-1 text-xs sm:text-sm">
                 <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                ${shiftStats.total_sales.toFixed(2)}
+                ${(shiftStats.total_sales || 0).toFixed(2)}
               </Badge>
               
               <Button
@@ -668,7 +668,7 @@ export default function CajaPage() {
                               <p className="text-white font-bold">Pedido #{order.id}</p>
                               <p className="text-sm text-gray-400">{order.customer_name}</p>
                             </div>
-                            <Badge className="bg-orange-600">${order.total.toFixed(2)}</Badge>
+                            <Badge className="bg-orange-600">${(order.total || 0).toFixed(2)}</Badge>
                           </div>
                           <div className="space-y-1 mb-3">
                             {order.items?.map((item: any, idx: number) => (
@@ -709,7 +709,7 @@ export default function CajaPage() {
                               <p className="text-sm text-gray-400">{order.customer_name}</p>
                               <p className="text-xs text-gray-500">{order.customer_email}</p>
                             </div>
-                            <Badge className="bg-blue-600">${order.total.toFixed(2)}</Badge>
+                            <Badge className="bg-blue-600">${(order.total || 0).toFixed(2)}</Badge>
                           </div>
                           <div className="space-y-1 mb-3">
                             {order.items?.map((item: any, idx: number) => (
@@ -733,7 +733,7 @@ export default function CajaPage() {
               <Card className="bg-gradient-to-br from-green-900/50 to-slate-900/50 border-green-700/50">
                 <CardContent className="p-4 text-center">
                   <DollarSign className="h-8 w-8 mx-auto text-green-400 mb-2" />
-                  <p className="text-2xl font-bold text-white">${shiftStats.total_sales.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-white">${(shiftStats.total_sales || 0).toFixed(2)}</p>
                   <p className="text-sm text-gray-400">Ventas Totales</p>
                 </CardContent>
               </Card>
@@ -747,14 +747,14 @@ export default function CajaPage() {
               <Card className="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border-purple-700/50">
                 <CardContent className="p-4 text-center">
                   <TrendingUp className="h-8 w-8 mx-auto text-purple-400 mb-2" />
-                  <p className="text-2xl font-bold text-white">${shiftStats.average_ticket.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-white">${(shiftStats.average_ticket || 0).toFixed(2)}</p>
                   <p className="text-sm text-gray-400">Ticket Promedio</p>
                 </CardContent>
               </Card>
               <Card className="bg-gradient-to-br from-yellow-900/50 to-slate-900/50 border-yellow-700/50">
                 <CardContent className="p-4 text-center">
                   <DollarSign className="h-8 w-8 mx-auto text-yellow-400 mb-2" />
-                  <p className="text-2xl font-bold text-white">${shiftStats.cash_sales.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-white">${(shiftStats.cash_sales || 0).toFixed(2)}</p>
                   <p className="text-sm text-gray-400">Efectivo</p>
                 </CardContent>
               </Card>
