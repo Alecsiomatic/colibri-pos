@@ -91,12 +91,14 @@ export async function POST(req: NextRequest) {
       // 4. Record in table history with split details
       await connection.execute(
         `INSERT INTO table_history (table_name, action_type, total_amount, payment_method, order_count, additional_data, created_at)
-         VALUES (?, 'closed_with_payment', ?, 'split', ?, ?, NOW())`,
+         VALUES (?, 'closed_with_payment', ?, ?, ?, ?, NOW())`,
         [
           tableName,
           totalAmount,
+          splits[0].paymentMethod,
           orders.length,
           JSON.stringify({
+            splitPayment: true,
             splitCount: splits.length,
             splits: splits.map((s: any) => ({
               label: s.label,
