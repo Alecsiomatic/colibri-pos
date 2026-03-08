@@ -164,14 +164,10 @@ export default function KitchenPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       })
-      if (res.ok) {
-        if (newStatus === 'ready') {
-          // Remover de la lista
-          setOrders(prev => prev.filter(o => o.id !== orderId))
-        } else {
-          // Actualizar status localmente
-          setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
-        }
+      const data = await res.json()
+      if (res.ok && data.success) {
+        // Refetch inmediato para obtener estado real del DB
+        await fetchOrders()
       }
     } catch (err) {
       console.error('Error updating order:', err)
