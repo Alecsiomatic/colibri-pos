@@ -58,7 +58,7 @@ function getTimerColor(minutes: number): string {
 function getCardBorder(minutes: number): string {
   if (minutes < 10) return 'border-green-500/40'
   if (minutes < 20) return 'border-yellow-500/40'
-  return 'border-red-500/60 animate-pulse'
+  return 'border-red-500/60'
 }
 
 function getSourceIcon(order: KitchenOrder) {
@@ -97,20 +97,29 @@ export default function KitchenPage() {
   const [loading, setLoading] = useState(true)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [updatingId, setUpdatingId] = useState<number | null>(null)
   const [, setTick] = useState(0) // Forces re-render every minute for timers
   const prevOrderIdsRef = useRef<Set<number>>(new Set())
+  const prevDataRef = useRef<string>('')
   const initialLoadRef = useRef(true)
+  const busyRef = useRef(false)
 
   const fetchOrders = useCallback(async () => {
+    // No re-fetchar si estamos en medio de un update
+    if (busyRef.current) return
     try {
       const res = await fetch('/api/kitchen/orders')
       const data = await res.json()
       if (data.success) {
         const newOrders: KitchenOrder[] = data.orders
 
+        // Solo actualizar state si los datos cambiaron (evita re-renders innecesarios)
+        const fingerprint = newOrders.map(o => `${o.id}:${o.status}`).join(',')
+        if (fingerprint === prevDataRef.current) return
+        prevDataRef.current = fingerprint
+
         // Detectar pedidos nuevos para sonido
         if (!initialLoadRef.current && soundEnabled) {
-          const newIds = new Set(newOrders.map(o => o.id))
           const prevIds = prevOrderIdsRef.current
           const hasNew = newOrders.some(o => !prevIds.has(o.id))
           if (hasNew) playAlert()
@@ -128,7 +137,7 @@ export default function KitchenPage() {
 
   useEffect(() => {
     fetchOrders()
-    const interval = setInterval(fetchOrders, 5000) // Poll every 5s
+    const interval = setInterval(fetchOrders, 5000)
     return () => clearInterval(interval)
   }, [fetchOrders])
 
@@ -158,6 +167,9 @@ export default function KitchenPage() {
   }
 
   async function updateStatus(orderId: number, newStatus: string) {
+    if (busyRef.current) return // Evitar doble click
+    busyRef.current = true
+    setUpdatingId(orderId)
     try {
       const res = await fetch(`/api/kitchen/orders/${orderId}/status`, {
         method: 'PATCH',
@@ -166,11 +178,20 @@ export default function KitchenPage() {
       })
       const data = await res.json()
       if (res.ok && data.success) {
-        // Refetch inmediato para obtener estado real del DB
-        await fetchOrders()
+        // Actualizar localmente primero para feedback instantáneo
+        if (newStatus === 'ready') {
+          setOrders(prev => prev.filter(o => o.id !== orderId))
+          prevDataRef.current = '' // Forzar sync en próximo poll
+        } else {
+          setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
+          prevDataRef.current = '' // Forzar sync en próximo poll
+        }
       }
     } catch (err) {
       console.error('Error updating order:', err)
+    } finally {
+      busyRef.current = false
+      setUpdatingId(null)
     }
   }
 
@@ -306,6 +327,7 @@ export default function KitchenPage() {
             orders={grouped.pending}
             actionLabel="Confirmar"
             onAction={(id) => updateStatus(id, 'confirmed')}
+            updatingId={updatingId}
           />
           {/* Column: Confirmados */}
           <KitchenColumn
@@ -315,6 +337,7 @@ export default function KitchenPage() {
             orders={grouped.confirmed}
             actionLabel="Preparar"
             onAction={(id) => updateStatus(id, 'preparing')}
+            updatingId={updatingId}
           />
           {/* Column: Preparando */}
           <KitchenColumn
@@ -324,6 +347,7 @@ export default function KitchenPage() {
             orders={grouped.preparing}
             actionLabel="¡Listo!"
             onAction={(id) => updateStatus(id, 'ready')}
+            updatingId={updatingId}
             isReady
           />
         </div>
@@ -341,6 +365,7 @@ interface KitchenColumnProps {
   orders: KitchenOrder[]
   actionLabel: string
   onAction: (orderId: number) => void
+  updatingId: number | null
   isReady?: boolean
 }
 
@@ -350,7 +375,7 @@ const COLUMN_COLORS = {
   orange: { bg: 'bg-orange-500/10', header: 'bg-orange-500/20 text-orange-400', badge: 'bg-orange-500' },
 }
 
-function KitchenColumn({ title, count, color, orders, actionLabel, onAction, isReady }: KitchenColumnProps) {
+function KitchenColumn({ title, count, color, orders, actionLabel, onAction, updatingId, isReady }: KitchenColumnProps) {
   const colors = COLUMN_COLORS[color]
 
   return (
@@ -368,6 +393,7 @@ function KitchenColumn({ title, count, color, orders, actionLabel, onAction, isR
             order={order}
             actionLabel={actionLabel}
             onAction={() => onAction(order.id)}
+            isUpdating={updatingId === order.id}
             isReady={isReady}
           />
         ))}
@@ -382,10 +408,11 @@ interface OrderCardProps {
   order: KitchenOrder
   actionLabel: string
   onAction: () => void
+  isUpdating?: boolean
   isReady?: boolean
 }
 
-function OrderCard({ order, actionLabel, onAction, isReady }: OrderCardProps) {
+function OrderCard({ order, actionLabel, onAction, isUpdating, isReady }: OrderCardProps) {
   const age = getOrderAge(order.created_at)
   const timerColor = getTimerColor(age)
   const borderColor = getCardBorder(age)
@@ -450,14 +477,14 @@ function OrderCard({ order, actionLabel, onAction, isReady }: OrderCardProps) {
       <div className="px-4 pb-4 pt-1">
         <button
           onClick={onAction}
-          className={`w-full py-3 rounded-lg font-bold text-sm transition-all active:scale-95 ${
+          disabled={isUpdating}
+          className={`w-full py-3 rounded-lg font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait ${
             isReady
               ? 'bg-green-500 hover:bg-green-400 text-white shadow-lg shadow-green-500/30'
               : 'bg-gray-700 hover:bg-gray-600 text-white'
           }`}
         >
-          {isReady && <CheckCircle className="w-4 h-4 inline mr-2" />}
-          {actionLabel}
+          {isUpdating ? 'Actualizando...' : <>{isReady && <CheckCircle className="w-4 h-4 inline mr-2" />}{actionLabel}</>}
         </button>
       </div>
     </div>
