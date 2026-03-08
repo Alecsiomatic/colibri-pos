@@ -63,6 +63,7 @@ export default function DividirCuentaPage() {
 
   // --- Custom Amount State ---
   const [customAccounts, setCustomAccounts] = useState<SplitAccount[]>([]);
+  const [customInputs, setCustomInputs] = useState<Record<number, string>>({});
 
   // --- Payment Modal ---
   const [payModalOpen, setPayModalOpen] = useState(false);
@@ -214,6 +215,7 @@ export default function DividirCuentaPage() {
   };
 
   const updateCustomAmount = (idx: number, value: string) => {
+    setCustomInputs((prev) => ({ ...prev, [idx]: value }));
     const numVal = parseFloat(value) || 0;
     setCustomAccounts((prev) =>
       prev.map((a, i) => (i === idx ? { ...a, amount: numVal } : a))
@@ -660,8 +662,11 @@ export default function DividirCuentaPage() {
                             type="number"
                             step="0.01"
                             min="0"
-                            value={account.amount || ""}
+                            inputMode="decimal"
+                            value={customInputs[idx] ?? (account.amount || "")}
                             onChange={(e) => updateCustomAmount(idx, e.target.value)}
+                            onFocus={() => setCustomInputs((prev) => ({ ...prev, [idx]: account.amount ? String(account.amount) : "" }))}
+                            onBlur={() => setCustomInputs((prev) => { const n = { ...prev }; delete n[idx]; return n; })}
                             className="bg-slate-800 border-colibri-gold/30 text-white font-bold text-lg"
                             placeholder="0.00"
                           />
