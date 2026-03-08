@@ -14,11 +14,10 @@ export async function GET() {
         o.waiter_order,
         o.created_at,
         o.updated_at,
-        COALESCE(o.table_name, JSON_UNQUOTE(JSON_EXTRACT(o.customer_info, '$.table'))) as table_name,
+        COALESCE(o.\`table\`, JSON_UNQUOTE(JSON_EXTRACT(o.customer_info, '$.table'))) as table_name,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(o.customer_info, '$.name')),
           JSON_UNQUOTE(JSON_EXTRACT(o.customer_info, '$.customerName')),
-          o.customer_name,
           'Cliente'
         ) as customer_name,
         o.delivery_type
