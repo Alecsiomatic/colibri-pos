@@ -4,12 +4,14 @@ import { executeQuery } from "@/lib/db-retry"
 // PATCH - Actualizar estado de un pedido desde cocina
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ orderId: string }> }
+  context: { params: { orderId: string } }
 ) {
   try {
-    const { orderId } = await params
+    const { orderId } = context.params
     const body = await request.json()
     const { status } = body
+
+    console.log('[KITCHEN PATCH] orderId:', orderId, 'newStatus:', status)
 
     const validStatuses = ['confirmed', 'preparing', 'ready']
     if (!validStatuses.includes(status)) {
@@ -19,12 +21,14 @@ export async function PATCH(
       )
     }
 
-    await executeQuery(
+    const result = await executeQuery(
       'UPDATE orders SET status = ?, updated_at = NOW() WHERE id = ?',
-      [status, orderId]
-    )
+      [status, parseInt(orderId)]
+    ) as any
 
-    return NextResponse.json({ success: true, orderId: Number(orderId), status })
+    console.log('[KITCHEN PATCH] Update result:', JSON.stringify(result))
+
+    return NextResponse.json({ success: true, orderId: Number(orderId), status, affectedRows: result?.affectedRows })
   } catch (error: any) {
     console.error("Error actualizando pedido cocina:", error)
     return NextResponse.json(
