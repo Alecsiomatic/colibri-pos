@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Save, Eye, EyeOff } from "lucide-react"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-notifications"
 
 export default function SettingsPage() {
+  const toast = useToast()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showToken, setShowToken] = useState(false)

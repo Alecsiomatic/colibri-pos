@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-notifications"
 import { Loader2, TrendingUp, Clock, CheckCircle, XCircle, Package, User, Star } from "lucide-react"
 import AdminLayout from "@/components/admin/admin-layout"
 
@@ -49,6 +49,7 @@ interface RecentDelivery {
 }
 
 export default function DriverStatsPage() {
+  const toast = useToast()
   const [drivers, setDrivers] = useState<DriverStats[]>([])
   const [selectedDriver, setSelectedDriver] = useState<number | null>(null)
   const [recentDeliveries, setRecentDeliveries] = useState<RecentDelivery[]>([])
@@ -82,11 +83,7 @@ export default function DriverStatsPage() {
       }
     } catch (error) {
       console.error('Error:', error)
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar las estadísticas de repartidores",
-        variant: "destructive",
-      })
+      toast.error("No se pudieron cargar las estadísticas de repartidores")
     } finally {
       setIsLoading(false)
     }
@@ -105,11 +102,7 @@ export default function DriverStatsPage() {
       setRecentDeliveries(data.deliveries || [])
     } catch (error) {
       console.error('Error:', error)
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar las entregas del repartidor",
-        variant: "destructive",
-      })
+      toast.error("No se pudieron cargar las entregas del repartidor")
     } finally {
       setIsLoadingDeliveries(false)
     }

@@ -90,7 +90,7 @@ export default function AdminDashboard() {
       calculateStats(orders, products, totalUsers)
     } catch (error) {
       console.error('Error loading dashboard data:', error)
-      toast({ title: "Error", description: "No se pudieron cargar los datos del dashboard", variant: "destructive" })
+      toast.error("No se pudieron cargar los datos del dashboard")
     } finally {
       setRefreshing(false)
       setLoading(false)

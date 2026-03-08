@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-notifications"
 import AddToCartButton from "@/components/menu/add-to-cart-button"
 import ProductImagePreview from "@/components/menu/product-image-preview"
 
@@ -39,6 +39,7 @@ interface Category {
 }
 
 export default function CategoryPage() {
+  const toast = useToast()
   const params = useParams()
   const categoryId = params.slug as string
   const [category, setCategory] = useState<Category | null>(null)

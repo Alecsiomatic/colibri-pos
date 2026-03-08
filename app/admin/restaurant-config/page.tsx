@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
+import { useToast } from '@/hooks/use-notifications'
 import { MapPin, DollarSign, Ruler, Clock, Gift, Radio, Loader2, Save } from 'lucide-react'
 
 interface RestaurantConfig {
@@ -24,6 +24,7 @@ interface RestaurantConfig {
 }
 
 export default function RestaurantConfigPage() {
+  const toast = useToast()
   const [config, setConfig] = useState<RestaurantConfig>({
     id: 1,
     name: '',

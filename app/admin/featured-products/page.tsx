@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/components/admin/admin-layout"
 import { Star, StarOff, Search, Eye, EyeOff } from "lucide-react"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-notifications"
 import ImageWithFallback from "@/components/ImageWithFallback"
 
 type Product = {
@@ -19,6 +19,7 @@ type Product = {
 }
 
 export default function FeaturedProductsPage() {
+  const toast = useToast()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")

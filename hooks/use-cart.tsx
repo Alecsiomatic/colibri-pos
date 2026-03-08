@@ -29,6 +29,15 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+// Comparación determinista de modificadores (independiente del orden de propiedades)
+function modifiersKey(modifiers?: CartItem['modifiers']): string {
+  if (!modifiers || modifiers.length === 0) return ''
+  return modifiers
+    .map(m => `${m.group}:${m.modifier}:${m.price}`)
+    .sort()
+    .join('|')
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
 
@@ -53,14 +62,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems(currentItems => {
       // Si tiene modificadores, crear un ID único para no mezclar items con diferentes modificadores
       const itemId = product.modifiers && product.modifiers.length > 0 
-        ? `${product.id}_${JSON.stringify(product.modifiers)}`
+        ? `${product.id}_${modifiersKey(product.modifiers)}`
         : product.id
       
       const existingItem = currentItems.find(item => {
         if (product.modifiers && product.modifiers.length > 0) {
-          // Comparar modificadores para items personalizados
           return item.id === product.id && 
-                 JSON.stringify(item.modifiers) === JSON.stringify(product.modifiers)
+                 modifiersKey(item.modifiers) === modifiersKey(product.modifiers)
         }
         return item.id === product.id
       })
@@ -69,7 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return currentItems.map(item => {
           if (product.modifiers && product.modifiers.length > 0) {
             return item.id === product.id && 
-                   JSON.stringify(item.modifiers) === JSON.stringify(product.modifiers)
+                   modifiersKey(item.modifiers) === modifiersKey(product.modifiers)
               ? { ...item, quantity: item.quantity + quantity }
               : item
           }

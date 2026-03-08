@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Upload, X, GripVertical, Star, StarOff, Eye } from "lucide-react"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-notifications"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 
 interface ProductImage {
@@ -21,6 +21,7 @@ interface ProductImageManagerProps {
 }
 
 export default function ProductImageManager({ productId, productName }: ProductImageManagerProps) {
+  const toast = useToast()
   const [images, setImages] = useState<ProductImage[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
