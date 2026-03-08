@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Printer, CheckCircle, ChevronDown, ChevronUp, Loader2, PlusCircle, Clock, DollarSign, CreditCard, Banknote, Calculator, ShoppingCart, UtensilsCrossed } from "lucide-react";
+import { Printer, CheckCircle, ChevronDown, ChevronUp, Loader2, PlusCircle, Clock, DollarSign, CreditCard, Banknote, Calculator, ShoppingCart, UtensilsCrossed, Scissors } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-notifications";
 import { useRouter } from "next/navigation";
@@ -746,7 +746,7 @@ export default function MesasAbiertasPage() {
                       Imprimir Ticket Mesa
                     </Button>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <Button 
                         size="sm" 
                         className="bg-colibri-wine text-white hover:bg-colibri-wine/90 border border-colibri-gold/40 font-semibold" 
@@ -757,6 +757,15 @@ export default function MesasAbiertasPage() {
                       >
                         <PlusCircle className="h-4 w-4 mr-1" />
                         Agregar
+                      </Button>
+
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 font-semibold" 
+                        onClick={() => router.push(`/mesero/dividir-cuenta/${table.orders[0].id}`)}
+                      >
+                        <Scissors className="h-4 w-4 mr-1" />
+                        Dividir
                       </Button>
                       
                       <Button 
@@ -770,7 +779,7 @@ export default function MesasAbiertasPage() {
                         ) : (
                           <CheckCircle className="h-4 w-4 mr-1" />
                         )}
-                        Cerrar Mesa
+                        Cerrar
                       </Button>
                     </div>
                   </div>
