@@ -12,7 +12,8 @@ import {
   DollarSign,
   Clock,
   Truck,
-  RefreshCw
+  RefreshCw,
+  LayoutGrid
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-notifications'
@@ -276,7 +277,7 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle className="text-white">Acciones Rápidas</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-4">
+          <CardContent className="grid gap-4 md:grid-cols-5">
             <Button onClick={() => window.location.href = '/admin/orders'} className="bg-colibri-green hover:bg-colibri-green/90">
               <ShoppingCart className="mr-2 h-4 w-4" />Ver Pedidos
             </Button>
@@ -288,6 +289,9 @@ export default function AdminDashboard() {
             </Button>
             <Button onClick={() => window.location.href = '/admin/driver-stats'} className="bg-orange-600 hover:bg-orange-700">
               <BarChart3 className="mr-2 h-4 w-4" />Estadísticas
+            </Button>
+            <Button onClick={() => window.location.href = '/admin/mesas'} className="bg-colibri-wine hover:bg-colibri-wine/90">
+              <LayoutGrid className="mr-2 h-4 w-4" />Diseño Mesas
             </Button>
           </CardContent>
         </Card>

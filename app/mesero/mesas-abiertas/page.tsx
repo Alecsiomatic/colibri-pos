@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Printer, CheckCircle, ChevronDown, ChevronUp, Loader2, PlusCircle, Clock, DollarSign, CreditCard, Banknote, Calculator, ShoppingCart, UtensilsCrossed, Scissors } from "lucide-react";
+import { Printer, CheckCircle, ChevronDown, ChevronUp, Loader2, PlusCircle, Clock, DollarSign, CreditCard, Banknote, Calculator, ShoppingCart, UtensilsCrossed, Scissors, Map } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-notifications";
 import { useRouter } from "next/navigation";
@@ -613,6 +613,14 @@ export default function MesasAbiertasPage() {
             >
               <UtensilsCrossed className="h-5 w-5 mr-2" />
               Nuevo Pedido
+            </Button>
+            <Button
+              onClick={() => router.push('/mesero/mapa-mesas')}
+              variant="outline"
+              className="border-2 border-blue-400 text-blue-400 hover:bg-blue-400/20 px-6 py-6"
+            >
+              <Map className="h-5 w-5 mr-2" />
+              Mapa Visual
             </Button>
             <Button
               onClick={fetchTables}
