@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { executeQuery } from "@/lib/db-retry"
 
+// Forzar ruta dinámica - nunca cachear
+export const dynamic = 'force-dynamic'
+
 // GET - Pedidos activos para la cocina (pending, confirmed, preparing)
 export async function GET() {
   try {
