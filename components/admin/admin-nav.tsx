@@ -17,11 +17,13 @@ import {
   Building2,
   PieChart,
   Sliders,
+  ChefHat,
 } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Pedidos", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Cocina (KDS)", href: "/cocina", icon: ChefHat },
   { name: "Productos", href: "/admin/products", icon: Package },
   { name: "Modificadores", href: "/admin/modificadores", icon: Sliders },
   { name: "Productos Destacados", href: "/admin/featured-products", icon: Star },

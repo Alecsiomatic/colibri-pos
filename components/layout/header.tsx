@@ -51,6 +51,7 @@ export default function Header() {
     { href: "/admin/dashboard", label: "Panel Admin" },
     { href: "/admin/products", label: "Productos" },
     { href: "/admin/orders", label: "Pedidos" },
+    { href: "/cocina", label: "Cocina" },
     { href: "/admin/users", label: "Usuarios" },
     { href: "/admin/delivery", label: "Delivery" },
   ]
