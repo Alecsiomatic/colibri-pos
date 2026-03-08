@@ -11,8 +11,6 @@ export async function PATCH(
     const body = await request.json()
     const { status } = body
 
-    console.log('[KITCHEN PATCH] orderId:', orderId, 'newStatus:', status)
-
     const validStatuses = ['confirmed', 'preparing', 'ready']
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
@@ -26,9 +24,14 @@ export async function PATCH(
       [status, parseInt(orderId)]
     ) as any
 
-    console.log('[KITCHEN PATCH] Update result:', JSON.stringify(result))
+    if (!result?.affectedRows) {
+      return NextResponse.json(
+        { success: false, error: 'Pedido no encontrado' },
+        { status: 404 }
+      )
+    }
 
-    return NextResponse.json({ success: true, orderId: Number(orderId), status, affectedRows: result?.affectedRows })
+    return NextResponse.json({ success: true, orderId: Number(orderId), status })
   } catch (error: any) {
     console.error("Error actualizando pedido cocina:", error)
     return NextResponse.json(
