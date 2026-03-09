@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/hooks/use-auth"
 import { NotificationProvider } from "@/hooks/use-notifications"
@@ -10,10 +11,16 @@ import FloatingCart from "@/components/cart/floating-cart"
 import { NotificationToast } from "@/components/notifications/notification-toast"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 
+const HIDE_CHROME_ROUTES = ['/admin', '/cocina', '/driver', '/caja', '/mesero']
+
 export default function ClientRootProviders({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return null
+
+  const hideChrome = HIDE_CHROME_ROUTES.some(r => pathname.startsWith(r))
+
   return (
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -21,11 +28,11 @@ export default function ClientRootProviders({ children }: { children: React.Reac
           <NotificationProvider>
             <CartProvider>
               <div className="flex flex-col min-h-screen">
-                <Header />
+                {!hideChrome && <Header />}
                 <main className="flex-grow">{children}</main>
-                <Footer />
+                {!hideChrome && <Footer />}
               </div>
-              <FloatingCart />
+              {!hideChrome && <FloatingCart />}
               <NotificationToast />
             </CartProvider>
           </NotificationProvider>
