@@ -7,7 +7,6 @@ import { CartProvider } from "@/hooks/use-cart"
 import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
 import FloatingCart from "@/components/cart/floating-cart"
-import FloatingDock from "@/components/layout/floating-dock"
 import { NotificationToast } from "@/components/notifications/notification-toast"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 
@@ -27,7 +26,6 @@ export default function ClientRootProviders({ children }: { children: React.Reac
                 <Footer />
               </div>
               <FloatingCart />
-              <FloatingDock />
               <NotificationToast />
             </CartProvider>
           </NotificationProvider>
