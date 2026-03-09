@@ -10,6 +10,7 @@ import {
   Calendar, BarChart3, PieChart as PieIcon, ChevronDown,
   ArrowUpRight, ArrowDownRight, Package, CreditCard, Bot, Send, Loader2
 } from 'lucide-react'
+import AdminLayout from '@/components/admin/admin-layout'
 
 // ─── Types ─────────────────────────────────
 interface Analytics {
@@ -118,16 +119,15 @@ export default function ReportesPage() {
 
   if (loading && !data) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <BarChart3 className="w-16 h-16 text-orange-500 animate-pulse mx-auto mb-4" />
-          <p className="text-white text-xl">Cargando reportes...</p>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96">
+          <BarChart3 className="w-16 h-16 text-colibri-gold animate-pulse mx-auto mb-4" />
         </div>
-      </div>
+      </AdminLayout>
     )
   }
 
-  if (!data) return <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">Error cargando datos</div>
+  if (!data) return <AdminLayout><div className="text-white text-center py-12">Error cargando datos</div></AdminLayout>
 
   const s = data.summary
   const ps = data.prev_summary
@@ -136,46 +136,44 @@ export default function ReportesPage() {
   const tickChange = pct(Number(s.avg_ticket), Number(ps.avg_ticket))
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <AdminLayout>
+    <div className="text-white">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <BarChart3 className="w-7 h-7 text-orange-500" />
-          <h1 className="text-2xl font-bold">Reportes</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Reportes Avanzados</h1>
+          <p className="text-colibri-gold/80 text-sm">Analytics detallados y consultor IA</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Tab switch */}
-          <div className="flex bg-gray-800 rounded-lg p-1">
+          <div className="flex bg-black/50 rounded-lg p-1 border border-colibri-gold/20">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${activeTab === 'dashboard' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${activeTab === 'dashboard' ? 'bg-colibri-gold text-black' : 'text-gray-400 hover:text-white'}`}
             >
-              <PieIcon className="w-4 h-4 inline mr-1.5" />Dashboard
+              <PieIcon className="w-4 h-4 inline mr-1.5" />Gráficas
             </button>
             <button
               onClick={() => setActiveTab('ai')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${activeTab === 'ai' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${activeTab === 'ai' ? 'bg-colibri-gold text-black' : 'text-gray-400 hover:text-white'}`}
             >
               <Bot className="w-4 h-4 inline mr-1.5" />IA
             </button>
           </div>
           {/* Period selector */}
-          <div className="relative">
-            <select
-              value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
-              className="bg-gray-800 text-white rounded-lg px-4 py-2 text-sm border border-gray-700 appearance-none pr-8 cursor-pointer"
-            >
-              <option value={7}>7 días</option>
-              <option value={15}>15 días</option>
-              <option value={30}>30 días</option>
-              <option value={60}>60 días</option>
-              <option value={90}>90 días</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          <select
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            className="bg-black/50 text-white rounded-lg px-3 py-2 text-sm border border-colibri-gold/30 focus:border-colibri-gold"
+          >
+            <option value={7}>7 días</option>
+            <option value={15}>15 días</option>
+            <option value={30}>30 días</option>
+            <option value={60}>60 días</option>
+            <option value={90}>90 días</option>
+          </select>
         </div>
-      </header>
+      </div>
 
       {activeTab === 'dashboard' ? (
         <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -437,6 +435,7 @@ export default function ReportesPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   )
 }
 
