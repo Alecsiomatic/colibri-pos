@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { executeQuery } from "@/lib/mysql-db";
 import { getCurrentUser } from "@/lib/auth-simple";
 
+async function ensureVisualTablesColumn() {
+  try {
+    await executeQuery(
+      "ALTER TABLE business_info ADD COLUMN use_visual_tables TINYINT(1) DEFAULT 0",
+      []
+    );
+  } catch (e: any) {
+    // Column already exists — ignore
+    if (!e?.message?.includes('Duplicate column')) throw e;
+  }
+}
+
 // GET - Obtener información empresarial
 export async function GET(request: NextRequest) {
   try {
@@ -10,6 +22,9 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
+
+    // Ensure new columns exist
+    await ensureVisualTablesColumn();
 
     // Obtener configuración empresarial
     const query = `SELECT * FROM business_info LIMIT 1`;
@@ -34,7 +49,8 @@ export async function GET(request: NextRequest) {
         delivery_radius_km: row.delivery_radius_km || 10.0,
         openai_api_key: row.openai_api_key || null,
         openai_model: row.openai_model || 'gpt-3.5-turbo',
-        enable_ai_reports: row.enable_ai_reports !== undefined ? Boolean(row.enable_ai_reports) : false
+        enable_ai_reports: row.enable_ai_reports !== undefined ? Boolean(row.enable_ai_reports) : false,
+        use_visual_tables: row.use_visual_tables !== undefined ? Boolean(row.use_visual_tables) : false
       };
     } else {
       // Valores por defecto si no existe configuración
@@ -54,7 +70,8 @@ export async function GET(request: NextRequest) {
         delivery_radius_km: 10.0,
         openai_api_key: null,
         openai_model: 'gpt-3.5-turbo',
-        enable_ai_reports: false
+        enable_ai_reports: false,
+        use_visual_tables: false
       };
     }
 
@@ -106,6 +123,7 @@ export async function POST(request: NextRequest) {
           openai_api_key = ?,
           openai_model = ?,
           enable_ai_reports = ?,
+          use_visual_tables = ?,
           updated_at = NOW()
         WHERE id = ?
       `;
@@ -128,6 +146,7 @@ export async function POST(request: NextRequest) {
         businessInfo.openai_api_key,
         businessInfo.openai_model,
         businessInfo.enable_ai_reports,
+        businessInfo.use_visual_tables ? 1 : 0,
         existingId
       ]);
     } else {
@@ -137,9 +156,9 @@ export async function POST(request: NextRequest) {
           name, slogan, address, phone, email, website, 
           instagram, facebook, whatsapp, logo_url, 
           google_maps_api_key, enable_driver_tracking, delivery_radius_km,
-          openai_api_key, openai_model, enable_ai_reports,
+          openai_api_key, openai_model, enable_ai_reports, use_visual_tables,
           created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
       `;
       
       await executeQuery(insertQuery, [
@@ -158,7 +177,8 @@ export async function POST(request: NextRequest) {
         businessInfo.delivery_radius_km,
         businessInfo.openai_api_key,
         businessInfo.openai_model,
-        businessInfo.enable_ai_reports
+        businessInfo.enable_ai_reports,
+        businessInfo.use_visual_tables ? 1 : 0
       ]);
     }
 

@@ -13,7 +13,8 @@ import {
   Clock,
   Truck,
   RefreshCw,
-  LayoutGrid
+  LayoutGrid,
+  MapPin
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-notifications'
@@ -61,12 +62,47 @@ export default function AdminDashboard() {
 
   const [refreshing, setRefreshing] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [useVisualTables, setUseVisualTables] = useState(false)
+  const [savingTableMode, setSavingTableMode] = useState(false)
 
   useEffect(() => {
     if (user?.is_admin) {
       loadDashboardData()
+      loadTableMode()
     }
   }, [user])
+
+  const loadTableMode = async () => {
+    try {
+      const res = await fetch('/api/admin/business-info', { credentials: 'include' })
+      const data = await res.json()
+      if (data.success && data.businessInfo) {
+        setUseVisualTables(!!data.businessInfo.use_visual_tables)
+      }
+    } catch {}
+  }
+
+  const toggleTableMode = async () => {
+    setSavingTableMode(true)
+    try {
+      const res = await fetch('/api/admin/business-info', { credentials: 'include' })
+      const data = await res.json()
+      const current = data.success ? data.businessInfo : {}
+      const newValue = !useVisualTables
+      await fetch('/api/admin/business-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ businessInfo: { ...current, use_visual_tables: newValue } })
+      })
+      setUseVisualTables(newValue)
+      toast.success(newValue ? 'Modo mapa visual activado' : 'Modo cl\u00e1sico activado')
+    } catch {
+      toast.error('Error al cambiar modo de mesas')
+    } finally {
+      setSavingTableMode(false)
+    }
+  }
 
   const loadDashboardData = async () => {
     setRefreshing(true)
@@ -272,6 +308,34 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Table Mode Toggle */}
+        <Card className="bg-black/50 border-colibri-gold/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center"><MapPin className="h-5 w-5 mr-2 text-colibri-gold" />Modo de Mesas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white font-semibold text-lg">{useVisualTables ? 'Mapa Visual' : 'Cl\u00e1sico (texto libre)'}</p>
+                <p className="text-colibri-beige text-sm">
+                  {useVisualTables
+                    ? 'Meseros usan el mapa interactivo para seleccionar mesas definidas.'
+                    : 'Meseros escriben el nombre de la mesa libremente al hacer pedidos.'}
+                </p>
+              </div>
+              <Button
+                onClick={toggleTableMode}
+                disabled={savingTableMode}
+                className={useVisualTables
+                  ? 'bg-colibri-wine hover:bg-colibri-wine/90 text-white font-bold px-6'
+                  : 'bg-colibri-green hover:bg-colibri-green/90 text-white font-bold px-6'}
+              >
+                {savingTableMode ? <RefreshCw className="h-4 w-4 animate-spin" /> : useVisualTables ? 'Cambiar a Cl\u00e1sico' : 'Activar Mapa Visual'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="bg-black/50 border-colibri-gold/50">
           <CardHeader>

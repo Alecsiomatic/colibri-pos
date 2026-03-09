@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,7 +17,8 @@ import {
   Loader2,
   UserCheck,
   Clock,
-  DollarSign
+  DollarSign,
+  Lock
 } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
@@ -35,14 +36,19 @@ interface GroupedTable {
 
 export default function CheckoutMeseroPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { items, updateQuantity, removeItem, total, itemCount, createOrder, clearCart } = useCart()
   const { user } = useAuth()
   const toast = useToast()
 
+  // Check if table was pre-selected from visual map
+  const presetMesa = searchParams.get('mesaNombre') || ''
+  const isMapMode = !!presetMesa
+
   // States
   const [mesasAbiertas, setMesasAbiertas] = useState<GroupedTable[]>([])
-  const [mesaSeleccionada, setMesaSeleccionada] = useState<string>('')
-  const [nuevaMesa, setNuevaMesa] = useState('')
+  const [mesaSeleccionada, setMesaSeleccionada] = useState<string>(presetMesa)
+  const [nuevaMesa, setNuevaMesa] = useState(presetMesa && !isMapMode ? '' : '')
   const [notas, setNotas] = useState('')
   const [loadingMesas, setLoadingMesas] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -147,7 +153,16 @@ export default function CheckoutMeseroPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {loadingMesas ? (
+                {isMapMode ? (
+                  /* Map mode: table is pre-selected and locked */
+                  <div className="p-4 bg-colibri-wine/30 rounded-lg border-2 border-colibri-gold/60">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Lock className="h-4 w-4 text-colibri-gold" />
+                      <span className="text-colibri-gold font-semibold text-sm">Mesa seleccionada desde mapa</span>
+                    </div>
+                    <div className="text-white font-black text-2xl">{presetMesa}</div>
+                  </div>
+                ) : loadingMesas ? (
                   <div className="flex items-center gap-2 text-white">
                     <Loader2 className="animate-spin h-5 w-5" />
                     <span>Cargando mesas...</span>

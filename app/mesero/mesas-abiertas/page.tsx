@@ -43,6 +43,7 @@ export default function MesasAbiertasPage() {
   const [printingTable, setPrintingTable] = useState<string | null>(null);
   const [closingTable, setClosingTable] = useState<string | null>(null);
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
+  const [checkingMode, setCheckingMode] = useState(true);
   
   // Modal de cierre de mesa
   const [closeModalOpen, setCloseModalOpen] = useState(false);
@@ -95,12 +96,24 @@ export default function MesasAbiertasPage() {
   };
 
   useEffect(() => {
+    // Check if visual tables mode is enabled — redirect to map if so
+    fetch("/api/admin/business-info", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.businessInfo?.use_visual_tables) {
+          router.replace("/mesero/mapa-mesas");
+          return;
+        }
+        setCheckingMode(false);
+      })
+      .catch(() => setCheckingMode(false));
+  }, [router]);
+
+  useEffect(() => {
+    if (checkingMode) return;
     fetchTables();
     fetchBusinessInfo();
-    // Optionally, poll every 30s
-    // const interval = setInterval(fetchTables, 30000);
-    // return () => clearInterval(interval);
-  }, []);
+  }, [checkingMode]);
 
   const toggleTableExpansion = (tableName: string) => {
     const newExpanded = new Set(expandedTables);
@@ -632,7 +645,7 @@ export default function MesasAbiertasPage() {
           </div>
         </div>
 
-        {loading ? (
+        {loading || checkingMode ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-colibri-green-400" />
           </div>

@@ -4,7 +4,7 @@ import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/hooks/use-cart"
 import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 
 export default function FloatingCart() {
@@ -12,6 +12,7 @@ export default function FloatingCart() {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -143,7 +144,10 @@ export default function FloatingCart() {
                 onClick={() => {
                   setIsOpen(false)
                   // Redirigir a checkout de mesero si el usuario es mesero, sino checkout normal
-                  const checkoutPath = user?.is_waiter ? '/checkout/mesero' : '/checkout'
+                  // Pass mesaNombre from URL (set by visual map's "Abrir Mesa") through to checkout
+                  const nuevaMesa = searchParams.get('nuevaMesa')
+                  const mesaParam = nuevaMesa ? `?mesaNombre=${encodeURIComponent(nuevaMesa)}` : ''
+                  const checkoutPath = user?.is_waiter ? `/checkout/mesero${mesaParam}` : '/checkout'
                   router.push(checkoutPath)
                 }}
                 className="w-full bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white font-bold py-3"

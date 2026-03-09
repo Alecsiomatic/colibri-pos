@@ -3,9 +3,14 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   ArrowLeft, Loader2, RefreshCw, Users, Clock, DollarSign,
-  PlusCircle, Scissors, CheckCircle, Printer, UtensilsCrossed
+  PlusCircle, Scissors, CheckCircle, UtensilsCrossed,
+  Banknote, CreditCard, Calculator
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-notifications";
@@ -37,6 +42,15 @@ export default function MapaMesasPage() {
   const [selectedTable, setSelectedTable] = useState<VisualTable | null>(null);
   const [openTableOrders, setOpenTableOrders] = useState<Map<string, any>>(new Map());
   const pollRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Close table modal state
+  const [closeModalOpen, setCloseModalOpen] = useState(false);
+  const [closingTableName, setClosingTableName] = useState("");
+  const [closingTableTotal, setClosingTableTotal] = useState(0);
+  const [closingTableOrders, setClosingTableOrders] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "tarjeta">("efectivo");
+  const [amountPaid, setAmountPaid] = useState("");
+  const [calculating, setCalculating] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -77,6 +91,69 @@ export default function MapaMesasPage() {
 
   const handleTableClick = (table: VisualTable) => {
     setSelectedTable(selectedTable?.id === table.id ? null : table);
+  };
+
+  const handleOpenTable = (tableName: string) => {
+    const encoded = encodeURIComponent(tableName);
+    window.location.href = `/menu?nuevaMesa=${encoded}`;
+  };
+
+  const handleCloseTableModal = (tableName: string) => {
+    const order = openTableOrders.get(tableName);
+    if (!order) return;
+    setClosingTableName(tableName);
+    setClosingTableTotal(order.totalMesa);
+    setClosingTableOrders(order);
+    setPaymentMethod("efectivo");
+    setAmountPaid("");
+    setCloseModalOpen(true);
+  };
+
+  const handleConfirmClose = async () => {
+    if (paymentMethod === "efectivo") {
+      const paid = parseFloat(amountPaid);
+      if (!amountPaid || isNaN(paid)) {
+        toast.error("Error", "Ingresa el monto que pagó el cliente");
+        return;
+      }
+      if (paid < closingTableTotal) {
+        toast.error("Error", `Monto ($${paid.toFixed(2)}) menor al total ($${closingTableTotal.toFixed(2)})`);
+        return;
+      }
+    }
+    setCalculating(true);
+    try {
+      const response = await fetch("/api/close-table-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          tableId: closingTableName,
+          paymentMethod,
+          amountPaid: paymentMethod === "efectivo" ? parseFloat(amountPaid) : closingTableTotal,
+          totalAmount: closingTableTotal,
+        }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        const change = paymentMethod === "efectivo" ? parseFloat(amountPaid) - closingTableTotal : 0;
+        toast.success(
+          "Mesa cerrada",
+          change > 0
+            ? `${closingTableName} cerrada. Cambio: $${change.toFixed(2)}`
+            : `${closingTableName} cerrada correctamente`
+        );
+        setCloseModalOpen(false);
+        setSelectedTable(null);
+        fetchData();
+      } else {
+        toast.error("Error", result.error || "No se pudo cerrar la mesa");
+      }
+    } catch {
+      toast.error("Error", "No se pudo cerrar la mesa");
+    } finally {
+      setCalculating(false);
+    }
   };
 
   if (loading) {
@@ -263,7 +340,10 @@ export default function MapaMesasPage() {
                     <Button
                       size="sm"
                       className="w-full bg-colibri-wine text-white hover:bg-colibri-wine/90 font-semibold"
-                      onClick={() => (window.location.href = `/menu?mesa=${order.orders[0].id}`)}
+                      onClick={() => {
+                        const encoded = encodeURIComponent(selectedTable.name);
+                        window.location.href = `/menu?mesa=${order.orders[0].id}&nuevaMesa=${encoded}`;
+                      }}
                     >
                       <PlusCircle className="h-4 w-4 mr-1" /> Agregar Productos
                     </Button>
@@ -277,9 +357,9 @@ export default function MapaMesasPage() {
                     <Button
                       size="sm"
                       className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold"
-                      onClick={() => router.push("/mesero/mesas-abiertas")}
+                      onClick={() => handleCloseTableModal(selectedTable.name)}
                     >
-                      <CheckCircle className="h-4 w-4 mr-1" /> Cerrar Mesa
+                      <CheckCircle className="h-4 w-4 mr-1" /> Cerrar y Cobrar
                     </Button>
                   </div>
                 </>
@@ -289,11 +369,7 @@ export default function MapaMesasPage() {
                   <p className="text-white/50 text-sm mb-4">Mesa disponible</p>
                   <Button
                     className="w-full bg-colibri-wine text-white font-bold"
-                    onClick={() => {
-                      // Navigate to menu with the table name pre-set via URL param
-                      const encoded = encodeURIComponent(selectedTable.name);
-                      window.location.href = `/menu?nuevaMesa=${encoded}`;
-                    }}
+                    onClick={() => handleOpenTable(selectedTable.name)}
                   >
                     <PlusCircle className="h-4 w-4 mr-1" /> Abrir Mesa
                   </Button>
@@ -326,6 +402,103 @@ export default function MapaMesasPage() {
           </div>
         </div>
       </div>
+
+      {/* Close Table Payment Modal */}
+      <Dialog open={closeModalOpen} onOpenChange={setCloseModalOpen}>
+        <DialogContent className="max-w-md bg-white border-2 border-gray-300">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-gray-900 font-bold text-lg">
+              <Calculator className="h-5 w-5 mr-2 text-blue-600" />
+              Cerrar {closingTableName}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-white/90 p-4 rounded-lg border border-gray-200">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-semibold text-gray-800">Total a pagar:</span>
+                <span className="text-xl font-bold text-green-600">${closingTableTotal.toFixed(2)}</span>
+              </div>
+              {closingTableOrders && (
+                <div className="text-sm text-gray-700">
+                  {closingTableOrders.orderCount} pedido(s) &bull; {closingTableOrders.allItems?.length || 0} producto(s)
+                </div>
+              )}
+            </div>
+            <div>
+              <Label className="text-lg font-bold mb-3 block text-gray-900">Método de pago</Label>
+              <RadioGroup value={paymentMethod} onValueChange={(v: "efectivo" | "tarjeta") => setPaymentMethod(v)}>
+                <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-300">
+                  <RadioGroupItem value="efectivo" id="mp-efectivo" />
+                  <Label htmlFor="mp-efectivo" className="flex items-center cursor-pointer text-gray-900 font-bold">
+                    <Banknote className="h-5 w-5 mr-2 text-green-600" /> Efectivo
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-300">
+                  <RadioGroupItem value="tarjeta" id="mp-tarjeta" />
+                  <Label htmlFor="mp-tarjeta" className="flex items-center cursor-pointer text-gray-900 font-bold">
+                    <CreditCard className="h-5 w-5 mr-2 text-blue-600" /> Tarjeta
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+            {paymentMethod === "efectivo" && (
+              <div>
+                <Label htmlFor="mp-amount" className="text-lg font-bold text-gray-900">¿Con cuánto paga?</Label>
+                <Input
+                  id="mp-amount"
+                  type="number"
+                  value={amountPaid}
+                  onChange={(e) => setAmountPaid(e.target.value)}
+                  placeholder="0.00"
+                  className="text-xl mt-2 bg-white text-gray-900 border-2 border-gray-400 focus:border-blue-600 font-bold"
+                  step="0.01"
+                  min={closingTableTotal}
+                />
+                {amountPaid && !isNaN(parseFloat(amountPaid)) && (
+                  <div className="mt-2 p-3 bg-white rounded border border-blue-200">
+                    <div className="flex justify-between text-sm text-gray-800">
+                      <span>Total:</span><span className="font-semibold">${closingTableTotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-800">
+                      <span>Pagó:</span><span className="font-semibold">${parseFloat(amountPaid).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t border-gray-300 pt-2 mt-1">
+                      <span className="text-gray-800">Cambio:</span>
+                      <span className={parseFloat(amountPaid) >= closingTableTotal ? "text-green-600" : "text-red-600"}>
+                        ${Math.max(0, parseFloat(amountPaid) - closingTableTotal).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {paymentMethod === "tarjeta" && (
+              <div className="bg-white p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center text-blue-800 mb-2">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  <span className="font-semibold">Pago con tarjeta</span>
+                </div>
+                <p className="text-sm text-gray-700">
+                  Se cobrará <strong className="text-gray-900">${closingTableTotal.toFixed(2)}</strong>
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCloseModalOpen(false)} disabled={calculating} className="border-gray-400 text-gray-700">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmClose}
+              disabled={calculating || (paymentMethod === "efectivo" && (!amountPaid || parseFloat(amountPaid) < closingTableTotal))}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold"
+            >
+              {calculating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+              {calculating ? "Procesando..." : "Confirmar Cobro"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
