@@ -24,7 +24,13 @@ export async function GET(request: NextRequest) {
     const user = await getCurrentUser(request)
     if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-    const canManage = await hasPermission(user.id, 'permissions.manage')
+    let canManage = false
+    try {
+      canManage = await hasPermission(user.id, 'permissions.manage')
+    } catch (e: any) {
+      console.error('hasPermission error (GET):', e.message)
+    }
+    if (!canManage && (user.is_admin || user.isAdmin)) canManage = true
     if (!canManage) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
 
     const action = request.nextUrl.searchParams.get('action') || 'roles'
@@ -50,11 +56,30 @@ export async function GET(request: NextRequest) {
 
     if (action === 'users') {
       await ensurePermissionTables()
-      const users = await executeQuery(
-        `SELECT id, username, email, role, is_admin, is_driver, is_waiter, is_active 
-         FROM users WHERE is_active = 1 OR is_active IS NULL ORDER BY username`,
-        []
-      ) as any[]
+      let users: any[] = []
+      try {
+        users = await executeQuery(
+          `SELECT id, username, email, role, is_admin, is_driver, is_waiter, is_active 
+           FROM users WHERE is_active = 1 OR is_active IS NULL ORDER BY username`,
+          []
+        ) as any[]
+      } catch (e: any) {
+        // Fallback if role column doesn't exist yet
+        if (e.message?.includes('Unknown column') && e.message?.includes('role')) {
+          users = await executeQuery(
+            `SELECT id, username, email, is_admin, is_driver, is_waiter, is_active 
+             FROM users WHERE is_active = 1 OR is_active IS NULL ORDER BY username`,
+            []
+          ) as any[]
+          // Derive role from flags
+          users = users.map((u: any) => ({
+            ...u,
+            role: u.is_admin ? 'owner' : u.is_waiter ? 'waiter' : u.is_driver ? 'driver' : 'customer'
+          }))
+        } else {
+          throw e
+        }
+      }
       return NextResponse.json({ success: true, users })
     }
 
@@ -71,7 +96,13 @@ export async function POST(request: NextRequest) {
     const user = await getCurrentUser(request)
     if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-    const canManage = await hasPermission(user.id, 'permissions.manage')
+    let canManage = false
+    try {
+      canManage = await hasPermission(user.id, 'permissions.manage')
+    } catch (e: any) {
+      console.error('hasPermission error (POST):', e.message)
+    }
+    if (!canManage && (user.is_admin || user.isAdmin)) canManage = true
     if (!canManage) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
 
     const body = await request.json()

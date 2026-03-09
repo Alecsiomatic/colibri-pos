@@ -57,11 +57,18 @@ export default function PermissionsPage() {
         setGroups(rolesData.groups)
         setDefaults(rolesData.defaults)
         setRolePermissions(rolesData.rolePermissions)
+      } else {
+        console.error('Roles API error:', rolesData.error)
+        toast.error('Error', rolesData.error || 'No se pudieron cargar roles')
       }
       if (usersData.success) {
         setUsers(usersData.users || [])
+      } else {
+        console.error('Users API error:', usersData.error)
+        toast.error('Error', usersData.error || 'No se pudieron cargar usuarios')
       }
     } catch (error) {
+      console.error('Fetch error:', error)
       toast.error('Error', 'No se pudieron cargar los permisos')
     } finally {
       setLoading(false)

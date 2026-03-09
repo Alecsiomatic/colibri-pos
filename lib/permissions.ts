@@ -129,14 +129,25 @@ export async function ensurePermissionTables() {
     // Add role column to users if missing
     try {
       await executeQuery(`ALTER TABLE users ADD COLUMN role VARCHAR(30) DEFAULT 'customer'`, [])
+      console.log('✅ Added role column to users')
     } catch (e: any) {
-      if (!e.message?.includes('Duplicate column')) throw e
+      // ER_DUP_FIELDNAME on MySQL/MariaDB
+      if (e.message?.includes('Duplicate') || e.code === 'ER_DUP_FIELDNAME') {
+        // Column already exists, OK
+      } else {
+        console.error('⚠️ Could not add role column:', e.message)
+        // Don't throw — continue without role column, fallback will handle it
+      }
     }
 
-    // Migrate existing boolean flags → role
-    await executeQuery(`UPDATE users SET role = 'owner' WHERE is_admin = 1 AND (role IS NULL OR role = 'customer')`, [])
-    await executeQuery(`UPDATE users SET role = 'waiter' WHERE is_waiter = 1 AND is_admin = 0 AND (role IS NULL OR role = 'customer')`, [])
-    await executeQuery(`UPDATE users SET role = 'driver' WHERE is_driver = 1 AND is_admin = 0 AND is_waiter = 0 AND (role IS NULL OR role = 'customer')`, [])
+    // Migrate existing boolean flags → role (only if role column exists)
+    try {
+      await executeQuery(`UPDATE users SET role = 'owner' WHERE is_admin = 1 AND (role IS NULL OR role = 'customer')`, [])
+      await executeQuery(`UPDATE users SET role = 'waiter' WHERE is_waiter = 1 AND is_admin = 0 AND (role IS NULL OR role = 'customer')`, [])
+      await executeQuery(`UPDATE users SET role = 'driver' WHERE is_driver = 1 AND is_admin = 0 AND is_waiter = 0 AND (role IS NULL OR role = 'customer')`, [])
+    } catch (e: any) {
+      console.error('⚠️ Could not migrate roles:', e.message)
+    }
 
     // Role permissions table
     await executeQuery(`
@@ -191,22 +202,36 @@ async function seedDefaults() {
 
 export async function getRolePermissions(role: string): Promise<string[]> {
   await ensurePermissionTables()
-  const rows = await executeQuery(
-    'SELECT permission FROM role_permissions WHERE role = ?', [role]
-  ) as any[]
-  return rows.map(r => r.permission)
+  try {
+    const rows = await executeQuery(
+      'SELECT permission FROM role_permissions WHERE role = ?', [role]
+    ) as any[]
+    return rows.map(r => r.permission)
+  } catch (e: any) {
+    if (e.message?.includes("doesn't exist") || e.code === 'ER_NO_SUCH_TABLE') {
+      return DEFAULT_ROLE_PERMISSIONS[role] || []
+    }
+    throw e
+  }
 }
 
 export async function getAllRolePermissions(): Promise<Record<string, string[]>> {
   await ensurePermissionTables()
-  const rows = await executeQuery('SELECT role, permission FROM role_permissions ORDER BY role', []) as any[]
-  const map: Record<string, string[]> = {}
-  for (const role of Object.keys(ROLES)) map[role] = []
-  for (const r of rows) {
-    if (!map[r.role]) map[r.role] = []
-    map[r.role].push(r.permission)
+  try {
+    const rows = await executeQuery('SELECT role, permission FROM role_permissions ORDER BY role', []) as any[]
+    const map: Record<string, string[]> = {}
+    for (const role of Object.keys(ROLES)) map[role] = []
+    for (const r of rows) {
+      if (!map[r.role]) map[r.role] = []
+      map[r.role].push(r.permission)
+    }
+    return map
+  } catch (e: any) {
+    if (e.message?.includes("doesn't exist") || e.code === 'ER_NO_SUCH_TABLE') {
+      return { ...DEFAULT_ROLE_PERMISSIONS }
+    }
+    throw e
   }
-  return map
 }
 
 export async function setRolePermissions(role: string, permissions: string[]) {
@@ -261,8 +286,19 @@ export async function getUserEffectivePermissions(userId: number): Promise<{
   role: string; permissions: string[]; overrides: { permission: string; granted: boolean }[]
 }> {
   await ensurePermissionTables()
-  const [userRow] = await executeQuery('SELECT role FROM users WHERE id = ?', [userId]) as any[]
-  const role = userRow?.role || 'customer'
+  let role = 'customer'
+  try {
+    const [userRow] = await executeQuery('SELECT role, is_admin, is_waiter, is_driver FROM users WHERE id = ?', [userId]) as any[]
+    role = userRow?.role || deriveRoleFromFlags(userRow) || 'customer'
+  } catch (e: any) {
+    // Fallback if role column missing
+    if (e.message?.includes('Unknown column') && e.message?.includes('role')) {
+      const [userRow] = await executeQuery('SELECT is_admin, is_waiter, is_driver FROM users WHERE id = ?', [userId]) as any[]
+      role = deriveRoleFromFlags(userRow || {})
+    } else {
+      throw e
+    }
+  }
 
   const rolePerms = await getRolePermissions(role)
   const overrides = await getUserOverrides(userId)
