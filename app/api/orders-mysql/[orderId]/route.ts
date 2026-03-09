@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPool } from '@/lib/mysql-db'
 import { restoreStockForOrder } from '@/lib/inventory'
+import { restoreIngredientsForProduct } from '@/lib/ingredients'
 
 export async function GET(
   request: NextRequest,
@@ -146,7 +147,22 @@ export async function PATCH(
           if (!wasCancelled) {
             let items = orderRows[0].items
             if (typeof items === 'string') items = JSON.parse(items)
-            if (Array.isArray(items)) await restoreStockForOrder(Number(orderId), items)
+            if (Array.isArray(items)) {
+              // Restore ingredients first, then product stock for items without recipes
+              const { adjustStock } = await import('@/lib/inventory')
+              for (const it of items) {
+                const pid = it.id || it.product_id
+                if (!pid) continue
+                const q = Number(it.quantity) || 1
+                const restoredIngredients = await restoreIngredientsForProduct(pid, q, Number(orderId))
+                if (!restoredIngredients) {
+                  await adjustStock(pid, q, 'cancel_restore', {
+                    referenceId: `order-${orderId}`,
+                    notes: `Cancelación pedido #${orderId}`,
+                  })
+                }
+              }
+            }
           }
         }
       } catch (stockErr) {

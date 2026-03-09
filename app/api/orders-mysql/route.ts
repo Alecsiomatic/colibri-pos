@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { executeQuery } from "@/lib/db-retry"  
 import { verifyAccessToken, getSessionByToken } from "@/lib/auth-mysql"
 import { deductStockForOrder } from "@/lib/inventory"
+import { deductIngredientsForProduct, checkIngredientsAvailability } from "@/lib/ingredients"
 
 // GET - Obtener pedidos
 export async function GET(request: NextRequest) {
@@ -340,9 +341,23 @@ export async function POST(request: NextRequest) {
       ) as any;
     }
 
-    // Actualizar stock via inventory service (logs movements)
+    // Actualizar stock: si el producto tiene receta → deducir insumos; si no → deducir stock producto
     try {
-      await deductStockForOrder(result.insertId, items, user.id)
+      for (const item of items) {
+        const productId = item.id || item.product_id
+        if (!productId) continue
+        const qty = Number(item.quantity) || 1
+        const usedIngredients = await deductIngredientsForProduct(productId, qty, result.insertId, user.id)
+        if (!usedIngredients) {
+          // No recipe — fall back to product-level stock deduction
+          const { adjustStock } = await import('@/lib/inventory')
+          await adjustStock(productId, -qty, 'sale', {
+            referenceId: `order-${result.insertId}`,
+            notes: `Venta pedido #${result.insertId}`,
+            userId: user.id,
+          })
+        }
+      }
     } catch (stockErr) {
       console.error('Error deducting stock:', stockErr)
     }
