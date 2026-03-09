@@ -59,19 +59,18 @@ export async function GET(request: NextRequest) {
       let users: any[] = []
       try {
         users = await executeQuery(
-          `SELECT id, username, email, role, is_admin, is_driver, is_waiter, is_active 
-           FROM users WHERE is_active = 1 OR is_active IS NULL ORDER BY username`,
+          `SELECT id, username, email, role, is_admin, is_driver, is_waiter
+           FROM users ORDER BY username`,
           []
         ) as any[]
       } catch (e: any) {
         // Fallback if role column doesn't exist yet
-        if (e.message?.includes('Unknown column') && e.message?.includes('role')) {
+        if (e.message?.includes('Unknown column')) {
           users = await executeQuery(
-            `SELECT id, username, email, is_admin, is_driver, is_waiter, is_active 
-             FROM users WHERE is_active = 1 OR is_active IS NULL ORDER BY username`,
+            `SELECT id, username, email, is_admin, is_driver, is_waiter
+             FROM users ORDER BY username`,
             []
           ) as any[]
-          // Derive role from flags
           users = users.map((u: any) => ({
             ...u,
             role: u.is_admin ? 'owner' : u.is_waiter ? 'waiter' : u.is_driver ? 'driver' : 'customer'
