@@ -59,8 +59,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-screen bg-gradient-to-br from-black via-colibri-green to-black">
       {/* Sidebar */}
-      <div className="w-64 bg-black/50 backdrop-blur-md shadow-2xl border-r border-colibri-gold/50">
-        <div className="p-6 border-b border-colibri-gold/50">
+      <div className="w-64 bg-black/50 backdrop-blur-md shadow-2xl border-r border-colibri-gold/50 flex flex-col">
+        <div className="p-6 border-b border-colibri-gold/50 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-colibri-green to-colibri-wine rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">C</span>
@@ -71,7 +71,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </div>
-        <div className="p-4">
+        <div className="p-4 flex-1 overflow-y-auto">
           <AdminNav />
         </div>
       </div>
