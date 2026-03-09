@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/mysql-db'
+import { ensureCajaMigrations } from '@/lib/db-migrations'
 
 // GET /api/shifts/[id] - Obtener detalles de un turno
 export async function GET(
@@ -7,6 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await ensureCajaMigrations()
     const { id } = await params
     const shiftId = parseInt(id)
 
@@ -75,6 +77,18 @@ export async function GET(
       .filter((t: any) => t.transaction_type === 'cash_out')
       .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
 
+    // Get tips for this shift period
+    let totalTips = 0
+    try {
+      const tipsResult = await executeQuery(
+        `SELECT COALESCE(SUM(p.tip), 0) as total_tips
+         FROM payments p
+         WHERE p.payment_date >= ? AND p.payment_date <= COALESCE(?, NOW())`,
+        [shift.opened_at, shift.closed_at]
+      ) as any[]
+      totalTips = parseFloat(tipsResult[0]?.total_tips || 0)
+    } catch (e) { /* tip column may not exist yet */ }
+
     return NextResponse.json({
       success: true,
       shift: {
@@ -82,6 +96,7 @@ export async function GET(
         ...statsData,
         cash_in: cashIn,
         cash_out: cashOut,
+        total_tips: totalTips,
         transactions: transactions
       }
     })
@@ -161,6 +176,31 @@ export async function PATCH(
     const actualCash = parseFloat(closing_cash || 0)
     const difference = actualCash - expectedCash
 
+    // Calculate tips for this shift period
+    let totalTips = 0
+    try {
+      const tipsResult = await executeQuery(
+        `SELECT COALESCE(SUM(p.tip), 0) as total_tips
+         FROM payments p
+         WHERE p.payment_date >= ?`,
+        [shift.opened_at]
+      ) as any[]
+      totalTips = parseFloat(tipsResult[0]?.total_tips || 0)
+    } catch (e) { /* tip column may not exist yet */ }
+
+    // Check shortage alert threshold
+    let shortageAlert = false
+    try {
+      const thresholdResult = await executeQuery(
+        `SELECT shortage_alert_threshold FROM business_info LIMIT 1`,
+        []
+      ) as any[]
+      const threshold = parseFloat(thresholdResult[0]?.shortage_alert_threshold || 50)
+      if (difference < 0 && Math.abs(difference) > threshold) {
+        shortageAlert = true
+      }
+    } catch (e) { /* column may not exist yet */ }
+
     // Cerrar turno
     await executeQuery(
       `UPDATE cash_shifts 
@@ -173,15 +213,17 @@ export async function PATCH(
            card_sales = ?,
            mercadopago_sales = 0,
            total_orders = ?,
+           total_tips = ?,
            closed_at = NOW(),
            notes = ?
        WHERE id = ?`,
-      [actualCash, expectedCash, difference, total_sales, cash_sales, card_sales, total_orders, notes || null, shiftId]
+      [actualCash, expectedCash, difference, total_sales, cash_sales, card_sales, total_orders, totalTips, notes || null, shiftId]
     )
 
     return NextResponse.json({
       success: true,
       message: 'Turno cerrado exitosamente',
+      shortageAlert,
       closure: {
         expected_cash: expectedCash,
         actual_cash: actualCash,
@@ -189,7 +231,8 @@ export async function PATCH(
         cash_in: cashIn,
         cash_out: cashOut,
         total_sales: parseFloat(total_sales || 0),
-        total_orders: parseInt(total_orders || 0)
+        total_orders: parseInt(total_orders || 0),
+        total_tips: totalTips
       }
     })
 

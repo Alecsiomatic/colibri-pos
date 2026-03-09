@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPool } from '@/lib/mysql-db'
 import { RowDataPacket } from 'mysql2'
+import { ensureCajaMigrations } from '@/lib/db-migrations'
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureCajaMigrations()
     const body = await req.json()
-    const { tableName, totalAmount, splits } = body
+    const { tableName, totalAmount, splits, tip, waiterId, waiterName } = body
 
     if (!tableName || !totalAmount || !splits || !Array.isArray(splits) || splits.length < 2) {
       return NextResponse.json(
@@ -69,20 +71,24 @@ export async function POST(req: NextRequest) {
 
       // 3. Record each split as a separate payment
       const orderIds = JSON.stringify(orders.map((o: any) => o.id))
+      const tipPerSplit = splits.length > 0 ? (parseFloat(tip) || 0) / splits.length : 0
       for (const split of splits) {
         const changeAmount = split.paymentMethod === 'efectivo'
           ? Math.max(0, parseFloat(split.amountPaid) - parseFloat(split.amount))
           : 0
 
         await connection.execute(
-          `INSERT INTO payments (table_name, total_amount, payment_method, amount_paid, change_amount, order_ids, payment_date, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+          `INSERT INTO payments (table_name, total_amount, payment_method, amount_paid, change_amount, tip, waiter_id, waiter_name, order_ids, payment_date, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
           [
             `${tableName} - ${split.label}`,
             split.amount,
             split.paymentMethod,
             split.paymentMethod === 'efectivo' ? split.amountPaid : split.amount,
             changeAmount,
+            tipPerSplit,
+            waiterId || null,
+            waiterName || null,
             orderIds
           ]
         )

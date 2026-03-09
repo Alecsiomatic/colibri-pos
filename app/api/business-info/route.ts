@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
         instagram: row.instagram || '@SuperNovaRestaurante',
         facebook: row.facebook || '@SuperNovaOficial',
         whatsapp: row.whatsapp || '+52 555 123 4567',
-        logo_url: row.logo_url || null
+        logo_url: row.logo_url || null,
+        shortage_alert_threshold: row.shortage_alert_threshold ?? 50
       };
     } else {
       // Valores por defecto si no existe configuración
@@ -35,7 +36,8 @@ export async function GET(request: NextRequest) {
         instagram: '@SuperNovaRestaurante',
         facebook: '@SuperNovaOficial',
         whatsapp: '+52 555 123 4567',
-        logo_url: null
+        logo_url: null,
+        shortage_alert_threshold: 50
       };
     }
 
@@ -54,9 +56,38 @@ export async function GET(request: NextRequest) {
       instagram: '@SuperNovaRestaurante',
       facebook: '@SuperNovaOficial',
       whatsapp: '+52 555 123 4567',
-      logo_url: null
+      logo_url: null,
+      shortage_alert_threshold: 50
     };
     
     return NextResponse.json({ success: true, businessInfo: defaultBusinessInfo });
+  }
+}
+
+// PATCH - Actualizar campos de configuración empresarial
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const allowedFields = ['shortage_alert_threshold']
+    const updates: string[] = []
+    const values: any[] = []
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        updates.push(`${field} = ?`)
+        values.push(body[field])
+      }
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ success: false, error: 'No hay campos para actualizar' }, { status: 400 })
+    }
+
+    await executeQuery(`UPDATE business_info SET ${updates.join(', ')} LIMIT 1`, values)
+
+    return NextResponse.json({ success: true, message: 'Configuración actualizada' })
+  } catch (error: any) {
+    console.error('Error en /api/business-info PATCH:', error)
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }

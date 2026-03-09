@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPool } from '@/lib/mysql-db'
 import { RowDataPacket } from 'mysql2'
+import { ensureCajaMigrations } from '@/lib/db-migrations'
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureCajaMigrations()
     console.log('🔄 Iniciando cierre de mesa con pago...')
     
     const body = await req.json()
-    const { tableId, paymentMethod, amountPaid, totalAmount } = body
+    const { tableId, paymentMethod, amountPaid, totalAmount, tip, waiterId, waiterName } = body
 
     console.log('💳 Datos de pago recibidos:', {
       tableId,
       paymentMethod,
       amountPaid,
-      totalAmount
+      totalAmount,
+      tip
     })
 
     // Validaciones
@@ -68,6 +71,8 @@ export async function POST(req: NextRequest) {
       const changeAmount = paymentMethod === 'efectivo' ? 
         Math.max(0, parseFloat(amountPaid) - parseFloat(totalAmount)) : 0
 
+      const tipAmount = parseFloat(tip) || 0
+
       await connection.execute(
         `INSERT INTO payments (
           table_name, 
@@ -75,16 +80,22 @@ export async function POST(req: NextRequest) {
           payment_method, 
           amount_paid, 
           change_amount, 
+          tip,
+          waiter_id,
+          waiter_name,
           order_ids,
           payment_date,
           created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           tableId,
           totalAmount,
           paymentMethod,
           paymentMethod === 'efectivo' ? amountPaid : totalAmount,
           changeAmount,
+          tipAmount,
+          waiterId || null,
+          waiterName || null,
           JSON.stringify(orders.map((o: any) => o.id))
         ]
       )

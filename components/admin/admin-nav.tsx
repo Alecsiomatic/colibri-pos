@@ -18,6 +18,7 @@ import {
   PieChart,
   Sliders,
   ChefHat,
+  Receipt,
 } from "lucide-react"
 
 const navigation = [
@@ -29,6 +30,7 @@ const navigation = [
   { name: "Productos Destacados", href: "/admin/featured-products", icon: Star },
   { name: "Categorías", href: "/admin/categories", icon: Tags },
   { name: "Reportes", href: "/admin/reportes", icon: TrendingUp },
+  { name: "Cortes de Caja", href: "/admin/cortes", icon: Receipt },
   { name: "Usuarios", href: "/admin/users", icon: Users },
   { name: "Delivery", href: "/admin/delivery", icon: Truck },
   { name: "Estadísticas Drivers", href: "/admin/driver-stats", icon: TrendingUp },

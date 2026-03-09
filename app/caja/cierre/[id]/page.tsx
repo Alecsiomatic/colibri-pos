@@ -97,7 +97,11 @@ export default function ShiftClosurePage() {
       const data = await response.json()
       
       if (data.success) {
-        toast.success('¡Turno Cerrado!', 'El reporte ha sido generado')
+        if (data.shortageAlert) {
+          toast.error('⚠️ Alerta de Faltante', `Se detectó un faltante significativo de $${Math.abs(difference).toFixed(2)}. El administrador será notificado.`)
+        } else {
+          toast.success('¡Turno Cerrado!', 'El reporte ha sido generado')
+        }
         
         // Opcional: Imprimir reporte
         if (confirm('¿Deseas imprimir el reporte de cierre?')) {
@@ -114,25 +118,74 @@ export default function ShiftClosurePage() {
   }
 
   const printShiftReport = async () => {
-    try {
-      const response = await fetch('/api/print/shift-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shift: {
-            ...shift,
-            closing_cash: parseFloat(closingCash),
-            notes: notes,
-            difference: calculateDifference()
-          }
-        })
-      })
+    if (!shift) return
+    const expected = calculateExpectedCash()
+    const diff = calculateDifference()
+    const cashSales = parseFloat(shift.cash_sales || 0)
+    const cardSales = parseFloat(shift.card_sales || 0)
+    const opening = parseFloat(shift.opening_cash || 0)
+    const cashIn = parseFloat(shift.cash_in || 0)
+    const cashOut = parseFloat(shift.cash_out || 0)
+    const tips = parseFloat(shift.total_tips || 0)
 
-      if (response.ok) {
-        toast.success('Impreso', 'Reporte enviado a impresora')
-      }
-    } catch (error) {
-      console.error('Error printing:', error)
+    const html = `
+      <html><head><title>Corte de Caja #${shiftId}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; width: 80mm; padding: 4mm; font-size: 12px; }
+        .center { text-align: center; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        .line { border-top: 1px dashed #000; margin: 6px 0; }
+        .dline { border-top: 2px solid #000; margin: 6px 0; }
+        .row { display: flex; justify-content: space-between; margin: 2px 0; }
+        h1 { font-size: 16px; margin: 4px 0; }
+        h2 { font-size: 13px; margin: 8px 0 4px; }
+        .small { font-size: 10px; }
+        .big { font-size: 18px; }
+        @media print { @page { size: 80mm auto; margin: 0; } }
+      </style></head><body>
+        <div class="center bold"><h1>CORTE DE CAJA</h1></div>
+        <div class="center">Turno #${shiftId}</div>
+        <div class="center">${shift.user_name} — ${shift.shift_type}</div>
+        <div class="dline"></div>
+
+        <div class="row"><span>Apertura:</span><span>${shift.opened_at ? new Date(shift.opened_at).toLocaleString('es-MX') : '-'}</span></div>
+        <div class="row"><span>Cierre:</span><span>${new Date().toLocaleString('es-MX')}</span></div>
+        <div class="line"></div>
+
+        <h2>VENTAS</h2>
+        <div class="row"><span>Total Ventas:</span><span class="bold">$${parseFloat(shift.total_sales || 0).toFixed(2)}</span></div>
+        <div class="row"><span>Pedidos:</span><span>${shift.total_orders || 0}</span></div>
+        <div class="row"><span>Efectivo:</span><span>$${cashSales.toFixed(2)}</span></div>
+        <div class="row"><span>Tarjeta:</span><span>$${cardSales.toFixed(2)}</span></div>
+        ${tips > 0 ? `<div class="row"><span>Propinas:</span><span>$${tips.toFixed(2)}</span></div>` : ''}
+        <div class="line"></div>
+
+        <h2>ARQUEO DE CAJA</h2>
+        <div class="row"><span>Efectivo Inicial:</span><span>$${opening.toFixed(2)}</span></div>
+        <div class="row"><span>+ Ventas Efectivo:</span><span>$${cashSales.toFixed(2)}</span></div>
+        ${cashIn > 0 ? `<div class="row"><span>+ Entradas:</span><span>$${cashIn.toFixed(2)}</span></div>` : ''}
+        ${cashOut > 0 ? `<div class="row"><span>- Salidas:</span><span>$${cashOut.toFixed(2)}</span></div>` : ''}
+        <div class="line"></div>
+        <div class="row bold"><span>Esperado:</span><span>$${expected.toFixed(2)}</span></div>
+        <div class="row bold"><span>Real en Caja:</span><span>$${(parseFloat(closingCash) || 0).toFixed(2)}</span></div>
+        <div class="dline"></div>
+        <div class="row bold big center"><span>DIFERENCIA:</span><span>${diff >= 0 ? '+' : ''}$${diff.toFixed(2)}</span></div>
+        <div class="center bold">${Math.abs(diff) < 0.01 ? 'CAJA CUADRADA ✓' : diff > 0 ? 'SOBRANTE' : 'FALTANTE'}</div>
+
+        ${notes ? `<div class="line"></div><div class="small">Notas: ${notes}</div>` : ''}
+
+        <div class="dline"></div>
+        <div class="center small">Generado: ${new Date().toLocaleString('es-MX')}</div>
+        <div class="center small">Colibrí POS</div>
+      </body></html>
+    `
+    const win = window.open('', '_blank', 'width=350,height=600')
+    if (win) {
+      win.document.write(html)
+      win.document.close()
+      setTimeout(() => win.print(), 300)
     }
   }
 
@@ -223,11 +276,11 @@ export default function ShiftClosurePage() {
           <Card className="bg-slate-900/80 backdrop-blur-xl border-colibri-wine/30">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-slate-300">Productos Vendidos</span>
-                <Package className="h-5 w-5 text-colibri-wine" />
+                <span className="text-slate-300">Propinas</span>
+                <DollarSign className="h-5 w-5 text-colibri-wine" />
               </div>
               <p className="text-3xl font-bold text-colibri-wine">
-                {shift.items_sold || 0}
+                ${parseFloat(shift.total_tips || 0).toFixed(2)}
               </p>
             </CardContent>
           </Card>
@@ -355,6 +408,16 @@ export default function ShiftClosurePage() {
                 disabled={processing}
               >
                 Cancelar
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={printShiftReport}
+                className="border-2 border-colibri-gold/50 text-colibri-gold hover:bg-colibri-gold/10"
+                disabled={processing}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir
               </Button>
               
               <Button
