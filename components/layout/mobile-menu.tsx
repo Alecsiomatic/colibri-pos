@@ -31,7 +31,7 @@ export default function MobileMenu({ isAdmin = false }: { isAdmin?: boolean }) {
     { href: "/admin/products", label: "Productos", adminOnly: true },
     { href: "/admin/categories", label: "Categorías", adminOnly: true },
     { href: "/admin/orders", label: "Gestión Pedidos", adminOnly: true },
-    { href: "/admin/stock", label: "Inventario", adminOnly: true },
+    { href: "/admin/inventario", label: "Inventario", adminOnly: true },
   ]
 
   const filteredNavItems = navItems.filter((item) => !item.adminOnly || (item.adminOnly && isAdmin))

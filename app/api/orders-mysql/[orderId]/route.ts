@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPool } from '@/lib/mysql-db'
+import { restoreStockForOrder } from '@/lib/inventory'
 
 export async function GET(
   request: NextRequest,
@@ -133,6 +134,25 @@ export async function PATCH(
     const query = `UPDATE orders SET ${updates.join(', ')} WHERE id = ?`
     
     console.log('📝 Actualizando pedido:', { orderId, updates, values })
+    
+    // Check if cancelling — restore stock
+    const isCancelling = ['cancelado', 'cancelled', 'canceled'].includes(status?.toLowerCase())
+    if (isCancelling) {
+      try {
+        const [orderRows] = await pool.execute<any[]>('SELECT items, status FROM orders WHERE id = ?', [orderId])
+        if (orderRows.length > 0) {
+          const prevStatus = (orderRows[0].status || '').toLowerCase()
+          const wasCancelled = ['cancelado', 'cancelled', 'canceled'].includes(prevStatus)
+          if (!wasCancelled) {
+            let items = orderRows[0].items
+            if (typeof items === 'string') items = JSON.parse(items)
+            if (Array.isArray(items)) await restoreStockForOrder(Number(orderId), items)
+          }
+        }
+      } catch (stockErr) {
+        console.error('Error restoring stock on cancel:', stockErr)
+      }
+    }
     
     await pool.execute(query, values)
     

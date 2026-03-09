@@ -19,6 +19,7 @@ import {
   Sliders,
   ChefHat,
   Receipt,
+  Warehouse,
 } from "lucide-react"
 
 const navigation = [
@@ -34,7 +35,7 @@ const navigation = [
   { name: "Usuarios", href: "/admin/users", icon: Users },
   { name: "Delivery", href: "/admin/delivery", icon: Truck },
   { name: "Estadísticas Drivers", href: "/admin/driver-stats", icon: TrendingUp },
-  { name: "Inventario", href: "/admin/inventory-dashboard", icon: BarChart3 },
+  { name: "Inventario", href: "/admin/inventario", icon: Warehouse },
   { name: "WhatsApp", href: "/admin/whatsapp", icon: MessageSquare },
   { name: "Configuración Empresa", href: "/admin/configuracion-empresa", icon: Building2 },
   { name: "Configuración", href: "/admin/settings", icon: Settings },

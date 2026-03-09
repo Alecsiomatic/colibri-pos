@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { executeQuery } from "@/lib/db-retry"  
 import { verifyAccessToken, getSessionByToken } from "@/lib/auth-mysql"
+import { deductStockForOrder } from "@/lib/inventory"
 
 // GET - Obtener pedidos
 export async function GET(request: NextRequest) {
@@ -339,18 +340,11 @@ export async function POST(request: NextRequest) {
       ) as any;
     }
 
-    // Actualizar stock
-    for (const item of items) {
-      const productId = item.id || item.product_id
-      await executeQuery(
-        'UPDATE products SET stock = stock - ? WHERE id = ?',
-        [item.quantity, productId]
-      )
-      
-      await executeQuery(
-        'UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?',
-        [item.quantity, productId]
-      )
+    // Actualizar stock via inventory service (logs movements)
+    try {
+      await deductStockForOrder(result.insertId, items, user.id)
+    } catch (stockErr) {
+      console.error('Error deducting stock:', stockErr)
     }
 
     // ✨ IMPRESIÓN AUTOMÁTICA AL CREAR PEDIDO
