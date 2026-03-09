@@ -94,6 +94,20 @@ export async function ensureIngredientTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `, [])
 
+    // Modifier option → ingredients (what each modifier option consumes)
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS modifier_option_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        modifier_option_id INT NOT NULL,
+        ingredient_id INT NOT NULL,
+        quantity DECIMAL(10,3) NOT NULL DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uk_option_ingredient (modifier_option_id, ingredient_id),
+        INDEX idx_option (modifier_option_id),
+        INDEX idx_ingredient (ingredient_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `, [])
+
     _ingredientsMigrated = true
   } catch (e: any) {
     if (!e.message?.includes('already exists')) console.error('Ingredients migration error:', e.message)
@@ -393,4 +407,88 @@ export async function getIngredientMovements(opts: {
     params.slice(0, -2)
   ) as any[]
   return { movements, total }
+}
+
+// ─── Modifier Option Ingredients ───────────
+
+export async function getModifierOptionIngredients(optionId: number) {
+  await ensureIngredientTables()
+  return await executeQuery(`
+    SELECT moi.*, i.name as ingredient_name, i.unit as ingredient_unit,
+           i.stock as ingredient_stock, i.cost_per_unit as ingredient_cost
+    FROM modifier_option_ingredients moi
+    JOIN ingredients i ON moi.ingredient_id = i.id
+    WHERE moi.modifier_option_id = ?
+    ORDER BY i.name
+  `, [optionId]) as any[]
+}
+
+export async function setModifierOptionIngredients(
+  optionId: number, items: { ingredient_id: number; quantity: number }[]
+) {
+  await ensureIngredientTables()
+  await executeQuery('DELETE FROM modifier_option_ingredients WHERE modifier_option_id = ?', [optionId])
+  for (const item of items) {
+    if (item.ingredient_id && item.quantity > 0) {
+      await executeQuery(
+        'INSERT INTO modifier_option_ingredients (modifier_option_id, ingredient_id, quantity) VALUES (?, ?, ?)',
+        [optionId, item.ingredient_id, item.quantity]
+      )
+    }
+  }
+  return await getModifierOptionIngredients(optionId)
+}
+
+export async function getModifierOptionCost(optionId: number): Promise<number> {
+  await ensureIngredientTables()
+  const rows = await executeQuery(`
+    SELECT SUM(moi.quantity * i.cost_per_unit) as total_cost
+    FROM modifier_option_ingredients moi
+    JOIN ingredients i ON moi.ingredient_id = i.id
+    WHERE moi.modifier_option_id = ?
+  `, [optionId]) as any[]
+  return Number(rows[0]?.total_cost) || 0
+}
+
+/**
+ * Deduct ingredients for selected modifiers in an order item.
+ * modifiers = [{option_id, ...}] from the order item
+ */
+export async function deductIngredientsForModifiers(
+  modifiers: { option_id: number }[], quantity: number, orderId: number, userId?: number
+): Promise<void> {
+  await ensureIngredientTables()
+  for (const mod of modifiers) {
+    if (!mod.option_id) continue
+    const optIngredients = await getModifierOptionIngredients(mod.option_id)
+    for (const oi of optIngredients) {
+      const totalDeduct = oi.quantity * quantity
+      await adjustIngredientStock(oi.ingredient_id, -totalDeduct, 'sale', {
+        referenceId: `order-${orderId}`,
+        notes: `Modificador opción #${mod.option_id} pedido #${orderId} (${quantity}x)`,
+        userId,
+      })
+    }
+  }
+}
+
+/**
+ * Restore ingredients for modifiers when an order is cancelled.
+ */
+export async function restoreIngredientsForModifiers(
+  modifiers: { option_id: number }[], quantity: number, orderId: number, userId?: number
+): Promise<void> {
+  await ensureIngredientTables()
+  for (const mod of modifiers) {
+    if (!mod.option_id) continue
+    const optIngredients = await getModifierOptionIngredients(mod.option_id)
+    for (const oi of optIngredients) {
+      const totalRestore = oi.quantity * quantity
+      await adjustIngredientStock(oi.ingredient_id, totalRestore, 'cancel_restore', {
+        referenceId: `order-${orderId}`,
+        notes: `Cancelación modificador opción #${mod.option_id} pedido #${orderId}`,
+        userId,
+      })
+    }
+  }
 }

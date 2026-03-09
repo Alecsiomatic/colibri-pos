@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server"
 import { executeQuery } from "@/lib/db-retry"  
 import { verifyAccessToken, getSessionByToken } from "@/lib/auth-mysql"
 import { deductStockForOrder } from "@/lib/inventory"
-import { deductIngredientsForProduct, checkIngredientsAvailability } from "@/lib/ingredients"
+import { deductIngredientsForProduct, checkIngredientsAvailability, deductIngredientsForModifiers } from "@/lib/ingredients"
 
 // GET - Obtener pedidos
 export async function GET(request: NextRequest) {
@@ -342,6 +342,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Actualizar stock: si el producto tiene receta → deducir insumos; si no → deducir stock producto
+    // También deducir insumos de modificadores seleccionados
     try {
       for (const item of items) {
         const productId = item.id || item.product_id
@@ -356,6 +357,10 @@ export async function POST(request: NextRequest) {
             notes: `Venta pedido #${result.insertId}`,
             userId: user.id,
           })
+        }
+        // Deduct modifier ingredients (if any modifier has linked ingredients)
+        if (item.modifiers && Array.isArray(item.modifiers) && item.modifiers.length > 0) {
+          await deductIngredientsForModifiers(item.modifiers, qty, result.insertId, user.id)
         }
       }
     } catch (stockErr) {

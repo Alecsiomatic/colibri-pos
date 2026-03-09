@@ -10,6 +10,7 @@ interface CartItem {
   image_url?: string
   category_name?: string
   modifiers?: Array<{
+    option_id?: number
     group: string
     modifier: string
     price: number

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPool } from '@/lib/mysql-db'
 import { restoreStockForOrder } from '@/lib/inventory'
-import { restoreIngredientsForProduct } from '@/lib/ingredients'
+import { restoreIngredientsForProduct, restoreIngredientsForModifiers } from '@/lib/ingredients'
 
 export async function GET(
   request: NextRequest,
@@ -160,6 +160,10 @@ export async function PATCH(
                     referenceId: `order-${orderId}`,
                     notes: `Cancelación pedido #${orderId}`,
                   })
+                }
+                // Restore modifier ingredients
+                if (it.modifiers && Array.isArray(it.modifiers) && it.modifiers.length > 0) {
+                  await restoreIngredientsForModifiers(it.modifiers, q, Number(orderId))
                 }
               }
             }

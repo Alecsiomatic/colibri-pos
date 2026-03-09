@@ -9,17 +9,24 @@ import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-notifications'
-import { Plus, Edit, Trash2, Save, X, Package, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, X, Package, ChevronDown, ChevronUp, Boxes } from 'lucide-react'
 
 export default function ModifiersPage() {
   const toast = useToast()
   
   const [groups, setGroups] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
+  const [ingredients, setIngredients] = useState<any[]>([])
   const [expandedGroupId, setExpandedGroupId] = useState<number | null>(null)
   const [options, setOptions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isCreatingGroup, setIsCreatingGroup] = useState(false)
+  
+  // Ingredient linking per option
+  const [expandedOptionId, setExpandedOptionId] = useState<number | null>(null)
+  const [optionIngredients, setOptionIngredients] = useState<any[]>([])
+  const [addIngForm, setAddIngForm] = useState({ ingredient_id: '', quantity: 1 })
+  const [optionCost, setOptionCost] = useState<number>(0)
   
   const [groupForm, setGroupForm] = useState({
     id: null,
@@ -39,6 +46,7 @@ export default function ModifiersPage() {
   useEffect(() => {
     loadGroups()
     loadProducts()
+    loadIngredients()
   }, [])
 
   const loadGroups = async () => {
@@ -60,6 +68,29 @@ export default function ModifiersPage() {
       setProducts(data.products || [])
     } catch (error) {
       console.error('Error:', error)
+    }
+  }
+
+  const loadIngredients = async () => {
+    try {
+      const res = await fetch('/api/ingredients?action=list')
+      const data = await res.json()
+      setIngredients(data.ingredients || [])
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
+
+  const loadOptionIngredients = async (optionId: number) => {
+    try {
+      const res = await fetch(`/api/modifiers/option-ingredients?option_id=${optionId}`)
+      const data = await res.json()
+      setOptionIngredients(data.items || [])
+      setOptionCost(data.cost || 0)
+    } catch (error) {
+      console.error('Error:', error)
+      setOptionIngredients([])
+      setOptionCost(0)
     }
   }
 
@@ -455,26 +486,150 @@ export default function ModifiersPage() {
                               </p>
                             ) : (
                               options.map((option) => (
-                                <div
-                                  key={option.id}
-                                  className="flex items-center justify-between p-2 bg-slate-800/50 rounded"
-                                >
-                                  <div>
-                                    <span className="text-colibri-beige">{option.name}</span>
-                                    {option.price_adjustment > 0 && (
-                                      <span className="text-green-400 text-sm ml-2">
-                                        +${parseFloat(option.price_adjustment).toFixed(2)}
-                                      </span>
-                                    )}
+                                <div key={option.id} className="bg-slate-800/50 rounded overflow-hidden">
+                                  <div className="flex items-center justify-between p-2">
+                                    <button
+                                      onClick={async () => {
+                                        if (expandedOptionId === option.id) {
+                                          setExpandedOptionId(null)
+                                        } else {
+                                          setExpandedOptionId(option.id)
+                                          await loadOptionIngredients(option.id)
+                                        }
+                                      }}
+                                      className="flex items-center gap-2 text-left flex-1"
+                                    >
+                                      {expandedOptionId === option.id 
+                                        ? <ChevronUp className="h-3 w-3 text-colibri-gold" /> 
+                                        : <ChevronDown className="h-3 w-3 text-gray-500" />
+                                      }
+                                      <span className="text-colibri-beige">{option.name}</span>
+                                      {parseFloat(option.price_adjustment) > 0 && (
+                                        <span className="text-green-400 text-sm">
+                                          +${parseFloat(option.price_adjustment).toFixed(2)}
+                                        </span>
+                                      )}
+                                    </button>
+                                    <Button
+                                      onClick={() => handleDeleteOption(option.id)}
+                                      size="sm"
+                                      variant="ghost"
+                                      className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
                                   </div>
-                                  <Button
-                                    onClick={() => handleDeleteOption(option.id)}
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+
+                                  {/* INSUMOS DE ESTA OPCIÓN */}
+                                  {expandedOptionId === option.id && (
+                                    <div className="px-3 pb-3 border-t border-slate-700 pt-2 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <h5 className="text-xs font-semibold text-colibri-gold flex items-center gap-1">
+                                          <Boxes className="h-3 w-3" />
+                                          Insumos que consume
+                                        </h5>
+                                        {optionCost > 0 && (
+                                          <Badge variant="outline" className="text-xs text-amber-400 border-amber-400/50">
+                                            Costo: ${optionCost.toFixed(2)}
+                                          </Badge>
+                                        )}
+                                      </div>
+
+                                      {/* Insumos vinculados */}
+                                      {optionIngredients.length > 0 ? (
+                                        <div className="space-y-1">
+                                          {optionIngredients.map((oi: any) => (
+                                            <div key={oi.id} className="flex items-center justify-between text-xs bg-slate-900/50 rounded p-1.5">
+                                              <span className="text-colibri-beige">
+                                                {oi.ingredient_name} — <span className="text-gray-400">{oi.quantity} {oi.ingredient_unit}</span>
+                                                <span className="text-amber-400 ml-1">(${(oi.quantity * (oi.ingredient_cost || 0)).toFixed(2)})</span>
+                                              </span>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-5 w-5 p-0 text-red-400 hover:text-red-300"
+                                                onClick={async () => {
+                                                  const newItems = optionIngredients
+                                                    .filter((x: any) => x.id !== oi.id)
+                                                    .map((x: any) => ({ ingredient_id: x.ingredient_id, quantity: x.quantity }))
+                                                  await fetch('/api/modifiers/option-ingredients', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ option_id: option.id, items: newItems })
+                                                  })
+                                                  await loadOptionIngredients(option.id)
+                                                  toast.success('Eliminado', 'Insumo removido')
+                                                }}
+                                              >
+                                                <X className="h-3 w-3" />
+                                              </Button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <p className="text-gray-500 text-xs">Sin insumos vinculados — no descuenta inventario</p>
+                                      )}
+
+                                      {/* Agregar insumo */}
+                                      <div className="flex gap-1.5 items-end">
+                                        <div className="flex-1">
+                                          <select
+                                            value={addIngForm.ingredient_id}
+                                            onChange={(e) => setAddIngForm({ ...addIngForm, ingredient_id: e.target.value })}
+                                            className="w-full p-1.5 text-xs bg-slate-900 border border-colibri-green/40 rounded text-colibri-beige"
+                                          >
+                                            <option value="">Seleccionar insumo...</option>
+                                            {ingredients
+                                              .filter((ing: any) => !optionIngredients.some((oi: any) => oi.ingredient_id === ing.id))
+                                              .map((ing: any) => (
+                                                <option key={ing.id} value={ing.id}>
+                                                  {ing.name} ({ing.unit}) — ${Number(ing.cost_per_unit).toFixed(2)}/u
+                                                </option>
+                                              ))}
+                                          </select>
+                                        </div>
+                                        <div className="w-20">
+                                          <Input
+                                            type="number"
+                                            step="0.1"
+                                            min="0.1"
+                                            value={addIngForm.quantity}
+                                            onChange={(e) => setAddIngForm({ ...addIngForm, quantity: parseFloat(e.target.value) || 1 })}
+                                            className="h-7 text-xs bg-slate-900 border-colibri-green/40 text-white p-1"
+                                            placeholder="Cant."
+                                          />
+                                        </div>
+                                        <Button
+                                          size="sm"
+                                          className="h-7 text-xs bg-colibri-wine hover:bg-colibri-green px-2"
+                                          onClick={async () => {
+                                            if (!addIngForm.ingredient_id) {
+                                              toast.error('Error', 'Selecciona un insumo')
+                                              return
+                                            }
+                                            const currentItems = optionIngredients.map((oi: any) => ({
+                                              ingredient_id: oi.ingredient_id,
+                                              quantity: oi.quantity
+                                            }))
+                                            currentItems.push({
+                                              ingredient_id: parseInt(addIngForm.ingredient_id),
+                                              quantity: addIngForm.quantity
+                                            })
+                                            await fetch('/api/modifiers/option-ingredients', {
+                                              method: 'POST',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ option_id: option.id, items: currentItems })
+                                            })
+                                            await loadOptionIngredients(option.id)
+                                            setAddIngForm({ ingredient_id: '', quantity: 1 })
+                                            toast.success('Agregado', 'Insumo vinculado')
+                                          }}
+                                        >
+                                          <Plus className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               ))
                             )}

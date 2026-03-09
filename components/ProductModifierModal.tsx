@@ -121,6 +121,7 @@ export function ProductModifierModal({ isOpen, onClose, product, onAddToCart }: 
         const modifier = group.modifiers.find(m => m.id === modId)
         if (modifier) {
           selectedMods.push({
+            option_id: modifier.id,
             group: group.name,
             modifier: modifier.name,
             price: modifier.price_adjustment
