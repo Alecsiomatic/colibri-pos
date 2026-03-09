@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/mysql-db'
+import { getCurrentUser } from '@/lib/auth-simple'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,6 +61,10 @@ export async function GET() {
 // POST — create a new table
 export async function POST(req: NextRequest) {
   try {
+    const user = await getCurrentUser(req)
+    if (!user || !user.isAdmin) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 })
+    }
     await ensureTable()
     const body = await req.json()
     const { name, capacity, shape, x, y, width, height, rotation, zone } = body
@@ -87,6 +92,10 @@ export async function POST(req: NextRequest) {
 // PUT — bulk update all table positions (layout save)
 export async function PUT(req: NextRequest) {
   try {
+    const user = await getCurrentUser(req)
+    if (!user || !user.isAdmin) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 })
+    }
     await ensureTable()
     const body = await req.json()
     const { tables } = body
@@ -112,6 +121,10 @@ export async function PUT(req: NextRequest) {
 // DELETE — remove a table by id (in query param)
 export async function DELETE(req: NextRequest) {
   try {
+    const user = await getCurrentUser(req)
+    if (!user || !user.isAdmin) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 })
+    }
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
     if (!id) {

@@ -87,7 +87,7 @@ export async function createUser(email: string, password: string, username?: str
 export async function authenticateUser(email: string, password: string) {
   console.log('🔍 authenticateUser llamada con email:', email)
   
-  const query = `SELECT id, email, password, username, is_admin, is_driver, is_waiter FROM users WHERE email = ?`
+  const query = `SELECT id, email, password, username, is_admin, is_driver, is_waiter, role FROM users WHERE email = ?`
   const users = await executeQuery(query, [email]) as any[]
   
   console.log('📊 Usuarios encontrados:', users.length)
@@ -104,7 +104,8 @@ export async function authenticateUser(email: string, password: string) {
     username: user.username, 
     is_admin: user.is_admin,
     is_driver: user.is_driver,
-    is_waiter: user.is_waiter
+    is_waiter: user.is_waiter,
+    role: user.role
   })
   
   const isValidPassword = await bcrypt.compare(password, user.password)
@@ -123,8 +124,9 @@ export async function authenticateUser(email: string, password: string) {
       email: user.email,
       username: user.username,
       is_admin: Boolean(user.is_admin),
-      is_driver: Boolean(user.is_driver), // ✅ Ahora retorna el valor real
-      is_waiter: Boolean(user.is_waiter)
+      is_driver: Boolean(user.is_driver),
+      is_waiter: Boolean(user.is_waiter),
+      role: user.role || undefined
     }
   }
 }

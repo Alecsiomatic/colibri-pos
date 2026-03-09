@@ -16,6 +16,7 @@ export interface UserPayload {
   is_admin: boolean
   is_driver: boolean
   is_waiter: boolean
+  role?: string
 }
 
 export interface SessionData {
@@ -34,7 +35,8 @@ export function generateTokens(user: UserPayload): { accessToken: string; refres
       username: user.username, 
       is_admin: user.is_admin,
       is_driver: user.is_driver || false,
-      is_waiter: user.is_waiter || false
+      is_waiter: user.is_waiter || false,
+      role: user.role || 'customer'
     },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
@@ -60,7 +62,8 @@ export function verifyAccessToken(token: string): UserPayload | null {
       username: decoded.username,
       is_admin: decoded.is_admin,
       is_driver: decoded.is_driver || false,
-      is_waiter: decoded.is_waiter || false
+      is_waiter: decoded.is_waiter || false,
+      role: decoded.role || undefined
     }
     console.log('✅ Token válido, usuario:', user)
     return user
@@ -137,7 +140,7 @@ export async function getSessionByToken(token: string): Promise<UserPayload | nu
   try {
     await ensureSessionTable()
     const sessions = await executeQuery(
-      'SELECT s.*, u.email, u.username, u.is_admin, u.is_driver, u.is_waiter FROM user_sessions s JOIN users u ON s.user_id = u.id WHERE s.session_token = ? AND s.expires_at > NOW()',
+      'SELECT s.*, u.email, u.username, u.is_admin, u.is_driver, u.is_waiter, u.role FROM user_sessions s JOIN users u ON s.user_id = u.id WHERE s.session_token = ? AND s.expires_at > NOW()',
       [token]
     ) as any[]
     
@@ -150,7 +153,8 @@ export async function getSessionByToken(token: string): Promise<UserPayload | nu
       username: session.username,
       is_admin: session.is_admin == 1 || session.is_admin === true || session.is_admin === '1',
       is_driver: session.is_driver == 1 || session.is_driver === true || session.is_driver === '1',
-      is_waiter: session.is_waiter == 1 || session.is_waiter === true || session.is_waiter === '1'
+      is_waiter: session.is_waiter == 1 || session.is_waiter === true || session.is_waiter === '1',
+      role: session.role || undefined
     }
   } catch (error) {
     return null
@@ -165,7 +169,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<SessionD
   // Verificar que el refresh token existe en la base de datos
   await ensureSessionTable()
   const sessions = await executeQuery(
-    'SELECT s.*, u.email, u.username, u.is_admin, u.is_driver FROM user_sessions s JOIN users u ON s.user_id = u.id WHERE s.refresh_token = ? AND s.expires_at > NOW()',
+    'SELECT s.*, u.email, u.username, u.is_admin, u.is_driver, u.is_waiter, u.role FROM user_sessions s JOIN users u ON s.user_id = u.id WHERE s.refresh_token = ? AND s.expires_at > NOW()',
     [refreshToken]
   ) as any[]
   
@@ -178,7 +182,8 @@ export async function refreshAccessToken(refreshToken: string): Promise<SessionD
     username: session.username,
     is_admin: session.is_admin == 1 || session.is_admin === true || session.is_admin === '1',
     is_driver: session.is_driver == 1 || session.is_driver === true || session.is_driver === '1',
-    is_waiter: session.is_waiter == 1 || session.is_waiter === true || session.is_waiter === '1'
+    is_waiter: session.is_waiter == 1 || session.is_waiter === true || session.is_waiter === '1',
+    role: session.role || undefined
   }
   
   // Generar nuevos tokens

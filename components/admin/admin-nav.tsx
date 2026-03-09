@@ -21,6 +21,7 @@ import {
   Receipt,
   Warehouse,
   Boxes,
+  Shield,
 } from "lucide-react"
 
 const navigation = [
@@ -38,6 +39,7 @@ const navigation = [
   { name: "Estadísticas Drivers", href: "/admin/driver-stats", icon: TrendingUp },
   { name: "Inventario", href: "/admin/inventario", icon: Warehouse },
   { name: "Insumos y Recetas", href: "/admin/insumos", icon: Boxes },
+  { name: "Permisos", href: "/admin/permisos", icon: Shield },
   { name: "WhatsApp", href: "/admin/whatsapp", icon: MessageSquare },
   { name: "Configuración Empresa", href: "/admin/configuracion-empresa", icon: Building2 },
   { name: "Configuración", href: "/admin/settings", icon: Settings },

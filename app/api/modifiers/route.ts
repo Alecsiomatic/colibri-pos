@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/mysql-db'
+import { getCurrentUser } from '@/lib/auth-simple'
 
 // GET /api/modifiers - Obtener todos los grupos de modificadores
 export async function GET(request: NextRequest) {
@@ -29,6 +30,10 @@ export async function GET(request: NextRequest) {
 // POST /api/modifiers - Crear grupo de modificadores
 export async function POST(request: NextRequest) {
   try {
+    const user = await getCurrentUser(request)
+    if (!user || !user.isAdmin) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 })
+    }
     const body = await request.json()
     const { name, description, is_required, min_selections, max_selections } = body
 

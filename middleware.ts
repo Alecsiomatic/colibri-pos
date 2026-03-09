@@ -30,7 +30,7 @@ function isValidTokenFormat(token: string): boolean {
 
 
 // Función para obtener información del usuario del token (sin verificar firma)
-function getUserFromToken(token: string): { id: number, email: string, username: string, is_admin: number, is_driver: number } | null {
+function getUserFromToken(token: string): { id: number, email: string, username: string, is_admin: number, is_driver: number, role?: string } | null {
 
   try {
     const parts = token.split('.')
@@ -41,7 +41,8 @@ function getUserFromToken(token: string): { id: number, email: string, username:
       email: payload.email,
       username: payload.username,
       is_admin: payload.is_admin || 0,
-      is_driver: payload.is_driver || 0
+      is_driver: payload.is_driver || 0,
+      role: payload.role || undefined
     }
   } catch {
     return null
@@ -112,9 +113,11 @@ export async function middleware(req: NextRequest) {
               // Si requiere permisos de admin, verificar
               if (requiresAdmin) {
                 console.log('🔒 Verificando permisos admin para:', user);
-                console.log('🔍 is_admin value:', user.is_admin, 'type:', typeof user.is_admin);
-                if (!user.is_admin || user.is_admin === 0) {
-                  console.log('❌ Usuario no es admin, redirigiendo');
+                console.log('🔍 is_admin value:', user.is_admin, 'type:', typeof user.is_admin, 'role:', user.role);
+                const adminRoles = ['owner', 'manager', 'cashier'];
+                const hasAdminAccess = user.is_admin || user.is_admin !== 0 || (user.role && adminRoles.includes(user.role));
+                if (!hasAdminAccess) {
+                  console.log('❌ Usuario no tiene acceso admin, redirigiendo');
                   response = NextResponse.redirect(new URL('/unauthorized', req.url));
                 } else {
                   console.log('✅ Usuario es admin, acceso permitido');

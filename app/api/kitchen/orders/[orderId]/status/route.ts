@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { executeQuery } from "@/lib/db-retry"
+import { getCurrentUser } from "@/lib/auth-simple"
 
 // PATCH - Actualizar estado de un pedido desde cocina
 export async function PATCH(
@@ -7,6 +8,10 @@ export async function PATCH(
   context: { params: { orderId: string } }
 ) {
   try {
+    const user = await getCurrentUser(request)
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
+    }
     const { orderId } = context.params
     const body = await request.json()
     const { status } = body

@@ -57,6 +57,7 @@ export async function getCurrentUser(request?: NextRequest) {
           is_admin: Boolean(verified.is_admin), // Para compatibilidad
           is_driver: Boolean(verified.is_driver), // Para drivers
           is_waiter: Boolean(verified.is_waiter), // Para meseros
+          role: verified.role || undefined,
           timestamp: Date.now(),
         }
       }
