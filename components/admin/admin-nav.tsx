@@ -25,6 +25,7 @@ import {
   Zap,
   Crown,
   CalendarDays,
+  Palette,
 } from "lucide-react"
 
 const navigation = [
