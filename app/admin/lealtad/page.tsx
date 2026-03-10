@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import AdminLayout from '@/components/admin/admin-layout'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -133,9 +134,11 @@ export default function LealtadAdminPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-colibri-gold" />
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-colibri-gold" />
+        </div>
+      </AdminLayout>
     )
   }
 
@@ -144,6 +147,7 @@ export default function LealtadAdminPage() {
   ) || []
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -531,5 +535,6 @@ export default function LealtadAdminPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </AdminLayout>
   )
 }

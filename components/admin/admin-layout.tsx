@@ -57,7 +57,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   // Usuario autenticado y es admin, renderizar el layout
   return (
-    <div className="flex h-screen bg-gradient-to-br from-black via-colibri-green to-black">
+    <div className="flex h-screen w-full bg-black bg-gradient-to-br from-black via-colibri-green to-black relative z-10">
       {/* Sidebar */}
       <div className="w-64 bg-black/50 backdrop-blur-md shadow-2xl border-r border-colibri-gold/50 flex flex-col">
         <div className="p-6 border-b border-colibri-gold/50 flex-shrink-0">
