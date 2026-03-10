@@ -262,11 +262,11 @@ export default function ReservarPage() {
                 <div className="flex items-center gap-3">
                   <Button variant="outline" size="sm" disabled={partySize <= (config?.min_party_size || 1)}
                     onClick={() => setPartySize(p => p - 1)}
-                    className="border-white/20 text-white hover:bg-white/5 h-10 w-10 p-0 text-lg">-</Button>
+                    className="border-colibri-gold/50 text-colibri-gold bg-colibri-gold/10 hover:bg-colibri-gold/20 h-10 w-10 p-0 text-lg font-bold">-</Button>
                   <span className="text-2xl font-bold text-white w-12 text-center">{partySize}</span>
                   <Button variant="outline" size="sm" disabled={partySize >= (config?.max_party_size || 20)}
                     onClick={() => setPartySize(p => p + 1)}
-                    className="border-white/20 text-white hover:bg-white/5 h-10 w-10 p-0 text-lg">+</Button>
+                    className="border-colibri-gold/50 text-colibri-gold bg-colibri-gold/10 hover:bg-colibri-gold/20 h-10 w-10 p-0 text-lg font-bold">+</Button>
                   <span className="text-sm text-colibri-beige/50 ml-2">
                     <Users className="w-4 h-4 inline mr-1" /> personas
                   </span>
@@ -284,12 +284,12 @@ export default function ReservarPage() {
           <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setStep('form')} className="text-colibri-beige h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" onClick={() => setStep('form')} className="text-white hover:bg-white/10 h-8 w-8 p-0">
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <div>
                   <CardTitle className="text-white text-lg">Elige tu horario</CardTitle>
-                  <CardDescription className="text-colibri-beige/60">
+                  <CardDescription className="text-colibri-beige/70">
                     {new Date(date + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })} · {partySize} personas
                   </CardDescription>
                 </div>
@@ -314,8 +314,8 @@ export default function ReservarPage() {
                     <Button key={s.time} variant="outline" disabled={!s.available}
                       onClick={() => handleSelectSlot(s.time)}
                       className={`h-12 text-sm ${s.available
-                        ? 'border-colibri-gold/30 text-white hover:bg-colibri-gold/20 hover:border-colibri-gold'
-                        : 'border-white/5 text-white/20 cursor-not-allowed'}`}>
+                        ? 'border-colibri-gold/40 text-white bg-white/5 hover:bg-colibri-gold/20 hover:border-colibri-gold'
+                        : 'border-white/10 text-white/30 cursor-not-allowed'}`}>
                       {s.display}
                     </Button>
                   ))}
@@ -330,12 +330,12 @@ export default function ReservarPage() {
           <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setStep('slots')} className="text-colibri-beige h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" onClick={() => setStep('slots')} className="text-white hover:bg-white/10 h-8 w-8 p-0">
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <div>
                   <CardTitle className="text-white text-lg">Tus datos</CardTitle>
-                  <CardDescription className="text-colibri-beige/60">
+                  <CardDescription className="text-colibri-beige/70">
                     {new Date(date + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })} · {formatTime(selectedSlot)} · {partySize} personas
                   </CardDescription>
                 </div>
