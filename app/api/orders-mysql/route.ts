@@ -5,6 +5,7 @@ import { verifyAccessToken, getSessionByToken } from "@/lib/auth-mysql"
 import { deductStockForOrder } from "@/lib/inventory"
 import { deductIngredientsForProduct, checkIngredientsAvailability, deductIngredientsForModifiers } from "@/lib/ingredients"
 import { ensurePromotionTables, applyPromotions, recordPromotionUsage } from "@/lib/promotions"
+import { ensureLoyaltyTables, earnPoints as earnLoyaltyPoints } from "@/lib/loyalty"
 
 // GET - Obtener pedidos
 export async function GET(request: NextRequest) {
@@ -193,6 +194,9 @@ export async function POST(request: NextRequest) {
     const discountAmount = Number(body.discount_amount) || 0;
     const discountDetail = body.discount_detail ? JSON.stringify(body.discount_detail) : null;
     const couponCode = body.coupon_code || null;
+    // Loyalty
+    const loyaltyPointsRedeemed = Number(body.loyalty_points_redeemed) || 0;
+    const loyaltyDiscountAmount = Number(body.loyalty_discount) || 0;
 
     // Log de los datos recibidos para depuración
     console.log('POST /api/orders-mysql datos recibidos:', {
@@ -362,6 +366,25 @@ export async function POST(request: NextRequest) {
       console.warn('[Orders] Error recording promotion usage:', e.message)
     }
 
+    // Loyalty points: redeem then earn
+    let loyaltyPointsEarned = 0
+    try {
+      await ensureLoyaltyTables()
+      // Redeem points if requested
+      if (loyaltyPointsRedeemed > 0 && user.id) {
+        const { redeemPoints } = await import('@/lib/loyalty')
+        await redeemPoints(user.id, loyaltyPointsRedeemed, result.insertId, `Canje en pedido #${result.insertId}`)
+      }
+      // Earn points on the net total (after all discounts)
+      const orderFinalTotal = Math.max(0, total - discountAmount)
+      if (user.id && orderFinalTotal > 0) {
+        const loyaltyResult = await earnLoyaltyPoints(user.id, orderFinalTotal, result.insertId)
+        if (loyaltyResult) loyaltyPointsEarned = loyaltyResult.pointsEarned
+      }
+    } catch (e: any) {
+      console.warn('[Orders] Error with loyalty points:', e.message)
+    }
+
     // Actualizar stock: si el producto tiene receta → deducir insumos; si no → deducir stock producto
     // También deducir insumos de modificadores seleccionados
     try {
@@ -475,6 +498,7 @@ export async function POST(request: NextRequest) {
       success: true,
       orderId: result.insertId,
       total,
+      loyaltyPointsEarned,
       message: "Pedido creado exitosamente"
     })
   } catch (error: any) {

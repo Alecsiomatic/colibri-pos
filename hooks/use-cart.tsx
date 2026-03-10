@@ -155,6 +155,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           discount_amount: orderData.discount_amount,
           discount_detail: orderData.discount_detail,
           coupon_code: orderData.coupon_code,
+          loyalty_points_redeemed: orderData.loyalty_points_redeemed,
+          loyalty_discount: orderData.loyalty_discount,
         }),
       })
 

@@ -30,7 +30,8 @@ import {
   Loader2,
   UserCheck,
   Tag,
-  Ticket
+  Ticket,
+  Crown
 } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
@@ -103,6 +104,13 @@ export default function CheckoutPage() {
   const [appliedDiscounts, setAppliedDiscounts] = useState<{ promotion_id: number; promotion_name: string; type: string; discount_amount: number; coupon_code?: string }[]>([])
   const [totalDiscount, setTotalDiscount] = useState(0)
   
+  // Loyalty
+  const [loyaltyInfo, setLoyaltyInfo] = useState<{ total_points: number; tier_label: string; tier_multiplier: number } | null>(null)
+  const [loyaltyConfig, setLoyaltyConfig] = useState<{ redemption_value: number; min_redeem: number; is_active: boolean } | null>(null)
+  const [pointsToRedeem, setPointsToRedeem] = useState(0)
+  const [loyaltyDiscount, setLoyaltyDiscount] = useState(0)
+  const [loyaltyLoading, setLoyaltyLoading] = useState(false)
+
   // Autocompletado de direcciones con Nominatim
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -306,9 +314,11 @@ export default function CheckoutPage() {
           payment_method: paymentMethod,
           notes: deliveryInfo.notes,
           delivery_type: orderType,
-          discount_amount: totalDiscount,
+          discount_amount: totalDiscount + loyaltyDiscount,
           discount_detail: appliedDiscounts.length > 0 ? appliedDiscounts : undefined,
           coupon_code: appliedDiscounts.find(d => d.coupon_code)?.coupon_code || undefined,
+          loyalty_points_redeemed: pointsToRedeem > 0 ? pointsToRedeem : undefined,
+          loyalty_discount: loyaltyDiscount > 0 ? loyaltyDiscount : undefined,
         }
       }
       
@@ -481,6 +491,31 @@ export default function CheckoutPage() {
     else { setAppliedDiscounts([]); setTotalDiscount(0) }
   }, [items, total])
 
+  // Fetch loyalty balance
+  useEffect(() => {
+    if (!user) return
+    async function fetchLoyalty() {
+      try {
+        const [balRes, cfgRes] = await Promise.all([
+          fetch('/api/loyalty?action=balance').then(r => r.json()),
+          fetch('/api/loyalty?action=config').then(r => r.json()),
+        ])
+        if (balRes.success && balRes.loyalty) setLoyaltyInfo(balRes.loyalty)
+        if (cfgRes.success && cfgRes.config) setLoyaltyConfig(cfgRes.config)
+      } catch {}
+    }
+    fetchLoyalty()
+  }, [user])
+
+  // Update loyalty discount when points change
+  useEffect(() => {
+    if (loyaltyConfig && pointsToRedeem > 0) {
+      setLoyaltyDiscount(Math.round(pointsToRedeem * loyaltyConfig.redemption_value * 100) / 100)
+    } else {
+      setLoyaltyDiscount(0)
+    }
+  }, [pointsToRedeem, loyaltyConfig])
+
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return
     setCouponLoading(true)
@@ -535,7 +570,7 @@ export default function CheckoutPage() {
     fetchPromos()
   }
 
-  const deliveryTotal = (orderType === 'delivery' ? total + deliveryCost : total) - totalDiscount
+  const deliveryTotal = (orderType === 'delivery' ? total + deliveryCost : total) - totalDiscount - loyaltyDiscount
 
   if (itemCount === 0) {
     return (
@@ -953,6 +988,50 @@ export default function CheckoutPage() {
                   {couponError && <p className="text-xs text-red-400">{couponError}</p>}
                 </div>
 
+                {/* Loyalty Points Redemption */}
+                {loyaltyConfig?.is_active && loyaltyInfo && loyaltyInfo.total_points > 0 && (
+                  <div className="space-y-2 p-3 rounded-lg bg-amber-900/20 border border-amber-500/20">
+                    <label className="text-sm text-amber-300 flex items-center gap-2">
+                      <Crown className="w-4 h-4" /> Canjear Puntos
+                      <Badge variant="outline" className="ml-auto text-xs border-amber-500/30 text-amber-300">
+                        {loyaltyInfo.total_points.toLocaleString()} pts disponibles
+                      </Badge>
+                    </label>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={loyaltyInfo.total_points}
+                        value={pointsToRedeem || ''}
+                        onChange={e => {
+                          const v = Math.min(Number(e.target.value) || 0, loyaltyInfo.total_points)
+                          setPointsToRedeem(v)
+                        }}
+                        placeholder={`Mín. ${loyaltyConfig.min_redeem}`}
+                        className="bg-amber-900/20 border-amber-500/30 text-white text-sm flex-1"
+                      />
+                      <Button type="button" variant="outline" size="sm"
+                        className="border-amber-500/30 text-amber-300 hover:bg-amber-900/30 text-xs"
+                        onClick={() => setPointsToRedeem(loyaltyInfo.total_points)}>
+                        Máximo
+                      </Button>
+                      {pointsToRedeem > 0 && (
+                        <Button type="button" variant="ghost" size="sm"
+                          className="text-red-400 hover:text-red-300 text-xs px-2"
+                          onClick={() => setPointsToRedeem(0)}>
+                          ✕
+                        </Button>
+                      )}
+                    </div>
+                    {pointsToRedeem > 0 && pointsToRedeem < loyaltyConfig.min_redeem && (
+                      <p className="text-xs text-amber-400">Mínimo {loyaltyConfig.min_redeem} puntos para canjear</p>
+                    )}
+                    {loyaltyDiscount > 0 && (
+                      <p className="text-xs text-green-400">Descuento: -${loyaltyDiscount.toFixed(2)}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Applied Discounts */}
                 {appliedDiscounts.length > 0 && (
                   <div className="space-y-1.5">
@@ -1061,6 +1140,12 @@ export default function CheckoutPage() {
                     <div className="flex justify-between text-green-400 font-medium">
                       <span>Descuento</span>
                       <span>-${totalDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {loyaltyDiscount > 0 && (
+                    <div className="flex justify-between text-amber-400 font-medium">
+                      <span className="flex items-center gap-1"><Crown className="w-3.5 h-3.5" /> Puntos ({pointsToRedeem})</span>
+                      <span>-${loyaltyDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-white font-bold text-lg">
