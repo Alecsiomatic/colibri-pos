@@ -202,7 +202,7 @@ export default function ReservarPage() {
   if (!config?.is_active) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <Card className="max-w-md w-full glass-dark border-white/10">
+        <Card className="max-w-md w-full bg-black/85 backdrop-blur-md border-white/10">
           <CardContent className="p-8 text-center">
             <CalendarDays className="w-12 h-12 text-colibri-gold/40 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-white mb-2">Reservaciones no disponibles</h2>
@@ -233,12 +233,12 @@ export default function ReservarPage() {
           <div className="flex gap-2 justify-center">
             <Button variant={step === 'form' ? 'default' : 'outline'} size="sm"
               onClick={() => setStep('form')}
-              className={step === 'form' ? 'bg-colibri-gold text-black' : 'border-white/20 text-colibri-beige hover:bg-white/5'}>
+              className={step === 'form' ? 'bg-colibri-gold text-black font-semibold' : 'border-white/30 text-white hover:bg-white/10'}>
               Nueva Reservación
             </Button>
             <Button variant={step === 'lookup' ? 'default' : 'outline'} size="sm"
               onClick={() => setStep('lookup')}
-              className={step === 'lookup' ? 'bg-colibri-gold text-black' : 'border-white/20 text-colibri-beige hover:bg-white/5'}>
+              className={step === 'lookup' ? 'bg-colibri-gold text-black font-semibold' : 'border-white/30 text-white hover:bg-white/10'}>
               <Search className="w-4 h-4 mr-1" /> Consultar Reservación
             </Button>
           </div>
@@ -246,7 +246,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Form ──────────────────────── */}
         {step === 'form' && (
-          <Card className="glass-dark border-white/10">
+          <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardHeader>
               <CardTitle className="text-white text-lg">¿Cuándo quieres venir?</CardTitle>
             </CardHeader>
@@ -255,7 +255,7 @@ export default function ReservarPage() {
                 <Label className="text-colibri-beige text-sm">Fecha</Label>
                 <Input type="date" value={date} min={today} max={maxDate}
                   onChange={e => setDate(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white" />
+                  className="bg-white/10 border-white/20 text-white" />
               </div>
               <div className="space-y-1">
                 <Label className="text-colibri-beige text-sm">Número de personas</Label>
@@ -272,7 +272,7 @@ export default function ReservarPage() {
                   </span>
                 </div>
               </div>
-              <Button onClick={handleFindSlots} disabled={!date} className="w-full bg-colibri-gold text-black hover:bg-colibri-gold/90 mt-2">
+              <Button onClick={handleFindSlots} disabled={!date} className="w-full bg-colibri-gold text-black font-semibold hover:bg-colibri-gold/90 mt-2">
                 <Clock className="w-4 h-4 mr-2" /> Ver Horarios Disponibles
               </Button>
             </CardContent>
@@ -281,7 +281,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Slots ──────────────────────── */}
         {step === 'slots' && (
-          <Card className="glass-dark border-white/10">
+          <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep('form')} className="text-colibri-beige h-8 w-8 p-0">
@@ -327,7 +327,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Confirm ─────────────────────── */}
         {step === 'confirm' && (
-          <Card className="glass-dark border-white/10">
+          <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep('slots')} className="text-colibri-beige h-8 w-8 p-0">
@@ -345,22 +345,22 @@ export default function ReservarPage() {
               <div className="space-y-1">
                 <Label className="text-colibri-beige text-sm">Nombre completo *</Label>
                 <Input value={name} onChange={e => setName(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white" placeholder="Tu nombre" />
+                  className="bg-white/10 border-white/20 text-white" placeholder="Tu nombre" />
               </div>
               <div className="space-y-1">
                 <Label className="text-colibri-beige text-sm">Teléfono *</Label>
                 <Input value={phone} onChange={e => setPhone(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white" placeholder="Ej: 55 1234 5678" />
+                  className="bg-white/10 border-white/20 text-white" placeholder="Ej: 55 1234 5678" />
               </div>
               <div className="space-y-1">
                 <Label className="text-colibri-beige text-sm">Email (opcional)</Label>
                 <Input value={email} onChange={e => setEmail(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white" placeholder="email@ejemplo.com" />
+                  className="bg-white/10 border-white/20 text-white" placeholder="email@ejemplo.com" />
               </div>
               <div className="space-y-1">
                 <Label className="text-colibri-beige text-sm">Peticiones especiales (opcional)</Label>
                 <Textarea value={specialRequests} onChange={e => setSpecialRequests(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white" rows={2}
+                  className="bg-white/10 border-white/20 text-white" rows={2}
                   placeholder="Cumpleaños, silla alta, preferencia de zona..." />
               </div>
               <Button onClick={handleSubmit} disabled={submitting} className="w-full bg-colibri-green hover:bg-colibri-green/80 text-white mt-2">
@@ -373,7 +373,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Success ─────────────────────── */}
         {step === 'success' && (
-          <Card className="glass-dark border-white/10">
+          <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardContent className="p-8 text-center space-y-4">
               <PartyPopper className="w-14 h-14 text-colibri-gold mx-auto" />
               <h2 className="text-2xl font-bold text-white">¡Reservación Creada!</h2>
@@ -415,7 +415,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Lookup ─────────────────────── */}
         {step === 'lookup' && (
-          <Card className="glass-dark border-white/10">
+          <Card className="bg-black/85 backdrop-blur-md border-white/10">
             <CardHeader>
               <CardTitle className="text-white text-lg">Consultar Reservación</CardTitle>
               <CardDescription className="text-colibri-beige/60">
@@ -425,7 +425,7 @@ export default function ReservarPage() {
             <CardContent className="space-y-4">
               <div className="flex gap-2">
                 <Input value={lookupCode} onChange={e => setLookupCode(e.target.value.toUpperCase())}
-                  className="bg-white/5 border-white/10 text-white font-mono tracking-widest uppercase flex-1"
+                  className="bg-white/10 border-white/20 text-white font-mono tracking-widest uppercase flex-1"
                   placeholder="CÓDIGO" maxLength={8}
                   onKeyDown={e => e.key === 'Enter' && handleLookup()} />
                 <Button onClick={handleLookup} disabled={lookupLoading} className="bg-colibri-gold text-black hover:bg-colibri-gold/90">
