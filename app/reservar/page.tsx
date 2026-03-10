@@ -219,13 +219,14 @@ export default function ReservarPage() {
   // ─── Main ──────────────────────────────────
   return (
     <div className="min-h-[60vh] py-8 px-4">
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto">
+        <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40 p-6 sm:p-8 space-y-6">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white flex items-center justify-center gap-2">
             <CalendarDays className="w-8 h-8 text-colibri-gold" /> Reservar Mesa
           </h1>
-          <p className="text-colibri-beige/60 mt-2">Reserva tu mesa en minutos</p>
+          <p className="text-colibri-beige/70 mt-2">Reserva tu mesa en minutos</p>
         </div>
 
         {/* Tab toggle: New vs Check */}
@@ -246,7 +247,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Form ──────────────────────── */}
         {step === 'form' && (
-          <Card className="bg-black/85 backdrop-blur-md border-white/10">
+          <Card className="bg-white/5 border-white/10">
             <CardHeader>
               <CardTitle className="text-white text-lg">¿Cuándo quieres venir?</CardTitle>
             </CardHeader>
@@ -281,7 +282,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Slots ──────────────────────── */}
         {step === 'slots' && (
-          <Card className="bg-black/85 backdrop-blur-md border-white/10">
+          <Card className="bg-white/5 border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep('form')} className="text-white hover:bg-white/10 h-8 w-8 p-0">
@@ -327,7 +328,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Confirm ─────────────────────── */}
         {step === 'confirm' && (
-          <Card className="bg-black/85 backdrop-blur-md border-white/10">
+          <Card className="bg-white/5 border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep('slots')} className="text-white hover:bg-white/10 h-8 w-8 p-0">
@@ -373,7 +374,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Success ─────────────────────── */}
         {step === 'success' && (
-          <Card className="bg-black/85 backdrop-blur-md border-white/10">
+          <Card className="bg-white/5 border-white/10">
             <CardContent className="p-8 text-center space-y-4">
               <PartyPopper className="w-14 h-14 text-colibri-gold mx-auto" />
               <h2 className="text-2xl font-bold text-white">¡Reservación Creada!</h2>
@@ -415,7 +416,7 @@ export default function ReservarPage() {
 
         {/* ─── Step: Lookup ─────────────────────── */}
         {step === 'lookup' && (
-          <Card className="bg-black/85 backdrop-blur-md border-white/10">
+          <Card className="bg-white/5 border-white/10">
             <CardHeader>
               <CardTitle className="text-white text-lg">Consultar Reservación</CardTitle>
               <CardDescription className="text-colibri-beige/60">
@@ -483,6 +484,7 @@ export default function ReservarPage() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   )
