@@ -355,16 +355,16 @@ export default function CajaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green/30 to-slate-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-colibri-gold"></div>
       </div>
     )
   }
 
   if (!currentShift) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-gradient-to-br from-purple-900/50 to-slate-900/50 border-purple-700/50 backdrop-blur-xl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green/30 to-slate-950 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-gradient-to-br from-colibri-green/30 to-slate-900/50 border-colibri-green/30 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-2xl text-white text-center">
               💰 Punto de Venta
@@ -372,7 +372,7 @@ export default function CajaPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center text-gray-300 mb-6">
-              <Clock className="h-16 w-16 mx-auto mb-4 text-purple-400" />
+              <Clock className="h-16 w-16 mx-auto mb-4 text-colibri-gold" />
               <p className="text-lg">No hay turno activo</p>
               <p className="text-sm text-gray-400 mt-2">
                 Abre un turno para comenzar a vender
@@ -381,7 +381,7 @@ export default function CajaPage() {
             
             <Button
               onClick={handleOpenShift}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg"
+              className="w-full bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white py-6 text-lg"
             >
               Abrir Turno
             </Button>
@@ -389,7 +389,7 @@ export default function CajaPage() {
             <Button
               variant="outline"
               onClick={() => router.push('/admin/orders')}
-              className="w-full border-purple-600 text-purple-400"
+              className="w-full border-colibri-green text-colibri-gold"
             >
               <BarChart3 className="mr-2 h-4 w-4" />
               Ver Pedidos
@@ -401,13 +401,13 @@ export default function CajaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
-      <header className="bg-gradient-to-r from-purple-900/50 to-slate-900/50 backdrop-blur-xl border-b border-purple-700/30 sticky top-0 z-40">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green/30 to-slate-950">
+      <header className="bg-gradient-to-r from-colibri-green/30 to-slate-900/50 backdrop-blur-xl border-b border-colibri-green/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-white">💰 Caja - Supernova</h1>
-              <p className="text-xs sm:text-sm text-purple-300">
+              <p className="text-xs sm:text-sm text-colibri-gold">
                 Turno: {currentShift.shift_type} | {currentShift.user_name}
               </p>
             </div>
@@ -434,7 +434,7 @@ export default function CajaPage() {
 
       <div className="max-w-7xl mx-auto p-3 sm:p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 bg-purple-900/30">
+          <TabsList className="grid w-full grid-cols-4 bg-colibri-green/20">
             <TabsTrigger value="venta" className="text-xs sm:text-sm">
               <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Venta</span>
@@ -473,7 +473,7 @@ export default function CajaPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Buscar producto..."
-                    className="pl-10 bg-slate-800 border-purple-700 text-white"
+                    className="pl-10 bg-slate-800 border-colibri-green/40 text-white"
                   />
                 </div>
 
@@ -482,7 +482,7 @@ export default function CajaPage() {
                     size="sm"
                     variant={selectedCategory === 'all' ? 'default' : 'outline'}
                     onClick={() => setSelectedCategory('all')}
-                    className={selectedCategory === 'all' ? 'bg-purple-600' : 'border-purple-600 text-purple-400'}
+                    className={selectedCategory === 'all' ? 'bg-colibri-green' : 'border-colibri-green text-colibri-gold'}
                   >
                     Todos
                   </Button>
@@ -492,7 +492,7 @@ export default function CajaPage() {
                       size="sm"
                       variant={selectedCategory === cat.id.toString() ? 'default' : 'outline'}
                       onClick={() => setSelectedCategory(cat.id.toString())}
-                      className={selectedCategory === cat.id.toString() ? 'bg-purple-600' : 'border-purple-600 text-purple-400'}
+                      className={selectedCategory === cat.id.toString() ? 'bg-colibri-green' : 'border-colibri-green text-colibri-gold'}
                     >
                       {cat.name}
                     </Button>
@@ -511,7 +511,7 @@ export default function CajaPage() {
                           addToCart(product)
                         }
                       }}
-                      className="cursor-pointer bg-purple-900/30 border-purple-800/50 hover:border-purple-600 transition-all hover:scale-105"
+                      className="cursor-pointer bg-colibri-green/20 border-colibri-green/30 hover:border-colibri-gold transition-all hover:scale-105"
                     >
                       <CardContent className="p-3">
                         {product.image_url && (
@@ -527,7 +527,7 @@ export default function CajaPage() {
                         <h4 className="font-semibold text-white text-sm mb-1 line-clamp-2">
                           {product.name}
                         </h4>
-                        <p className="text-purple-400 font-bold">
+                        <p className="text-colibri-gold font-bold">
                           ${parseFloat(product.price.toString()).toFixed(2)}
                         </p>
                       </CardContent>
@@ -537,7 +537,7 @@ export default function CajaPage() {
               </div>
 
               <div className="space-y-4">
-                <Card className="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border-purple-700/50 backdrop-blur-xl sticky top-20">
+                <Card className="bg-gradient-to-br from-colibri-green/30 to-slate-900/50 border-colibri-green/30 backdrop-blur-xl sticky top-20">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <ShoppingCart className="h-5 w-5" />
@@ -551,7 +551,7 @@ export default function CajaPage() {
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="Nombre del cliente"
-                        className="bg-slate-800 border-purple-700 text-white"
+                        className="bg-slate-800 border-colibri-green/40 text-white"
                       />
                     </div>
 
@@ -571,15 +571,15 @@ export default function CajaPage() {
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex items-center gap-1">
-                                <Button size="sm" variant="ghost" onClick={() => updateQuantity(item.cartId, -1)} className="h-6 w-6 p-0 text-purple-400">
+                                <Button size="sm" variant="ghost" onClick={() => updateQuantity(item.cartId, -1)} className="h-6 w-6 p-0 text-colibri-gold">
                                   <Minus className="h-3 w-3" />
                                 </Button>
                                 <span className="text-white w-6 text-center">{item.quantity}</span>
-                                <Button size="sm" variant="ghost" onClick={() => updateQuantity(item.cartId, 1)} className="h-6 w-6 p-0 text-purple-400">
+                                <Button size="sm" variant="ghost" onClick={() => updateQuantity(item.cartId, 1)} className="h-6 w-6 p-0 text-colibri-gold">
                                   <Plus className="h-3 w-3" />
                                 </Button>
                               </div>
-                              <span className="text-purple-400 font-bold">${(item.price * item.quantity).toFixed(2)}</span>
+                              <span className="text-colibri-gold font-bold">${(item.price * item.quantity).toFixed(2)}</span>
                               <Button size="sm" variant="ghost" onClick={() => removeFromCart(item.cartId)} className="h-6 w-6 p-0 text-red-400 hover:text-red-300">
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -595,7 +595,7 @@ export default function CajaPage() {
                         <Button
                           variant={paymentMethod === 'efectivo' ? 'default' : 'outline'}
                           onClick={() => setPaymentMethod('efectivo')}
-                          className={paymentMethod === 'efectivo' ? 'bg-green-600' : 'border-purple-600 text-purple-400'}
+                          className={paymentMethod === 'efectivo' ? 'bg-green-600' : 'border-colibri-green text-colibri-gold'}
                         >
                           <DollarSign className="h-4 w-4 mr-2" />
                           Efectivo
@@ -603,7 +603,7 @@ export default function CajaPage() {
                         <Button
                           variant={paymentMethod === 'tarjeta' ? 'default' : 'outline'}
                           onClick={() => setPaymentMethod('tarjeta')}
-                          className={paymentMethod === 'tarjeta' ? 'bg-blue-600' : 'border-purple-600 text-purple-400'}
+                          className={paymentMethod === 'tarjeta' ? 'bg-blue-600' : 'border-colibri-green text-colibri-gold'}
                         >
                           <CreditCard className="h-4 w-4 mr-2" />
                           Tarjeta
@@ -619,24 +619,24 @@ export default function CajaPage() {
                           value={cashReceived}
                           onChange={(e) => setCashReceived(e.target.value)}
                           placeholder="0.00"
-                          className="bg-slate-800 border-purple-700 text-white text-lg"
+                          className="bg-slate-800 border-colibri-green/40 text-white text-lg"
                         />
                         {cashReceived && (
-                          <p className="text-sm text-purple-300 mt-1">Cambio: ${calculateChange().toFixed(2)}</p>
+                          <p className="text-sm text-colibri-gold mt-1">Cambio: ${calculateChange().toFixed(2)}</p>
                         )}
                       </div>
                     )}
 
-                    <div className="border-t border-purple-700/30 pt-4">
+                    <div className="border-t border-colibri-green/20 pt-4">
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-gray-300 text-lg">Total:</span>
-                        <span className="text-3xl font-bold text-purple-400">${calculateTotal().toFixed(2)}</span>
+                        <span className="text-3xl font-bold text-colibri-gold">${calculateTotal().toFixed(2)}</span>
                       </div>
 
                       <Button
                         onClick={handleCheckout}
                         disabled={cart.length === 0}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg"
+                        className="w-full bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white py-6 text-lg"
                       >
                         Cobrar ${calculateTotal().toFixed(2)}
                       </Button>
@@ -648,7 +648,7 @@ export default function CajaPage() {
           </TabsContent>
 
           <TabsContent value="kiosko">
-            <Card className="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border-purple-700/50">
+            <Card className="bg-gradient-to-br from-colibri-green/30 to-slate-900/50 border-colibri-green/30">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Store className="h-5 w-5" />
@@ -688,7 +688,7 @@ export default function CajaPage() {
           </TabsContent>
 
           <TabsContent value="online">
-            <Card className="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border-purple-700/50">
+            <Card className="bg-gradient-to-br from-colibri-green/30 to-slate-900/50 border-colibri-green/30">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Globe className="h-5 w-5" />
@@ -744,9 +744,9 @@ export default function CajaPage() {
                   <p className="text-sm text-gray-400">Pedidos</p>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border-purple-700/50">
+              <Card className="bg-gradient-to-br from-colibri-green/30 to-slate-900/50 border-colibri-green/30">
                 <CardContent className="p-4 text-center">
-                  <TrendingUp className="h-8 w-8 mx-auto text-purple-400 mb-2" />
+                  <TrendingUp className="h-8 w-8 mx-auto text-colibri-gold mb-2" />
                   <p className="text-2xl font-bold text-white">${(shiftStats.average_ticket || 0).toFixed(2)}</p>
                   <p className="text-sm text-gray-400">Ticket Promedio</p>
                 </CardContent>
