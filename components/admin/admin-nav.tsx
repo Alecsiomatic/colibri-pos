@@ -22,6 +22,7 @@ import {
   Warehouse,
   Boxes,
   Shield,
+  Zap,
 } from "lucide-react"
 
 const navigation = [
@@ -32,6 +33,7 @@ const navigation = [
   { name: "Modificadores", href: "/admin/modificadores", icon: Sliders },
   { name: "Productos Destacados", href: "/admin/featured-products", icon: Star },
   { name: "Categorías", href: "/admin/categories", icon: Tags },
+  { name: "Promociones", href: "/admin/promociones", icon: Zap },
   { name: "Reportes", href: "/admin/reportes", icon: TrendingUp },
   { name: "Cortes de Caja", href: "/admin/cortes", icon: Receipt },
   { name: "Usuarios", href: "/admin/users", icon: Users },

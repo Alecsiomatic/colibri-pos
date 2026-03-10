@@ -4,6 +4,7 @@ import { executeQuery } from "@/lib/db-retry"
 import { verifyAccessToken, getSessionByToken } from "@/lib/auth-mysql"
 import { deductStockForOrder } from "@/lib/inventory"
 import { deductIngredientsForProduct, checkIngredientsAvailability, deductIngredientsForModifiers } from "@/lib/ingredients"
+import { ensurePromotionTables, applyPromotions, recordPromotionUsage } from "@/lib/promotions"
 
 // GET - Obtener pedidos
 export async function GET(request: NextRequest) {
@@ -188,6 +189,10 @@ export async function POST(request: NextRequest) {
     // Solo usar waiter_order y table si están presentes (mesero)
     const waiter_order = body.waiter_order || false;
     const table = body.waiter_order ? (body.table || null) : null;
+    // Promotions / discounts
+    const discountAmount = Number(body.discount_amount) || 0;
+    const discountDetail = body.discount_detail ? JSON.stringify(body.discount_detail) : null;
+    const couponCode = body.coupon_code || null;
 
     // Log de los datos recibidos para depuración
     console.log('POST /api/orders-mysql datos recibidos:', {
@@ -322,12 +327,12 @@ export async function POST(request: NextRequest) {
 
       result = await executeQuery(
         `INSERT INTO orders 
-         (user_id, items, total, customer_info, delivery_address, payment_method, notes, status, order_source, shift_id, cash_received, change_given) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (user_id, items, total, customer_info, delivery_address, payment_method, notes, status, order_source, shift_id, cash_received, change_given, discount_amount, discount_detail, coupon_code) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           user.id,
           JSON.stringify(items),
-          body.total_amount || total,
+          body.total_amount ? body.total_amount : Math.max(0, total - discountAmount),
           finalCustomerInfo || null,
           finalDeliveryAddress,
           payment_method || 'efectivo',
@@ -336,9 +341,25 @@ export async function POST(request: NextRequest) {
           orderSource || 'caja',
           shiftId || null,
           cashReceived || null,
-          changeGiven || null
+          changeGiven || null,
+          discountAmount,
+          discountDetail,
+          couponCode,
         ]
       ) as any;
+    }
+
+    // Record promotion usage
+    try {
+      await ensurePromotionTables()
+      if (discountDetail) {
+        const discounts = JSON.parse(discountDetail)
+        if (Array.isArray(discounts) && discounts.length > 0) {
+          await recordPromotionUsage(discounts, result.insertId, user.id)
+        }
+      }
+    } catch (e: any) {
+      console.warn('[Orders] Error recording promotion usage:', e.message)
     }
 
     // Actualizar stock: si el producto tiene receta → deducir insumos; si no → deducir stock producto

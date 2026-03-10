@@ -28,7 +28,9 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  UserCheck
+  UserCheck,
+  Tag,
+  Ticket
 } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
@@ -93,6 +95,13 @@ export default function CheckoutPage() {
   const [costError, setCostError] = useState<string | null>(null)
   const [restaurantLocation, setRestaurantLocation] = useState<{lat: number, lng: number} | null>(null)
   const [deliveryLocation, setDeliveryLocation] = useState<{lat: number, lng: number} | null>(null)
+
+  // Promotions & Coupons
+  const [couponCode, setCouponCode] = useState('')
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [appliedDiscounts, setAppliedDiscounts] = useState<{ promotion_id: number; promotion_name: string; type: string; discount_amount: number; coupon_code?: string }[]>([])
+  const [totalDiscount, setTotalDiscount] = useState(0)
   
   // Autocompletado de direcciones con Nominatim
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([])
@@ -296,7 +305,10 @@ export default function CheckoutPage() {
           }) : null,
           payment_method: paymentMethod,
           notes: deliveryInfo.notes,
-          delivery_type: orderType
+          delivery_type: orderType,
+          discount_amount: totalDiscount,
+          discount_detail: appliedDiscounts.length > 0 ? appliedDiscounts : undefined,
+          coupon_code: appliedDiscounts.find(d => d.coupon_code)?.coupon_code || undefined,
         }
       }
       
@@ -441,7 +453,89 @@ export default function CheckoutPage() {
     }
   }
 
-  const deliveryTotal = orderType === 'delivery' ? total + deliveryCost : total
+  // Fetch promotions when cart changes
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const promoItems = items.map(item => ({
+          id: item.id, name: item.name, price: item.price,
+          quantity: item.quantity, category_name: item.category_name || ''
+        }))
+        const res = await fetch('/api/promotions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'apply',
+            items: promoItems,
+            channel: 'web',
+            coupon_code: appliedDiscounts.find(d => d.coupon_code)?.coupon_code || undefined
+          })
+        }).then(r => r.json())
+        if (res.success) {
+          setAppliedDiscounts(res.discounts || [])
+          setTotalDiscount(res.totalDiscount || 0)
+        }
+      } catch (e) { /* silent */ }
+    }
+    if (items.length > 0) fetchPromotions()
+    else { setAppliedDiscounts([]); setTotalDiscount(0) }
+  }, [items, total])
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setCouponLoading(true)
+    setCouponError(null)
+    try {
+      const promoItems = items.map(item => ({
+        id: item.id, name: item.name, price: item.price,
+        quantity: item.quantity, category_name: item.category_name || ''
+      }))
+      const res = await fetch('/api/promotions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'apply',
+          items: promoItems,
+          channel: 'web',
+          coupon_code: couponCode.trim().toUpperCase()
+        })
+      }).then(r => r.json())
+      if (res.success && res.totalDiscount > 0) {
+        setAppliedDiscounts(res.discounts || [])
+        setTotalDiscount(res.totalDiscount || 0)
+        toast.success('¡Cupón aplicado!')
+      } else {
+        setCouponError('Cupón no válido o no aplica a tu pedido')
+      }
+    } catch {
+      setCouponError('Error al verificar cupón')
+    }
+    setCouponLoading(false)
+  }
+
+  const handleRemoveCoupon = () => {
+    setCouponCode('')
+    setCouponError(null)
+    // Re-fetch promotions without coupon
+    const fetchPromos = async () => {
+      const promoItems = items.map(item => ({
+        id: item.id, name: item.name, price: item.price,
+        quantity: item.quantity, category_name: item.category_name || ''
+      }))
+      const res = await fetch('/api/promotions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'apply', items: promoItems, channel: 'web' })
+      }).then(r => r.json())
+      if (res.success) {
+        setAppliedDiscounts(res.discounts || [])
+        setTotalDiscount(res.totalDiscount || 0)
+      }
+    }
+    fetchPromos()
+  }
+
+  const deliveryTotal = (orderType === 'delivery' ? total + deliveryCost : total) - totalDiscount
 
   if (itemCount === 0) {
     return (
@@ -839,6 +933,45 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-purple-500/30" />
 
+                {/* Coupon Input */}
+                <div className="space-y-2">
+                  <label className="text-sm text-purple-300 flex items-center gap-2">
+                    <Ticket className="w-4 h-4" /> ¿Tienes un cupón?
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={couponCode}
+                      onChange={e => { setCouponCode(e.target.value.toUpperCase()); setCouponError(null) }}
+                      placeholder="CÓDIGO"
+                      className="bg-purple-900/30 border-purple-500/30 text-white uppercase tracking-wider text-sm flex-1"
+                    />
+                    <Button type="button" onClick={handleApplyCoupon} disabled={couponLoading || !couponCode.trim()}
+                      variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-900/30 text-sm px-3">
+                      {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Aplicar'}
+                    </Button>
+                  </div>
+                  {couponError && <p className="text-xs text-red-400">{couponError}</p>}
+                </div>
+
+                {/* Applied Discounts */}
+                {appliedDiscounts.length > 0 && (
+                  <div className="space-y-1.5">
+                    {appliedDiscounts.map((d, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-sm">
+                        <span className="text-green-400 flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5" />
+                          {d.promotion_name}
+                          {d.coupon_code && (
+                            <button type="button" onClick={handleRemoveCoupon}
+                              className="text-red-400 hover:text-red-300 text-xs ml-1">✕</button>
+                          )}
+                        </span>
+                        <span className="text-green-400 font-medium">-${d.discount_amount.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-purple-300">
                     <span>Subtotal</span>
@@ -922,6 +1055,12 @@ export default function CheckoutPage() {
                           />
                         </div>
                       )}
+                    </div>
+                  )}
+                  {totalDiscount > 0 && (
+                    <div className="flex justify-between text-green-400 font-medium">
+                      <span>Descuento</span>
+                      <span>-${totalDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-white font-bold text-lg">
