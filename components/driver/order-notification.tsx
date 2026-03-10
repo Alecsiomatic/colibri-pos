@@ -99,8 +99,18 @@ export default function DriverOrderNotification() {
 
   const playNotificationSound = () => {
     try {
-      const audio = new Audio("/notification.mp3")
-      audio.play()
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.frequency.value = 880
+      osc.type = 'sine'
+      gain.gain.setValueAtTime(0.3, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.5)
+      osc.onended = () => ctx.close()
     } catch (error) {
       console.error("Error al reproducir sonido:", error)
     }

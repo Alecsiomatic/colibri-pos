@@ -1,27 +1,32 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Bell, BellOff } from "lucide-react"
+
+function playNotificationBeep() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.frequency.value = 880
+    osc.type = 'sine'
+    gain.gain.setValueAtTime(0.3, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.5)
+    osc.onended = () => ctx.close()
+  } catch {}
+}
 
 export default function OrderNotifications() {
   const [muted, setMuted] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Inicializar audio y cargar preferencias
   useEffect(() => {
-    audioRef.current = new Audio("/notification.mp3")
-
-    // Cargar preferencia de mute del localStorage
     const savedMute = localStorage.getItem("orderNotificationsMuted")
     if (savedMute) {
       setMuted(savedMute === "true")
-    }
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
     }
   }, [])
 
