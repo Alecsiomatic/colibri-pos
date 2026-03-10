@@ -33,6 +33,20 @@
     --ring: 142 39% 22%;
 
     --radius: 0.5rem;
+
+    /* Colibri brand — RGB channels for Tailwind alpha support */
+    --colibri-green: 31 79 55;
+    --colibri-gold: 171 153 118;
+    --colibri-beige: 217 213 200;
+    --colibri-wine: 108 34 42;
+    --colibri-gray: 177 171 153;
+    --colibri-lightgray: 186 185 180;
+
+    /* Hex format for JS consumption (Recharts, Leaflet, etc.) */
+    --colibri-green-hex: #1f4f37;
+    --colibri-gold-hex: #ab9976;
+    --colibri-wine-hex: #6c222a;
+    --colibri-beige-hex: #d9d5c8;
   }
 }
 
@@ -52,37 +66,37 @@
 
 @layer components {
   .colibri-gradient {
-    background: linear-gradient(135deg, #1f4f37 0%, #ab9976 50%, #d9d5c8 100%);
+    background: linear-gradient(135deg, rgb(var(--colibri-green)) 0%, rgb(var(--colibri-gold)) 50%, rgb(var(--colibri-beige)) 100%);
   }
 
   .glass-effect {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(31, 79, 55, 0.3);
-    box-shadow: 0 0 20px rgba(31, 79, 55, 0.4), 0 0 40px rgba(31, 79, 55, 0.2);
+    border: 1px solid rgb(var(--colibri-green) / 0.3);
+    box-shadow: 0 0 20px rgb(var(--colibri-green) / 0.4), 0 0 40px rgb(var(--colibri-green) / 0.2);
   }
 
   .glass-dark {
-    background: rgba(31, 79, 55, 0.3);
+    background: rgb(var(--colibri-green) / 0.3);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(31, 79, 55, 0.4);
-    box-shadow: 0 0 15px rgba(31, 79, 55, 0.5), 0 0 30px rgba(31, 79, 55, 0.3);
+    border: 1px solid rgb(var(--colibri-green) / 0.4);
+    box-shadow: 0 0 15px rgb(var(--colibri-green) / 0.5), 0 0 30px rgb(var(--colibri-green) / 0.3);
   }
 
   .text-elegant {
-    text-shadow: 0 2px 4px rgba(31, 79, 55, 0.1);
+    text-shadow: 0 2px 4px rgb(var(--colibri-green) / 0.1);
   }
 
   .accent-wine {
-    color: #6c222a;
-    text-shadow: 0 0 10px rgba(108, 34, 42, 0.3);
+    color: rgb(var(--colibri-wine));
+    text-shadow: 0 0 10px rgb(var(--colibri-wine) / 0.3);
   }
 
   .border-wine-glow {
-    border-color: #6c222a;
-    box-shadow: 0 0 15px rgba(108, 34, 42, 0.4), 0 0 30px rgba(108, 34, 42, 0.2);
+    border-color: rgb(var(--colibri-wine));
+    box-shadow: 0 0 15px rgb(var(--colibri-wine) / 0.4), 0 0 30px rgb(var(--colibri-wine) / 0.2);
   }
 }
 

@@ -44,12 +44,12 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
         colibri: {
-          green: "#1f4f37",
-          gold: "#ab9976",
-          beige: "#d9d5c8",
-          gray: "#b1ab99",
-          lightgray: "#bab9b4",
-          wine: "#6c222a",
+          green: "rgb(var(--colibri-green) / <alpha-value>)",
+          gold: "rgb(var(--colibri-gold) / <alpha-value>)",
+          beige: "rgb(var(--colibri-beige) / <alpha-value>)",
+          gray: "rgb(var(--colibri-gray) / <alpha-value>)",
+          lightgray: "rgb(var(--colibri-lightgray) / <alpha-value>)",
+          wine: "rgb(var(--colibri-wine) / <alpha-value>)",
         },
       },
       borderRadius: {
@@ -60,8 +60,8 @@ const config: Config = {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "colibri-gradient": "linear-gradient(135deg, #1f4f37 0%, #ab9976 50%, #d9d5c8 100%)",
-        "glass-gradient": "linear-gradient(135deg, rgba(31, 79, 55, 0.1) 0%, rgba(171, 153, 118, 0.1) 100%)",
+        "colibri-gradient": "linear-gradient(135deg, rgb(var(--colibri-green)) 0%, rgb(var(--colibri-gold)) 50%, rgb(var(--colibri-beige)) 100%)",
+        "glass-gradient": "linear-gradient(135deg, rgb(var(--colibri-green) / 0.1) 0%, rgb(var(--colibri-gold) / 0.1) 100%)",
       },
       animation: {
         "pulse-neon": "pulse-neon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",

@@ -10,6 +10,7 @@ import Footer from "@/components/layout/footer"
 import FloatingCart from "@/components/cart/floating-cart"
 import { NotificationToast } from "@/components/notifications/notification-toast"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
+import ThemeLoader from "@/components/theme-loader"
 
 const HIDE_CHROME_ROUTES = ['/admin', '/cocina', '/driver', '/caja', '/mesero']
 
@@ -23,6 +24,7 @@ export default function ClientRootProviders({ children }: { children: React.Reac
 
   return (
     <ErrorBoundary>
+      <ThemeLoader />
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <AuthProvider>
           <NotificationProvider>

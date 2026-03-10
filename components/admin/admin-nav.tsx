@@ -46,6 +46,7 @@ const navigation = [
   { name: "Inventario", href: "/admin/inventario", icon: Warehouse },
   { name: "Insumos y Recetas", href: "/admin/insumos", icon: Boxes },
   { name: "Permisos", href: "/admin/permisos", icon: Shield },
+  { name: "Tema / Colores", href: "/admin/tema", icon: Palette },
   { name: "WhatsApp", href: "/admin/whatsapp", icon: MessageSquare },
   { name: "Configuración Empresa", href: "/admin/configuracion-empresa", icon: Building2 },
   { name: "Configuración", href: "/admin/settings", icon: Settings },
