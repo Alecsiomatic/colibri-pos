@@ -114,7 +114,6 @@ export default function ReservacionesPage() {
   // Dialogs
   const [showCreate, setShowCreate] = useState(false)
   const [showDetail, setShowDetail] = useState<Reservation | null>(null)
-  const [showTableDialog, setShowTableDialog] = useState(false)
   const [saving, setSaving] = useState(false)
 
   // New reservation form
@@ -123,9 +122,6 @@ export default function ReservacionesPage() {
     party_size: 2, reservation_date: '', reservation_time: '',
     notes: '', special_requests: '', table_id: '',
   })
-
-  // New table form
-  const [newTable, setNewTable] = useState({ name: '', capacity: 4, zone: 'General' })
 
   // ─── Data Loading ────────────────────────────────────────
   const loadStats = useCallback(async () => {
@@ -230,40 +226,11 @@ export default function ReservacionesPage() {
     } catch { toast.error('Error') }
   }
 
-  const handleCreateTable = async () => {
-    if (!newTable.name) { toast.error('Nombre requerido'); return }
-    setSaving(true)
-    try {
-      const res = await fetch('/api/reservations', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ action: 'create-table', ...newTable }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Mesa creada')
-        setNewTable({ name: '', capacity: 4, zone: 'General' })
-        loadTables()
-      } else toast.error(data.error || 'Error')
-    } catch { toast.error('Error') }
-    setSaving(false)
-  }
-
-  const handleToggleTable = async (t: RTable) => {
+  const handleToggleReservable = async (t: RTable) => {
     await fetch('/api/reservations', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ action: 'update-table', id: t.id, is_active: !t.is_active }),
-    })
-    loadTables()
-  }
-
-  const handleDeleteTable = async (id: number) => {
-    if (!confirm('¿Eliminar esta mesa?')) return
-    await fetch('/api/reservations', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'delete-table', id }),
+      body: JSON.stringify({ action: 'update-table', id: t.id, is_reservable: !t.is_reservable }),
     })
     loadTables()
   }
@@ -558,37 +525,36 @@ export default function ReservacionesPage() {
           <TabsContent value="tables" className="space-y-4">
             <Card className="bg-white/5 border-white/10">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div>
                   <CardTitle className="text-white text-lg">Mesas para Reservación</CardTitle>
-                  <Button size="sm" onClick={() => setShowTableDialog(true)} className="bg-colibri-gold text-black hover:bg-colibri-gold/90">
-                    <Plus className="w-4 h-4 mr-1" /> Agregar Mesa
-                  </Button>
+                  <CardDescription className="text-colibri-beige/60 mt-1">
+                    Estas son las mesas de tu mapa de mesas. Activa o desactiva cuáles están disponibles para reservar.
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 {tables.length === 0 ? (
                   <p className="text-sm text-colibri-beige/50 text-center py-8">
-                    No hay mesas configuradas. Agrega mesas para que los clientes puedan reservar.
+                    No hay mesas configuradas. Ve a <span className="text-colibri-gold">Mapa de Mesas</span> para crearlas primero.
                   </p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {tables.map(t => (
-                      <div key={t.id} className={`rounded-lg border p-4 transition ${t.is_active ? 'bg-white/5 border-white/10' : 'bg-white/[0.02] border-white/5 opacity-50'}`}>
+                      <div key={t.id} className={`rounded-lg border p-4 transition ${t.is_reservable ? 'bg-white/5 border-white/10' : 'bg-white/[0.02] border-white/5 opacity-60'}`}>
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-semibold text-white">{t.name}</h3>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="ghost" onClick={() => handleToggleTable(t)} className="h-7 w-7 p-0 text-colibri-beige">
-                              {t.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => handleDeleteTable(t.id)} className="h-7 w-7 p-0 text-red-400">
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
+                          <Switch
+                            checked={!!t.is_reservable}
+                            onCheckedChange={() => handleToggleReservable(t)}
+                          />
                         </div>
                         <div className="flex items-center gap-3 text-sm text-colibri-beige/60">
                           <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {t.capacity} personas</span>
                           <span>{t.zone}</span>
                         </div>
+                        <p className="text-xs mt-1 text-colibri-beige/40">
+                          {t.is_reservable ? 'Disponible para reservar' : 'No reservable'}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -881,39 +847,6 @@ export default function ReservacionesPage() {
                 </div>
               </div>
             )}
-          </DialogContent>
-        </Dialog>
-
-        {/* ─── Table Dialog ──────────────────────────────── */}
-        <Dialog open={showTableDialog} onOpenChange={setShowTableDialog}>
-          <DialogContent className="bg-gray-900 border-white/10 text-white max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="text-colibri-gold">Agregar Mesa</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label className="text-colibri-beige text-sm">Nombre *</Label>
-                <Input value={newTable.name} onChange={e => setNewTable({ ...newTable, name: e.target.value })}
-                  className="bg-white/5 border-white/10 text-white" placeholder="Ej: Mesa 1, Terraza 3" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-colibri-beige text-sm">Capacidad</Label>
-                <Input type="number" min={1} value={newTable.capacity} onChange={e => setNewTable({ ...newTable, capacity: Number(e.target.value) || 4 })}
-                  className="bg-white/5 border-white/10 text-white" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-colibri-beige text-sm">Zona</Label>
-                <Input value={newTable.zone} onChange={e => setNewTable({ ...newTable, zone: e.target.value })}
-                  className="bg-white/5 border-white/10 text-white" placeholder="General, Terraza, VIP..." />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setShowTableDialog(false)} className="text-colibri-beige">Cancelar</Button>
-              <Button onClick={handleCreateTable} disabled={saving} className="bg-colibri-gold text-black hover:bg-colibri-gold/90">
-                {saving ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-                Crear Mesa
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

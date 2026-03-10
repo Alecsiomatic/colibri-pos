@@ -238,7 +238,7 @@ export default function ReservarPage() {
             </Button>
             <Button variant={step === 'lookup' ? 'default' : 'outline'} size="sm"
               onClick={() => setStep('lookup')}
-              className={step === 'lookup' ? 'bg-colibri-gold text-black font-semibold' : 'border-white/30 text-white hover:bg-white/10'}>
+              className={step === 'lookup' ? 'bg-colibri-gold text-black font-semibold' : 'border-white/30 text-white bg-white/10 hover:bg-white/20'}>
               <Search className="w-4 h-4 mr-1" /> Consultar Reservación
             </Button>
           </div>

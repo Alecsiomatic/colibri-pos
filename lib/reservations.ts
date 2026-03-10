@@ -65,18 +65,14 @@ let migrated = false
 export async function ensureReservationTables() {
   if (migrated) return
   try {
-    await executeQuery(`
-      CREATE TABLE IF NOT EXISTS reservation_tables (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        capacity INT NOT NULL DEFAULT 4,
-        zone VARCHAR(100) DEFAULT 'General',
-        is_reservable TINYINT(1) DEFAULT 1,
-        is_active TINYINT(1) DEFAULT 1,
-        sort_order INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `, [])
+    // Add is_reservable column to existing restaurant_tables if missing
+    try {
+      await executeQuery(`
+        ALTER TABLE restaurant_tables ADD COLUMN is_reservable TINYINT(1) DEFAULT 1
+      `, [])
+    } catch (e: any) {
+      // Column already exists — ignore
+    }
 
     await executeQuery(`
       CREATE TABLE IF NOT EXISTS reservations (
@@ -198,19 +194,19 @@ export async function updateConfig(data: Partial<ReservationConfig>) {
   }
 }
 
-// ─── Tables ──────────────────────────────────────────────────
+// ─── Tables (uses existing restaurant_tables) ───────────────
 export async function getTables(activeOnly = false): Promise<ReservationTable[]> {
   await ensureReservationTables()
-  let q = 'SELECT * FROM reservation_tables'
-  if (activeOnly) q += ' WHERE is_active = 1 AND is_reservable = 1'
-  q += ' ORDER BY sort_order, name'
+  let q = 'SELECT id, name, capacity, zone, COALESCE(is_reservable, 1) as is_reservable, is_active FROM restaurant_tables'
+  if (activeOnly) q += ' WHERE is_active = 1 AND COALESCE(is_reservable, 1) = 1'
+  q += ' ORDER BY zone, name'
   return await executeQuery(q, [])
 }
 
 export async function createTable(data: { name: string; capacity: number; zone?: string }) {
   await ensureReservationTables()
   const result = await executeQuery(
-    'INSERT INTO reservation_tables (name, capacity, zone) VALUES (?, ?, ?)',
+    'INSERT INTO restaurant_tables (name, capacity, zone) VALUES (?, ?, ?)',
     [data.name, data.capacity, data.zone || 'General']
   )
   return result.insertId
@@ -221,20 +217,20 @@ export async function updateTable(id: number, data: Partial<ReservationTable>) {
   const fields: string[] = []
   const values: any[] = []
   for (const [k, v] of Object.entries(data)) {
-    if (['name', 'capacity', 'zone', 'is_reservable', 'is_active', 'sort_order'].includes(k)) {
+    if (['name', 'capacity', 'zone', 'is_reservable', 'is_active'].includes(k)) {
       fields.push(`${k} = ?`)
       values.push((k === 'is_reservable' || k === 'is_active') ? (v ? 1 : 0) : v)
     }
   }
   if (fields.length) {
     values.push(id)
-    await executeQuery(`UPDATE reservation_tables SET ${fields.join(', ')} WHERE id = ?`, values)
+    await executeQuery(`UPDATE restaurant_tables SET ${fields.join(', ')} WHERE id = ?`, values)
   }
 }
 
 export async function deleteTable(id: number) {
   await ensureReservationTables()
-  await executeQuery('DELETE FROM reservation_tables WHERE id = ?', [id])
+  await executeQuery('UPDATE restaurant_tables SET is_active = 0 WHERE id = ?', [id])
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -395,7 +391,7 @@ export async function getReservations(filters: {
   await ensureReservationTables()
   let q = `SELECT r.*, rt.name as table_name
             FROM reservations r
-            LEFT JOIN reservation_tables rt ON r.table_id = rt.id
+            LEFT JOIN restaurant_tables rt ON r.table_id = rt.id
             WHERE 1=1`
   const params: any[] = []
 
@@ -432,7 +428,7 @@ export async function getReservationByCode(code: string): Promise<Reservation | 
   const rows = await executeQuery(
     `SELECT r.*, rt.name as table_name
      FROM reservations r
-     LEFT JOIN reservation_tables rt ON r.table_id = rt.id
+     LEFT JOIN restaurant_tables rt ON r.table_id = rt.id
      WHERE r.confirmation_code = ?`,
     [code]
   )
@@ -503,7 +499,7 @@ export async function getReservationStats() {
   const upcoming: Reservation[] = await executeQuery(
     `SELECT r.*, rt.name as table_name
      FROM reservations r
-     LEFT JOIN reservation_tables rt ON r.table_id = rt.id
+     LEFT JOIN restaurant_tables rt ON r.table_id = rt.id
      WHERE r.reservation_date >= ? AND r.status IN ('pending','confirmed')
      ORDER BY r.reservation_date ASC, r.reservation_time ASC
      LIMIT 10`,
