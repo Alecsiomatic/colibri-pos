@@ -56,10 +56,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: url("/resta.png");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
     min-height: 100vh;
   }
 }
