@@ -24,6 +24,7 @@ import {
   Shield,
   Zap,
   Crown,
+  CalendarDays,
 } from "lucide-react"
 
 const navigation = [
@@ -36,6 +37,7 @@ const navigation = [
   { name: "Categorías", href: "/admin/categories", icon: Tags },
   { name: "Promociones", href: "/admin/promociones", icon: Zap },
   { name: "Lealtad", href: "/admin/lealtad", icon: Crown },
+  { name: "Reservaciones", href: "/admin/reservaciones", icon: CalendarDays },
   { name: "Reportes", href: "/admin/reportes", icon: TrendingUp },
   { name: "Cortes de Caja", href: "/admin/cortes", icon: Receipt },
   { name: "Usuarios", href: "/admin/users", icon: Users },
