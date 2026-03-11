@@ -125,15 +125,15 @@ export default function MenuPageClient() {
     }, 1)
   }
 
-  const handleAddWithModifiers = (product: any, modifiers: any[], totalPrice: number) => {
+  const handleAddWithModifiers = (product: any, modifiers: any[], unitPrice: number, quantity: number) => {
     addItem({
       id: product.id,
       name: product.name,
-      price: totalPrice,
+      price: unitPrice,
       image_url: product.image_url,
       category_name: product.category_name,
       modifiers: modifiers
-    }, 1)
+    }, quantity)
     
     setShowModifierModal(false)
     

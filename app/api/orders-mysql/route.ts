@@ -242,7 +242,24 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      total += products[0].price * item.quantity
+      let unitPrice = products[0].price
+
+      // Sumar precios de modificadores desde la BD
+      if (item.modifiers && Array.isArray(item.modifiers)) {
+        for (const mod of item.modifiers) {
+          if (mod.option_id) {
+            const modResult = await executeQuery(
+              'SELECT price_adjustment FROM modifier_options WHERE id = ?',
+              [mod.option_id]
+            ) as any[]
+            if (modResult.length > 0) {
+              unitPrice += modResult[0].price_adjustment
+            }
+          }
+        }
+      }
+
+      total += unitPrice * item.quantity
     }
 
 
@@ -336,7 +353,7 @@ export async function POST(request: NextRequest) {
         [
           user.id,
           JSON.stringify(items),
-          body.total_amount ? body.total_amount : Math.max(0, total - discountAmount),
+          Math.max(0, total - discountAmount),
           finalCustomerInfo || null,
           finalDeliveryAddress,
           payment_method || 'efectivo',

@@ -31,7 +31,7 @@ interface ProductModifierModalProps {
   isOpen: boolean
   onClose: () => void
   product: any
-  onAddToCart: (product: any, selectedModifiers: any[], totalPrice: number) => void
+  onAddToCart: (product: any, selectedModifiers: any[], unitPrice: number, quantity: number) => void
 }
 
 export function ProductModifierModal({ isOpen, onClose, product, onAddToCart }: ProductModifierModalProps) {
@@ -85,7 +85,7 @@ export function ProductModifierModal({ isOpen, onClose, product, onAddToCart }: 
     })
   }
 
-  const calculateTotalPrice = () => {
+  const calculateUnitPrice = () => {
     let total = parseFloat(product.price)
     
     modifierGroups.forEach(group => {
@@ -98,7 +98,11 @@ export function ProductModifierModal({ isOpen, onClose, product, onAddToCart }: 
       })
     })
     
-    return total * quantity
+    return total
+  }
+
+  const calculateTotalPrice = () => {
+    return calculateUnitPrice() * quantity
   }
 
   const isValid = () => {
@@ -130,7 +134,7 @@ export function ProductModifierModal({ isOpen, onClose, product, onAddToCart }: 
       })
     })
 
-    onAddToCart(product, selectedMods, calculateTotalPrice())
+    onAddToCart(product, selectedMods, calculateUnitPrice(), quantity)
     onClose()
   }
 

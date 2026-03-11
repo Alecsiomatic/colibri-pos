@@ -20,8 +20,8 @@ interface CartItem {
 interface CartContextType {
   items: CartItem[]
   addItem: (product: any, quantity?: number) => void
-  removeItem: (productId: number) => void
-  updateQuantity: (productId: number, quantity: number) => void
+  removeItem: (productId: number, modifiers?: CartItem['modifiers']) => void
+  updateQuantity: (productId: number, quantity: number, modifiers?: CartItem['modifiers']) => void
   clearCart: () => void
   total: number
   itemCount: number
@@ -100,22 +100,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const removeItem = (productId: number) => {
-    setItems(currentItems => currentItems.filter(item => item.id !== productId))
+  const removeItem = (productId: number, modifiers?: CartItem['modifiers']) => {
+    setItems(currentItems => currentItems.filter(item => {
+      if (item.id !== productId) return true
+      if (modifiers !== undefined) {
+        return modifiersKey(item.modifiers) !== modifiersKey(modifiers)
+      }
+      return false
+    }))
   }
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: number, quantity: number, modifiers?: CartItem['modifiers']) => {
     if (quantity <= 0) {
-      removeItem(productId)
+      removeItem(productId, modifiers)
       return
     }
 
     setItems(currentItems =>
-      currentItems.map(item =>
-        item.id === productId
-          ? { ...item, quantity }
-          : item
-      )
+      currentItems.map(item => {
+        if (item.id !== productId) return item
+        if (modifiers !== undefined && modifiersKey(item.modifiers) !== modifiersKey(modifiers)) return item
+        return { ...item, quantity }
+      })
     )
   }
 
@@ -151,7 +157,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           delivery_type: orderData.delivery_type,
           waiter_order: orderData.waiter_order,
           table: orderData.table,
-          order_source: orderData.order_type || orderData.order_source || 'kiosk',
+          order_source: orderData.order_type || orderData.order_source || 'online',
           discount_amount: orderData.discount_amount,
           discount_detail: orderData.discount_detail,
           coupon_code: orderData.coupon_code,

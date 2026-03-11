@@ -150,20 +150,20 @@ export default function CartSidebar() {
 
                         <div className="flex items-center space-x-2 ml-3">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.modifiers)}
                             className="w-6 h-6 bg-purple-700/50 hover:bg-purple-600 text-white rounded-full flex items-center justify-center transition-colors"
                           >
                             <Minus size={12} />
                           </button>
                           <span className="text-white text-sm w-6 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.modifiers)}
                             className="w-6 h-6 bg-purple-700/50 hover:bg-purple-600 text-white rounded-full flex items-center justify-center transition-colors"
                           >
                             <Plus size={12} />
                           </button>
                           <button
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeItem(item.id, item.modifiers)}
                             className="w-6 h-6 bg-red-600/50 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-colors ml-2"
                           >
                             <Trash2 size={12} />

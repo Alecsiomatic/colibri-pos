@@ -935,7 +935,7 @@ export default function CheckoutPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.modifiers)}
                         className="h-8 w-8 p-0 border-purple-500/50 hover:bg-purple-500/20"
                       >
                         <Minus className="h-3 w-3" />
@@ -945,7 +945,7 @@ export default function CheckoutPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.modifiers)}
                         className="h-8 w-8 p-0 border-purple-500/50 hover:bg-purple-500/20"
                       >
                         <Plus className="h-3 w-3" />
@@ -957,7 +957,7 @@ export default function CheckoutPage() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.id, item.modifiers)}
                         className="text-red-400 hover:text-red-300 p-1"
                       >
                         <Trash2 className="h-4 w-4" />

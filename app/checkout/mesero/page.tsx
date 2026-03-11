@@ -281,7 +281,7 @@ export default function CheckoutMeseroPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
+                        onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1), item.modifiers)}
                         className="h-8 w-8 p-0 bg-slate-700/80 border-colibri-green/40 text-white hover:bg-colibri-wine/80 hover:border-colibri-gold"
                       >
                         <Minus className="h-3 w-3" />
@@ -292,7 +292,7 @@ export default function CheckoutMeseroPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.modifiers)}
                         className="h-8 w-8 p-0 bg-slate-700/80 border-colibri-green/40 text-white hover:bg-colibri-wine/80 hover:border-colibri-gold"
                       >
                         <Plus className="h-3 w-3" />
@@ -300,7 +300,7 @@ export default function CheckoutMeseroPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.id, item.modifiers)}
                         className="h-8 w-8 p-0 bg-red-600/30 border-red-500/40 text-red-300 hover:bg-red-600/50 hover:text-white"
                       >
                         <Trash2 className="h-3 w-3" />

@@ -95,7 +95,7 @@ export default function FloatingCart() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.modifiers)}
                       className="h-7 w-7 p-0 border-colibri-green/50 text-colibri-gold hover:bg-colibri-wine/20"
                     >
                       <Minus className="h-3 w-3" />
@@ -108,7 +108,7 @@ export default function FloatingCart() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.modifiers)}
                       className="h-7 w-7 p-0 border-colibri-green/50 text-colibri-gold hover:bg-colibri-wine/20"
                     >
                       <Plus className="h-3 w-3" />
@@ -117,7 +117,7 @@ export default function FloatingCart() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.id, item.modifiers)}
                       className="h-7 w-7 p-0 text-red-400 hover:text-red-300"
                     >
                       <Trash2 className="h-3 w-3" />
