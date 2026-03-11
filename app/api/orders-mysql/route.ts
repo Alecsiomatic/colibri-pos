@@ -194,6 +194,8 @@ export async function POST(request: NextRequest) {
     const discountAmount = Number(body.discount_amount) || 0;
     const discountDetail = body.discount_detail ? JSON.stringify(body.discount_detail) : null;
     const couponCode = body.coupon_code || null;
+    // Delivery type
+    const deliveryType = body.delivery_type || 'pickup';
     // Loyalty
     const loyaltyPointsRedeemed = Number(body.loyalty_points_redeemed) || 0;
     const loyaltyDiscountAmount = Number(body.loyalty_discount) || 0;
@@ -348,8 +350,8 @@ export async function POST(request: NextRequest) {
 
       result = await executeQuery(
         `INSERT INTO orders 
-         (user_id, items, total, customer_info, delivery_address, payment_method, notes, status, order_source, shift_id, cash_received, change_given, discount_amount, discount_detail, coupon_code) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (user_id, items, total, customer_info, delivery_address, payment_method, notes, status, order_source, shift_id, cash_received, change_given, discount_amount, discount_detail, coupon_code, delivery_type) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           user.id,
           JSON.stringify(items),
@@ -366,6 +368,7 @@ export async function POST(request: NextRequest) {
           discountAmount,
           discountDetail,
           couponCode,
+          deliveryType,
         ]
       ) as any;
     }

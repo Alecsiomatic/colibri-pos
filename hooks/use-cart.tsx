@@ -25,6 +25,7 @@ interface CartContextType {
   clearCart: () => void
   total: number
   itemCount: number
+  hydrated: boolean
   createOrder: (orderData: any) => Promise<{ success: boolean; orderId?: number; message?: string }>
 }
 
@@ -41,6 +42,7 @@ function modifiersKey(modifiers?: CartItem['modifiers']): string {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [hydrated, setHydrated] = useState(false)
 
   // Cargar carrito del localStorage al iniciar
   useEffect(() => {
@@ -52,6 +54,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Error cargando carrito:', error)
       }
     }
+    setHydrated(true)
   }, [])
 
   // Guardar carrito en localStorage cuando cambie
@@ -199,6 +202,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clearCart,
       total,
       itemCount,
+      hydrated,
       createOrder
     }}>
       {children}

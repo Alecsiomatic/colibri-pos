@@ -115,11 +115,11 @@ export default function OrdersPage() {
   }
 
   const calculateTotal = (order: any) => {
+    if (order.total != null) return Number(order.total)
     const itemsTotal = (order.items || []).reduce((sum: number, item: any) => 
       sum + (item.price * item.quantity), 0
     )
-    const deliveryFee = order.delivery_type === 'delivery' ? 25 : 0
-    return itemsTotal + deliveryFee
+    return itemsTotal
   }
 
   const getItemsCount = (order: any) => {

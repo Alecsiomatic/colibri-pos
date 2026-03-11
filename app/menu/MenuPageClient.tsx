@@ -70,7 +70,7 @@ export default function MenuPageClient() {
 
   const categoriesWithCount = categories.map(cat => ({
     ...cat,
-    productCount: products.filter(p => p.category_id === cat.id).length
+    count: products.filter(p => p.category_id === cat.id).length
   }))
 
   const handleProductClick = async (product: any, event: React.MouseEvent<HTMLButtonElement>) => {

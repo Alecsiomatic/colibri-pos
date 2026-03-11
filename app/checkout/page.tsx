@@ -48,7 +48,7 @@ const DeliveryMap = dynamic(() => import('@/components/DeliveryMap'), {
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, updateQuantity, removeItem, total, itemCount, createOrder, clearCart } = useCart()
+  const { items, updateQuantity, removeItem, total, itemCount, createOrder, clearCart, hydrated } = useCart()
   const { user } = useAuth()
   const toast = useToast()
 
@@ -175,11 +175,6 @@ export default function CheckoutPage() {
     })
     setShowSuggestions(false)
     setAddressSuggestions([])
-    
-    // Trigger cálculo de costo automáticamente
-    setTimeout(() => {
-      calculateDeliveryCost()
-    }, 100)
   }
 
   // Limpiar timeout al desmontar
@@ -489,7 +484,7 @@ export default function CheckoutPage() {
     }
     if (items.length > 0) fetchPromotions()
     else { setAppliedDiscounts([]); setTotalDiscount(0) }
-  }, [items, total])
+  }, [items])
 
   // Fetch loyalty balance
   useEffect(() => {
@@ -570,19 +565,27 @@ export default function CheckoutPage() {
     fetchPromos()
   }
 
-  const deliveryTotal = (orderType === 'delivery' ? total + deliveryCost : total) - totalDiscount - loyaltyDiscount
+  const deliveryTotal = Math.max(0, (orderType === 'delivery' ? total + deliveryCost : total) - totalDiscount - loyaltyDiscount)
+
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-colibri-gold animate-spin" />
+      </div>
+    )
+  }
 
   if (itemCount === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <Card className="backdrop-blur-sm bg-white/10 border-purple-500/20 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black flex items-center justify-center">
+        <Card className="backdrop-blur-sm bg-slate-800/60 border-colibri-gold/20 p-8">
           <div className="text-center">
-            <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-purple-400" />
+            <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-colibri-gold" />
             <h2 className="text-2xl font-bold text-white mb-2">Carrito vacío</h2>
-            <p className="text-purple-300 mb-4">No tienes productos en tu carrito</p>
+            <p className="text-colibri-beige mb-4">No tienes productos en tu carrito</p>
             <Button 
               onClick={() => router.push('/menu')}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className="bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white"
             >
               Ver Menú
             </Button>
@@ -749,7 +752,7 @@ export default function CheckoutPage() {
                               <Truck className="h-4 w-4 mr-2 text-colibri-green" />
                               <span>Delivery a domicilio</span>
                             </div>
-                            <Badge className="bg-colibri-gold text-black font-bold">+$25.00</Badge>
+                            <Badge className="bg-colibri-gold text-black font-bold">+${deliveryCost.toFixed(2)}</Badge>
                           </div>
                           <p className="text-colibri-beige text-sm mt-1">Entrega en 30-45 minutos</p>
                         </Label>
