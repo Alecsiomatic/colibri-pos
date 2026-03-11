@@ -17,6 +17,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message?: string }>
   logout: () => Promise<void>
   isLoading: boolean
   refreshUser: () => Promise<void>
@@ -128,11 +129,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await checkAuth()
   }
 
+  const updatePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const response = await fetch('/api/users/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        return { success: true, message: data.message }
+      } else {
+        return { success: false, message: data.message || 'Error al cambiar contraseña' }
+      }
+    } catch (error) {
+      return { success: false, message: 'Error de conexión' }
+    }
+  }
+
   return (
     <AuthContext.Provider value={{
       user,
       login,
       register,
+      updatePassword,
       logout,
       isLoading,
       refreshUser

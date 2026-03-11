@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     })
 
     console.log('✅ Cookie auth-token configurada')
-    console.log('🔑 Token preview:', token.substring(0, 20) + '...')
+    console.log('🔑 Token generado correctamente')
 
     return response
   } catch (error) {

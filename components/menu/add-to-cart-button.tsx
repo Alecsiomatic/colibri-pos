@@ -1,13 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { useCart } from "@/components/cart/cart-provider"
+import { useCart } from "@/hooks/use-cart"
 import { ShoppingCart, Check, AlertCircle } from "lucide-react"
 
 type AddToCartButtonProps = {
   menuItem: {
+    id: number
     title: string
     price: number
+    image_url?: string
+    category_name?: string
   }
   disabled?: boolean
 }
@@ -19,15 +22,13 @@ export default function AddToCartButton({ menuItem, disabled = false }: AddToCar
   const handleAddToCart = () => {
     if (disabled) return
 
-    const cartItem = {
-      id: menuItem.title.toLowerCase().replace(/\s+/g, "-"),
+    addItem({
+      id: menuItem.id,
       name: menuItem.title,
       price: menuItem.price,
-      quantity: 1,
-      category: "menu",
-    }
-
-    addItem(cartItem)
+      image_url: menuItem.image_url,
+      category_name: menuItem.category_name,
+    }, 1)
     setAdded(true)
 
     // Resetear el estado después de un tiempo

@@ -6,7 +6,8 @@ import { ArrowLeft } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-notifications"
-import AddToCartButton from "@/components/menu/add-to-cart-button"
+import { useCart } from "@/hooks/use-cart"
+import { ProductModifierModal } from "@/components/ProductModifierModal"
 import ProductImagePreview from "@/components/menu/product-image-preview"
 
 interface Product {
@@ -41,10 +42,13 @@ interface Category {
 export default function CategoryPage() {
   const toast = useToast()
   const params = useParams()
+  const { addItem } = useCart()
   const categoryId = params.slug as string
   const [category, setCategory] = useState<Category | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [showModifierModal, setShowModifierModal] = useState(false)
 
   const fetchCategoryAndProducts = useCallback(async () => {
     try {
@@ -81,6 +85,47 @@ export default function CategoryPage() {
       fetchCategoryAndProducts()
     }
   }, [categoryId, fetchCategoryAndProducts])
+
+  const handleAddProduct = async (product: Product) => {
+    try {
+      const response = await fetch(`/api/modifiers/product/${product.id}`)
+      const data = await response.json()
+      if (data.success && data.groups && data.groups.length > 0) {
+        setSelectedProduct({ ...product, category_name: category?.name })
+        setShowModifierModal(true)
+      } else {
+        addItem({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image_url: product.image_url || undefined,
+          category_name: category?.name,
+        }, 1)
+        toast.success('Agregado', `${product.name} añadido al carrito`)
+      }
+    } catch {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url || undefined,
+        category_name: category?.name,
+      }, 1)
+      toast.success('Agregado', `${product.name} añadido al carrito`)
+    }
+  }
+
+  const handleAddWithModifiers = (product: any, modifiers: any[], unitPrice: number, quantity: number) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: unitPrice,
+      image_url: product.image_url,
+      category_name: product.category_name,
+      modifiers,
+    }, quantity)
+    setShowModifierModal(false)
+  }
 
   if (loading) {
     return (
@@ -178,17 +223,24 @@ export default function CategoryPage() {
                     <p className="text-sm text-gray-500 mb-4">Stock disponible: {product.stock} unidades</p>
                   )}
 
-                  <AddToCartButton
-                    menuItem={{
-                      title: product.name,
-                      price: product.price,
-                    }}
-                  />
+                  <button
+                    onClick={() => handleAddProduct(product)}
+                    className="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-colibri-green hover:bg-colibri-green/90 text-white transition-colors"
+                  >
+                    🛒 Ordenar
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        <ProductModifierModal
+          isOpen={showModifierModal}
+          onClose={() => setShowModifierModal(false)}
+          product={selectedProduct}
+          onAddToCart={handleAddWithModifiers}
+        />
       </div>
     </div>
   )

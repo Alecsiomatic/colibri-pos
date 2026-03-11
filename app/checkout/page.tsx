@@ -282,6 +282,13 @@ export default function CheckoutPage() {
       toast.error('Formulario incompleto', 'Por favor completa todos los campos requeridos')
       return
     }
+
+    // Validar min_redeem de loyalty
+    if (pointsToRedeem > 0 && loyaltyConfig && pointsToRedeem < loyaltyConfig.min_redeem) {
+      toast.error('Puntos insuficientes', `Mínimo ${loyaltyConfig.min_redeem} puntos para canjear`)
+      return
+    }
+
     setIsProcessing(true)
 
     try {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useCart, type CartItem } from "@/components/cart/cart-provider"
+import { useCart } from "@/hooks/use-cart"
 import { ShoppingCart, Check } from "lucide-react"
 import ProductImagePreview from "./product-image-preview"
 
@@ -19,15 +19,13 @@ export default function MenuItemCard({ id, title, description, price, category, 
   const [added, setAdded] = useState(false)
 
   const handleAddToCart = () => {
-    const cartItem: CartItem = {
-      id: String(id),
+    addItem({
+      id: Number(id),
       name: title,
       price,
-      quantity: 1,
-      category,
-    }
-
-    addItem(cartItem)
+      image_url: imageUrl,
+      category_name: category,
+    }, 1)
     setAdded(true)
 
     setTimeout(() => {

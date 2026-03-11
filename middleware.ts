@@ -85,7 +85,7 @@ export async function middleware(req: NextRequest) {
       console.log('🍪 Todas las cookies:', allCookies || 'ninguna');
       console.log('🎫 Token encontrado:', authToken ? 'SÍ' : 'NO');
       if (authToken) {
-        console.log('🔑 Token preview:', authToken.substring(0, 20) + '...');
+        console.log('🔑 Token encontrado');
       }
 
       if (!authToken) {

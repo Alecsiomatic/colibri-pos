@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useCart } from "./cart-provider"
+import { useCart } from "@/hooks/use-cart"
 import { ShoppingCart, X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ export default function CartSidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const cartRef = useRef<HTMLDivElement>(null)
-  const { items, removeItem, updateQuantity, totalItems, totalPrice, clearCart } = useCart()
+  const { items, removeItem, updateQuantity, itemCount, total, clearCart } = useCart()
   const router = useRouter()
   const { user } = useAuth()
 
@@ -58,9 +58,9 @@ export default function CartSidebar() {
         >
           <div className="relative">
             <ShoppingCart className="h-6 w-6 transition-transform group-hover:rotate-12" />
-            {totalItems > 0 && (
+            {itemCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">
-                {totalItems}
+                {itemCount}
               </span>
             )}
           </div>
@@ -180,7 +180,7 @@ export default function CartSidebar() {
                 <div className="p-4 border-t border-purple-800/50 bg-gradient-to-r from-purple-900/30 to-pink-900/30">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-white font-semibold">Total:</span>
-                    <span className="text-orange-400 font-bold text-lg">${totalPrice.toFixed(2)}</span>
+                    <span className="text-orange-400 font-bold text-lg">${total.toFixed(2)}</span>
                   </div>
 
                   <div className="flex space-x-2">
