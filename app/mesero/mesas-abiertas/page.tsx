@@ -53,15 +53,15 @@ export default function MesasAbiertasPage() {
   const [calculating, setCalculating] = useState(false);
   
   const [businessInfo, setBusinessInfo] = useState<any>({
-    name: 'SUPER NOVA',
-    slogan: 'Restaurante & Delivery',
-    address: 'Av. Principal #123',
-    phone: '(555) 123-4567',
-    email: 'info@supernova.com',
-    website: 'www.supernova-delivery.com',
-    instagram: '@SuperNovaRestaurante',
-    facebook: '@SuperNovaOficial',
-    whatsapp: '+52 555 123 4567'
+    name: '',
+    slogan: '',
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    instagram: '',
+    facebook: '',
+    whatsapp: ''
   });
 
   const fetchTables = async () => {
@@ -83,24 +83,33 @@ export default function MesasAbiertasPage() {
 
   const fetchBusinessInfo = async () => {
     try {
-      const res = await fetch("/api/admin/business-info", { credentials: "include" });
+      const res = await fetch("/api/business-info");
       const data = await res.json();
-      console.log("Business info response:", data);
-      if (data.success && data.businessInfo) {
-        console.log("Setting business info:", data.businessInfo);
-        setBusinessInfo(data.businessInfo);
+      if (data.success) {
+        setBusinessInfo({
+          name: data.business_name || '',
+          slogan: data.slogan || '',
+          address: data.address || '',
+          phone: data.phone || '',
+          email: data.email || '',
+          website: data.website || '',
+          instagram: data.instagram || '',
+          facebook: data.facebook || '',
+          whatsapp: data.whatsapp || '',
+          logo_url: data.logo_url || ''
+        });
       }
     } catch (e) {
-      console.log("Error loading business info:", e);
+      // Silently fail — ticket will show empty fields
     }
   };
 
   useEffect(() => {
     // Check if visual tables mode is enabled — redirect to map if so
-    fetch("/api/admin/business-info", { credentials: "include" })
+    fetch("/api/business-info")
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.businessInfo?.use_visual_tables) {
+        if (data.success && data.use_visual_tables) {
           router.replace("/mesero/mapa-mesas");
           return;
         }
@@ -126,24 +135,21 @@ export default function MesasAbiertasPage() {
   };
 
   const handlePrintTable = async (table: GroupedTable) => {
-    console.log("🖨️ Printing ticket for table:", table.tableName);
     setPrintingTable(table.tableName);
     
     try {
       // Intentar imprimir vía servidor Raspberry Pi primero
       const printed = await printTableViaServer(table);
       if (printed) {
-        console.log('✅ Ticket impreso vía servidor Raspberry Pi');
         toast.success("Éxito", `Ticket de ${table.tableName} enviado a impresora térmica`);
         setPrintingTable(null);
         return;
       }
     } catch (error) {
-      console.error('❌ Error imprimiendo vía servidor:', error);
+      // Fallback below
     }
     
     // Fallback: Imprimir vía navegador
-    console.log("🔄 Fallback: Imprimiendo vía navegador");
     printTableViaBrowser(table);
   };
 
@@ -173,8 +179,6 @@ export default function MesasAbiertasPage() {
         timestamp: new Date().toISOString()
       };
 
-      console.log('📡 Enviando a print server:', printData);
-
       const response = await fetch(`${PRINT_SERVER_URL}/print`, {
         method: 'POST',
         headers: {
@@ -184,27 +188,17 @@ export default function MesasAbiertasPage() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        console.log('✅ Impresión exitosa:', result);
         return true;
       } else {
-        console.error('❌ Error del servidor de impresión:', await response.text());
         return false;
       }
     } catch (error) {
-      console.error('❌ Error conectando al servidor de impresión:', error);
       return false;
     }
   };
 
   const printTableViaBrowser = (table: GroupedTable) => {
-    console.log("=== TICKET GENERATION DEBUG ===");
-    console.log("Business info:", businessInfo);
-    console.log("Logo URL from DB:", businessInfo.logo_url);
-    console.log("Current origin:", window.location.origin);
-    
     const ticketContent = generateTableTicket(table);
-    console.log("📄 Generated ticket HTML length:", ticketContent.length);
     
     const printWindow = window.open('', '_blank');
     if (printWindow) {
@@ -213,19 +207,15 @@ export default function MesasAbiertasPage() {
       
       // Esperar a que se carguen las imágenes antes de imprimir
       printWindow.onload = () => {
-        console.log("🖼️ Print window loaded, waiting for images...");
         setTimeout(() => {
-          console.log("🖨️ Starting print...");
           printWindow.print();
           printWindow.onafterprint = () => {
-            console.log("✅ Print completed");
             printWindow.close();
             setPrintingTable(null);
           };
         }, 1500);
       };
     } else {
-      console.error("❌ Failed to open print window");
       toast.error("Error", "No se pudo abrir la ventana de impresión");
       setPrintingTable(null);
     }
@@ -260,13 +250,6 @@ export default function MesasAbiertasPage() {
     setCalculating(true);
     
     try {
-      console.log('💳 Procesando cierre de mesa con pago:', {
-        tableId: selectedTableToClose.tableName,
-        paymentMethod,
-        amountPaid: paymentMethod === 'efectivo' ? amountPaid : selectedTableToClose.totalMesa,
-        totalAmount: selectedTableToClose.totalMesa
-      });
-
       const response = await fetch('/api/close-table-payment', {
         method: 'POST',
         headers: {
@@ -300,7 +283,6 @@ export default function MesasAbiertasPage() {
         toast.error("Error", result.error || "No se pudo cerrar la mesa");
       }
     } catch (e) {
-      console.error('❌ Error procesando pago:', e);
       toast.error("Error", "No se pudo cerrar la mesa");
     } finally {
       setCalculating(false);
@@ -630,7 +612,7 @@ export default function MesasAbiertasPage() {
             <Button
               onClick={() => router.push('/mesero/mapa-mesas')}
               variant="outline"
-              className="border-2 border-blue-400 text-blue-400 hover:bg-blue-400/20 px-6 py-6"
+              className="border-2 border-colibri-beige text-colibri-beige hover:bg-colibri-beige/20 px-6 py-6"
             >
               <Map className="h-5 w-5 mr-2" />
               Mapa Visual
@@ -782,7 +764,7 @@ export default function MesasAbiertasPage() {
 
                       <Button 
                         size="sm" 
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 font-semibold" 
+                        className="bg-colibri-wine text-white hover:bg-colibri-wine/90 font-semibold" 
                         onClick={() => router.push(`/mesero/dividir-cuenta/${table.orders[0].id}`)}
                       >
                         <Scissors className="h-4 w-4 mr-1" />
@@ -791,7 +773,7 @@ export default function MesasAbiertasPage() {
                       
                       <Button 
                         size="sm" 
-                        className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700" 
+                        className="bg-colibri-green text-white hover:bg-colibri-green/90" 
                         onClick={() => handleCloseTable(table)} 
                         disabled={closingTable === table.tableName}
                       >
@@ -816,7 +798,7 @@ export default function MesasAbiertasPage() {
         <DialogContent className="max-w-md bg-white border-2 border-gray-300">
           <DialogHeader>
             <DialogTitle className="flex items-center text-gray-900 font-bold text-lg">
-              <Calculator className="h-5 w-5 mr-2 text-blue-600" />
+              <Calculator className="h-5 w-5 mr-2 text-colibri-wine" />
               Cerrar Mesa {selectedTableToClose?.tableName}
             </DialogTitle>
           </DialogHeader>
@@ -827,7 +809,7 @@ export default function MesasAbiertasPage() {
               <div className="bg-white/90 backdrop-blur-sm p-4 rounded-lg border border-white/20">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-semibold text-gray-800">Total a pagar:</span>
-                  <span className="text-xl font-bold text-green-600">
+                  <span className="text-xl font-bold text-colibri-green">
                     ${selectedTableToClose.totalMesa.toFixed(2)}
                   </span>
                 </div>
@@ -843,14 +825,14 @@ export default function MesasAbiertasPage() {
                   <div className="flex items-center space-x-2 p-3 bg-white/90 rounded-lg border border-gray-300">
                     <RadioGroupItem value="efectivo" id="efectivo" />
                     <Label htmlFor="efectivo" className="flex items-center cursor-pointer text-gray-900 font-bold text-base">
-                      <Banknote className="h-5 w-5 mr-2 text-green-600" />
+                      <Banknote className="h-5 w-5 mr-2 text-colibri-green" />
                       Efectivo
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2 p-3 bg-white/90 rounded-lg border border-gray-300">
                     <RadioGroupItem value="tarjeta" id="tarjeta" />
                     <Label htmlFor="tarjeta" className="flex items-center cursor-pointer text-gray-900 font-bold text-base">
-                      <CreditCard className="h-5 w-5 mr-2 text-blue-600" />
+                      <CreditCard className="h-5 w-5 mr-2 text-colibri-wine" />
                       Tarjeta
                     </Label>
                   </div>
@@ -926,7 +908,7 @@ export default function MesasAbiertasPage() {
             <Button 
               onClick={handleConfirmCloseTable}
               disabled={calculating || (paymentMethod === 'efectivo' && (!amountPaid || parseFloat(amountPaid) < (selectedTableToClose?.totalMesa || 0)))}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold"
+              className="bg-colibri-green hover:bg-colibri-green/90 text-white font-bold"
             >
               {calculating ? (
                 <>

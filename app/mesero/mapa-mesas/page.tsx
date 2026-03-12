@@ -199,7 +199,7 @@ export default function MapaMesasPage() {
           </Button>
           <h1 className="text-xl font-black text-white">Mapa del Restaurante</h1>
           <div className="flex gap-2 ml-4">
-            <Badge className="bg-green-600/80 text-white font-bold">{free} libres</Badge>
+            <Badge className="bg-colibri-green/80 text-white font-bold">{free} libres</Badge>
             <Badge className="bg-red-600/80 text-white font-bold">{occupied} ocupadas</Badge>
           </div>
         </div>
@@ -257,7 +257,7 @@ export default function MapaMesasPage() {
                     className={`w-full h-full flex flex-col items-center justify-center border-2 transition-all
                       ${isOccupied
                         ? "bg-colibri-wine/90 border-colibri-wine shadow-lg shadow-colibri-wine/30 text-white"
-                        : "bg-green-800/60 border-green-600/80 text-white/90 hover:bg-green-700/70"
+                        : "bg-colibri-green/40 border-colibri-green/60 text-white/90 hover:bg-colibri-green/50"
                       }
                       ${isSelected ? "ring-2 ring-colibri-gold ring-offset-2 ring-offset-slate-900" : ""}
                       ${table.shape === "round" ? "rounded-full" : "rounded-lg"}
@@ -282,7 +282,7 @@ export default function MapaMesasPage() {
           {/* Legend */}
           <div className="flex items-center gap-6 mt-3 justify-center text-sm text-white/60">
             <div className="flex items-center gap-1.5">
-              <div className="w-4 h-4 rounded bg-green-800/60 border border-green-600/80" />
+              <div className="w-4 h-4 rounded bg-colibri-green/40 border border-colibri-green/60" />
               <span>Libre</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -303,7 +303,7 @@ export default function MapaMesasPage() {
               <div>
                 <h3 className="text-2xl font-black text-white">{selectedTable.name}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className={selectedTable.status === "occupied" ? "bg-red-500 text-white" : "bg-green-600 text-white"}>
+                  <Badge className={selectedTable.status === "occupied" ? "bg-red-500 text-white" : "bg-colibri-green text-white"}>
                     {selectedTable.status === "occupied" ? "Ocupada" : "Libre"}
                   </Badge>
                   <span className="text-white/60 text-sm flex items-center">
@@ -349,14 +349,14 @@ export default function MapaMesasPage() {
                     </Button>
                     <Button
                       size="sm"
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold"
+                      className="w-full bg-colibri-wine text-white font-semibold"
                       onClick={() => router.push(`/mesero/dividir-cuenta/${order.orders[0].id}`)}
                     >
                       <Scissors className="h-4 w-4 mr-1" /> Dividir Cuenta
                     </Button>
                     <Button
                       size="sm"
-                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold"
+                      className="w-full bg-colibri-green text-white font-bold"
                       onClick={() => handleCloseTableModal(selectedTable.name)}
                     >
                       <CheckCircle className="h-4 w-4 mr-1" /> Cerrar y Cobrar
@@ -408,7 +408,7 @@ export default function MapaMesasPage() {
         <DialogContent className="max-w-md bg-white border-2 border-gray-300">
           <DialogHeader>
             <DialogTitle className="flex items-center text-gray-900 font-bold text-lg">
-              <Calculator className="h-5 w-5 mr-2 text-blue-600" />
+              <Calculator className="h-5 w-5 mr-2 text-colibri-wine" />
               Cerrar {closingTableName}
             </DialogTitle>
           </DialogHeader>
@@ -416,7 +416,7 @@ export default function MapaMesasPage() {
             <div className="bg-white/90 p-4 rounded-lg border border-gray-200">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-semibold text-gray-800">Total a pagar:</span>
-                <span className="text-xl font-bold text-green-600">${closingTableTotal.toFixed(2)}</span>
+                <span className="text-xl font-bold text-colibri-green">${closingTableTotal.toFixed(2)}</span>
               </div>
               {closingTableOrders && (
                 <div className="text-sm text-gray-700">
@@ -430,13 +430,13 @@ export default function MapaMesasPage() {
                 <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-300">
                   <RadioGroupItem value="efectivo" id="mp-efectivo" />
                   <Label htmlFor="mp-efectivo" className="flex items-center cursor-pointer text-gray-900 font-bold">
-                    <Banknote className="h-5 w-5 mr-2 text-green-600" /> Efectivo
+                    <Banknote className="h-5 w-5 mr-2 text-colibri-green" /> Efectivo
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-300">
                   <RadioGroupItem value="tarjeta" id="mp-tarjeta" />
                   <Label htmlFor="mp-tarjeta" className="flex items-center cursor-pointer text-gray-900 font-bold">
-                    <CreditCard className="h-5 w-5 mr-2 text-blue-600" /> Tarjeta
+                    <CreditCard className="h-5 w-5 mr-2 text-colibri-wine" /> Tarjeta
                   </Label>
                 </div>
               </RadioGroup>
@@ -450,7 +450,7 @@ export default function MapaMesasPage() {
                   value={amountPaid}
                   onChange={(e) => setAmountPaid(e.target.value)}
                   placeholder="0.00"
-                  className="text-xl mt-2 bg-white text-gray-900 border-2 border-gray-400 focus:border-blue-600 font-bold"
+                  className="text-xl mt-2 bg-white text-gray-900 border-2 border-gray-400 focus:border-colibri-wine font-bold"
                   step="0.01"
                   min={closingTableTotal}
                 />
@@ -464,7 +464,7 @@ export default function MapaMesasPage() {
                     </div>
                     <div className="flex justify-between font-bold text-lg border-t border-gray-300 pt-2 mt-1">
                       <span className="text-gray-800">Cambio:</span>
-                      <span className={parseFloat(amountPaid) >= closingTableTotal ? "text-green-600" : "text-red-600"}>
+                      <span className={parseFloat(amountPaid) >= closingTableTotal ? "text-colibri-green" : "text-red-600"}>
                         ${Math.max(0, parseFloat(amountPaid) - closingTableTotal).toFixed(2)}
                       </span>
                     </div>
@@ -491,7 +491,7 @@ export default function MapaMesasPage() {
             <Button
               onClick={handleConfirmClose}
               disabled={calculating || (paymentMethod === "efectivo" && (!amountPaid || parseFloat(amountPaid) < closingTableTotal))}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold"
+              className="bg-colibri-green hover:bg-colibri-green/90 text-white font-bold"
             >
               {calculating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
               {calculating ? "Procesando..." : "Confirmar Cobro"}

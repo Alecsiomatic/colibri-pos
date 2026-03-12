@@ -575,7 +575,7 @@ export default function DividirCuentaPage() {
                     )}
                     {account.isPaid ? (
                       <div className="flex items-center justify-between">
-                        <Badge className="bg-green-600 text-white">
+                        <Badge className="bg-colibri-green text-white">
                           <CheckCircle className="h-3 w-3 mr-1" /> Pagada - {account.paymentMethod === "efectivo" ? "Efectivo" : "Tarjeta"}
                         </Badge>
                         <Button size="sm" variant="ghost" className="text-yellow-400 text-xs hover:bg-yellow-500/20" onClick={() => undoPay(accIdx)}>
@@ -585,7 +585,7 @@ export default function DividirCuentaPage() {
                     ) : (
                       <Button
                         size="sm"
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold mt-1"
+                        className="w-full bg-colibri-green hover:bg-colibri-green/90 text-white font-bold mt-1"
                         onClick={() => openPayModal(accIdx)}
                         disabled={account.items.length === 0}
                       >
@@ -646,7 +646,7 @@ export default function DividirCuentaPage() {
                       <div className="space-y-2">
                         <div className="text-colibri-gold font-black text-2xl">${account.amount.toFixed(2)}</div>
                         <div className="flex items-center justify-between">
-                          <Badge className="bg-green-600 text-white">
+                          <Badge className="bg-colibri-green text-white">
                             <CheckCircle className="h-3 w-3 mr-1" /> Pagada - {account.paymentMethod === "efectivo" ? "Efectivo" : "Tarjeta"}
                           </Badge>
                           <Button size="sm" variant="ghost" className="text-yellow-400 text-xs hover:bg-yellow-500/20" onClick={() => undoPay(idx)}>
@@ -673,7 +673,7 @@ export default function DividirCuentaPage() {
                         </div>
                         <Button
                           size="sm"
-                          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold"
+                          className="w-full bg-colibri-green hover:bg-colibri-green/90 text-white font-bold"
                           onClick={() => openPayModal(idx)}
                           disabled={account.amount <= 0}
                         >
@@ -699,7 +699,7 @@ export default function DividirCuentaPage() {
         {/* Submit Button */}
         <div className="mt-8 pb-8">
           <Button
-            className="w-full py-6 text-lg font-black bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-xl disabled:opacity-50"
+            className="w-full py-6 text-lg font-black bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white shadow-xl disabled:opacity-50"
             disabled={!canSubmit() || submitting}
             onClick={handleSubmit}
           >
@@ -734,7 +734,7 @@ export default function DividirCuentaPage() {
         <DialogContent className="max-w-md bg-white border-2 border-gray-300">
           <DialogHeader>
             <DialogTitle className="flex items-center text-gray-900 font-bold text-lg">
-              <Calculator className="h-5 w-5 mr-2 text-blue-600" />
+              <Calculator className="h-5 w-5 mr-2 text-colibri-wine" />
               Cobrar {payingAccount?.label}
             </DialogTitle>
           </DialogHeader>
@@ -744,7 +744,7 @@ export default function DividirCuentaPage() {
               <div className="bg-gray-50 p-4 rounded-lg border">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-800">Subtotal:</span>
-                  <span className="text-xl font-black text-green-600">
+                  <span className="text-xl font-black text-colibri-green">
                     ${payingAccount.amount.toFixed(2)}
                   </span>
                 </div>
@@ -756,14 +756,14 @@ export default function DividirCuentaPage() {
                   <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-300">
                     <RadioGroupItem value="efectivo" id="split-efectivo" />
                     <Label htmlFor="split-efectivo" className="flex items-center cursor-pointer text-gray-900 font-bold text-base">
-                      <Banknote className="h-5 w-5 mr-2 text-green-600" />
+                      <Banknote className="h-5 w-5 mr-2 text-colibri-green" />
                       Efectivo
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-300">
                     <RadioGroupItem value="tarjeta" id="split-tarjeta" />
                     <Label htmlFor="split-tarjeta" className="flex items-center cursor-pointer text-gray-900 font-bold text-base">
-                      <CreditCard className="h-5 w-5 mr-2 text-blue-600" />
+                      <CreditCard className="h-5 w-5 mr-2 text-colibri-wine" />
                       Tarjeta
                     </Label>
                   </div>
@@ -781,7 +781,7 @@ export default function DividirCuentaPage() {
                     value={payModalAmount}
                     onChange={(e) => setPayModalAmount(e.target.value)}
                     placeholder="0.00"
-                    className="text-xl mt-2 bg-white text-gray-900 border-2 border-gray-400 focus:border-blue-600 font-bold placeholder:text-gray-500"
+                    className="text-xl mt-2 bg-white text-gray-900 border-2 border-gray-400 focus:border-colibri-wine font-bold placeholder:text-gray-500"
                     step="0.01"
                     min={payingAccount.amount}
                   />
@@ -797,7 +797,7 @@ export default function DividirCuentaPage() {
                       </div>
                       <div className="flex justify-between font-bold text-lg border-t border-gray-300 pt-2 mt-1">
                         <span className="text-gray-800">Cambio:</span>
-                        <span className={parseFloat(payModalAmount) >= payingAccount.amount ? "text-green-600" : "text-red-600"}>
+                        <span className={parseFloat(payModalAmount) >= payingAccount.amount ? "text-colibri-green" : "text-red-600"}>
                           ${Math.max(0, parseFloat(payModalAmount) - payingAccount.amount).toFixed(2)}
                         </span>
                       </div>
@@ -831,7 +831,7 @@ export default function DividirCuentaPage() {
             <Button
               onClick={confirmPay}
               disabled={payModalMethod === "efectivo" && (!payModalAmount || parseFloat(payModalAmount) < (payingAccount?.amount || 0))}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold"
+              className="bg-colibri-green hover:bg-colibri-green/90 text-white font-bold"
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Confirmar Pago
@@ -863,7 +863,7 @@ function AccountCard({
         </div>
         {account.isPaid ? (
           <div className="flex items-center justify-between">
-            <Badge className="bg-green-600 text-white">
+            <Badge className="bg-colibri-green text-white">
               <CheckCircle className="h-3 w-3 mr-1" /> Pagada - {account.paymentMethod === "efectivo" ? "Efectivo" : "Tarjeta"}
             </Badge>
             <Button size="sm" variant="ghost" className="text-yellow-400 text-xs hover:bg-yellow-500/20" onClick={onUndoPay}>
@@ -873,7 +873,7 @@ function AccountCard({
         ) : (
           <Button
             size="sm"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold"
+            className="w-full bg-colibri-green hover:bg-colibri-green/90 text-white font-bold"
             onClick={onPay}
           >
             <Banknote className="h-4 w-4 mr-2" /> Cobrar ${account.amount.toFixed(2)}

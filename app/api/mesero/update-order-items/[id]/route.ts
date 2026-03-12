@@ -52,8 +52,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         orderId: orderId,
         isWaiterOrder: true,
         tableName: tableName,
-        isTableUpdate: true, // Flag para formato de comanda comedor
-        notes: meseroNotes, // Notas del mesero o mensaje por defecto
+        isTableUpdate: true,
+        notes: meseroNotes,
         customer: {
           name: `COMANDA COMEDOR - ${tableName.toUpperCase()}`,
           phone: '',
@@ -71,8 +71,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         createdAt: new Date().toISOString()
       };
 
-      console.log('🖨️ Enviando a imprimir productos agregados a mesa:', printData);
-
       const printResponse = await fetch(`${PRINT_SERVER_URL}/print`, {
         method: 'POST',
         headers: {
@@ -80,16 +78,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
           'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({ order: printData }),
-        signal: AbortSignal.timeout(5000) // 5 segundos timeout
+        signal: AbortSignal.timeout(5000)
       });
-
-      if (printResponse.ok) {
-        console.log('✅ Productos agregados a mesa impresos correctamente');
-      } else {
-        console.warn('⚠️ Error en impresión automática:', printResponse.statusText);
-      }
     } catch (printError) {
-      console.warn('⚠️ Error en impresión automática (no afecta la actualización):', printError);
+      // Print failure doesn't affect order update
     }
 
     return NextResponse.json({ 

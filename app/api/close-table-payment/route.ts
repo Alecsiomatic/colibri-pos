@@ -6,18 +6,9 @@ import { ensureCajaMigrations } from '@/lib/db-migrations'
 export async function POST(req: NextRequest) {
   try {
     await ensureCajaMigrations()
-    console.log('🔄 Iniciando cierre de mesa con pago...')
     
     const body = await req.json()
     const { tableId, paymentMethod, amountPaid, totalAmount, tip, waiterId, waiterName } = body
-
-    console.log('💳 Datos de pago recibidos:', {
-      tableId,
-      paymentMethod,
-      amountPaid,
-      totalAmount,
-      tip
-    })
 
     // Validaciones
     if (!tableId || !paymentMethod || !totalAmount) {
@@ -46,8 +37,6 @@ export async function POST(req: NextRequest) {
         [tableId, tableId]
       )
 
-      console.log(`📝 Órdenes encontradas para mesa ${tableId}:`, orders.length)
-
       if (orders.length === 0) {
         await connection.rollback()
         connection.release()
@@ -64,8 +53,6 @@ export async function POST(req: NextRequest) {
           [order.id]
         )
       }
-
-      console.log('✅ Órdenes actualizadas a estado "paid"')
 
       // 3. Registrar el pago en la tabla de pagos
       const changeAmount = paymentMethod === 'efectivo' ? 
@@ -100,9 +87,7 @@ export async function POST(req: NextRequest) {
         ]
       )
 
-      console.log('💰 Pago registrado exitosamente')
-
-      // 4. Registrar en el historial de la mesa (opcional)
+      // Confirmé la transacción — registrar en historial
       await connection.execute(
         `INSERT INTO table_history (
           table_name,
@@ -125,8 +110,6 @@ export async function POST(req: NextRequest) {
       await connection.commit()
       connection.release()
 
-      console.log('🎉 Mesa cerrada exitosamente con pago')
-
       return NextResponse.json({
         success: true,
         message: 'Mesa cerrada y pago registrado exitosamente',
@@ -146,7 +129,7 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (error) {
-    console.error('❌ Error cerrando mesa con pago:', error)
+    console.error('Error cerrando mesa con pago:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
