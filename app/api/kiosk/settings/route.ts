@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Error fetching kiosk settings:', error)
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Error al obtener configuraciones del kiosko' },
       { status: 500 }
     )
   }
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error updating kiosk settings:', error)
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Error al actualizar configuraciones del kiosko' },
       { status: 500 }
     )
   }

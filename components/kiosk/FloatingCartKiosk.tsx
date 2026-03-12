@@ -298,7 +298,7 @@ export const FloatingCartKiosk = ({
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="Tu nombre"
-                        className="h-12 rounded-xl bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:border-purple-400 min-h-[44px]"
+                        className="h-12 rounded-xl bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:border-colibri-gold min-h-[44px]"
                         style={{ fontSize: '16px' }}
                       />
                     </div>
@@ -312,7 +312,7 @@ export const FloatingCartKiosk = ({
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Instrucciones especiales..."
-                        className="h-16 rounded-xl bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:border-purple-400 resize-none"
+                        className="h-16 rounded-xl bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:border-colibri-gold resize-none"
                         style={{ fontSize: '16px' }}
                       />
                     </div>
@@ -348,7 +348,7 @@ export const FloatingCartKiosk = ({
                   <Button
                     onClick={handleCheckout}
                     disabled={isSubmitting}
-                    className="w-full py-3 text-sm font-semibold rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-400 shadow-[0_8px_20px_-6px_rgba(168,85,247,0.55)] border border-white/15"
+                    className="w-full py-3 text-sm font-semibold rounded-2xl bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 transition-all duration-400 shadow-[0_8px_20px_-6px_rgba(31,79,55,0.55)] border border-white/15"
                   >
                     {isSubmitting ? "Procesando..." : "Confirmar Pedido"}
                   </Button>
@@ -362,7 +362,7 @@ export const FloatingCartKiosk = ({
       <style jsx global>{`
         .custom-scrollbar {
           scrollbar-width: thin;
-          scrollbar-color: rgba(168, 85, 247, 0.3) transparent;
+          scrollbar-color: rgba(31, 79, 55, 0.3) transparent;
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -374,12 +374,12 @@ export const FloatingCartKiosk = ({
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(168, 85, 247, 0.3);
+          background: rgba(31, 79, 55, 0.3);
           border-radius: 2px;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(168, 85, 247, 0.5);
+          background: rgba(31, 79, 55, 0.5);
         }
       `}</style>
     </>

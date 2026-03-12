@@ -118,8 +118,8 @@ const getCategoryColors = (categoryName: string) => {
     return {
       titleColor: 'text-white',
       iconColor: 'text-white',
-      accentFrom: 'from-purple-100',
-      accentTo: 'to-pink-100',
+      accentFrom: 'from-colibri-beige',
+      accentTo: 'to-colibri-gold',
       desc: 'Menú especial para los pequeños'
     };
   }
