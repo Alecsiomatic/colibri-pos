@@ -19,63 +19,67 @@ export async function POST(
     
     const pool = getPool()
     
-    // El driverId puede venir como ID de la tabla drivers o user_id
-    // Primero intentar buscar en la tabla drivers
+    // Buscar en delivery_drivers (por id o user_id)
     const [driverInfoRows] = await pool.execute<any[]>(
-      'SELECT d.id as driver_id, d.user_id, u.username, u.is_driver FROM drivers d JOIN users u ON d.user_id = u.id WHERE d.id = ? OR d.user_id = ?',
+      'SELECT dd.id as driver_id, dd.user_id, u.username FROM delivery_drivers dd JOIN users u ON dd.user_id = u.id WHERE dd.id = ? OR dd.user_id = ?',
       [driverId, driverId]
     )
     
     if (driverInfoRows.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Driver not found' },
+        { success: false, error: 'Repartidor no encontrado' },
         { status: 404 }
       )
     }
     
     const driverInfo = driverInfoRows[0]
-    const actualUserId = driverInfo.user_id
+    const deliveryDriverId = driverInfo.driver_id
     
-    // Verificar si ya existe una asignación activa
+    // Cancelar asignaciones activas previas en delivery_assignments
     const [existingAssignments] = await pool.execute<any[]>(
-      'SELECT id FROM driver_assignments WHERE order_id = ? AND status IN ("pending", "accepted")',
+      'SELECT id FROM delivery_assignments WHERE order_id = ? AND status IN ("pending", "accepted")',
       [orderId]
     )
     
     if (existingAssignments.length > 0) {
-      // Cancelar asignación anterior
       await pool.execute(
-        'UPDATE driver_assignments SET status = "cancelled" WHERE order_id = ? AND status IN ("pending", "accepted")',
+        'UPDATE delivery_assignments SET status = "cancelled" WHERE order_id = ? AND status IN ("pending", "accepted")',
         [orderId]
       )
     }
     
-    // Crear nueva asignación usando user_id
+    // Crear nueva asignación en delivery_assignments
     await pool.execute(
-      `INSERT INTO driver_assignments (order_id, driver_id, status, assigned_at) 
+      `INSERT INTO delivery_assignments (order_id, driver_id, status, assigned_at) 
        VALUES (?, ?, 'pending', NOW())`,
-      [orderId, actualUserId]
+      [orderId, deliveryDriverId]
     )
     
     // Actualizar estado de la orden
     await pool.execute(
-      'UPDATE orders SET status = "assigned_to_driver" WHERE id = ?',
+      'UPDATE orders SET status = "asignado_repartidor" WHERE id = ?',
       [orderId]
+    )
+    
+    // Marcar repartidor como no disponible
+    await pool.execute(
+      'UPDATE delivery_drivers SET is_available = 0 WHERE id = ?',
+      [deliveryDriverId]
     )
     
     return NextResponse.json({
       success: true,
-      message: 'Driver assigned successfully',
+      message: 'Repartidor asignado exitosamente',
       driver: {
-        id: actualUserId,
+        id: driverInfo.user_id,
         name: driverInfo.username
       }
     })
     
   } catch (error: any) {
-    console.error('❌ Error assigning driver:', error)
+    console.error('Error assigning driver:', error)
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Error al asignar repartidor' },
       { status: 500 }
     )
   }

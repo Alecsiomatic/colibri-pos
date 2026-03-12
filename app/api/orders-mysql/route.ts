@@ -134,7 +134,7 @@ export async function DELETE(request: NextRequest) {
     console.log('🗑️ ELIMINANDO TODOS LOS PEDIDOS...')
     
     // 1. Eliminar asignaciones de delivery
-    await executeQuery('DELETE FROM driver_assignments')
+    await executeQuery('DELETE FROM delivery_assignments')
     console.log('✅ Asignaciones eliminadas')
     
     // 2. Eliminar todos los pedidos
@@ -143,7 +143,7 @@ export async function DELETE(request: NextRequest) {
     
     // 3. Resetear AUTO_INCREMENT
     await executeQuery('ALTER TABLE orders AUTO_INCREMENT = 1')
-    await executeQuery('ALTER TABLE driver_assignments AUTO_INCREMENT = 1')
+    await executeQuery('ALTER TABLE delivery_assignments AUTO_INCREMENT = 1')
     
     return NextResponse.json({
       success: true,

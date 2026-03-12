@@ -9,37 +9,50 @@ export async function POST(
   try {
     const user = await getCurrentUser(request)
 
-    if (!user || !user.is_driver) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     const assignmentId = parseInt(params.id)
 
-    // Verificar que la asignación pertenece a este driver
+    // Buscar repartidor en delivery_drivers por user_id
+    const drivers = await executeQuery(
+      'SELECT id FROM delivery_drivers WHERE user_id = ? AND is_active = 1',
+      [user.id]
+    ) as any[]
+
+    if (!drivers || drivers.length === 0) {
+      return NextResponse.json({ error: 'Repartidor no encontrado' }, { status: 404 })
+    }
+
+    const driverId = drivers[0].id
+
+    // Verificar que la asignación pertenece a este repartidor y está aceptada
     const assignments = await executeQuery(
-      `SELECT * FROM driver_assignments
-       WHERE id = ? AND driver_id = ?`,
-      [assignmentId, user.id]
+      `SELECT * FROM delivery_assignments
+       WHERE id = ? AND driver_id = ? AND status = 'accepted'`,
+      [assignmentId, driverId]
     ) as any[]
 
     if (!assignments || assignments.length === 0) {
-      return NextResponse.json({ error: 'Assignment not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Asignación no encontrada o no está en estado aceptado' }, { status: 404 })
     }
 
     const assignment = assignments[0]
 
-    // Verificar que está aceptada
-    if (assignment.status !== 'accepted') {
-      return NextResponse.json({ error: 'Assignment not accepted yet' }, { status: 400 })
-    }
+    // Calcular duración real en minutos
+    const acceptedAt = new Date(assignment.accepted_at)
+    const now = new Date()
+    const actualDuration = Math.floor((now.getTime() - acceptedAt.getTime()) / 60000)
 
     // Completar la asignación
     await executeQuery(
-      `UPDATE driver_assignments 
-       SET status = 'delivered', 
-           delivered_at = NOW()
+      `UPDATE delivery_assignments 
+       SET status = 'completed', 
+           completed_at = NOW(),
+           actual_duration = ?
        WHERE id = ?`,
-      [assignmentId]
+      [actualDuration, assignmentId]
     )
 
     // Actualizar estado de la orden a "entregado"
@@ -50,9 +63,18 @@ export async function POST(
       [assignment.order_id]
     )
 
-    return NextResponse.json({ success: true })
+    // Liberar repartidor y sumar entrega completada
+    await executeQuery(
+      `UPDATE delivery_drivers 
+       SET is_available = 1,
+           total_deliveries = total_deliveries + 1
+       WHERE id = ?`,
+      [driverId]
+    )
+
+    return NextResponse.json({ success: true, message: 'Entrega completada', actualDuration })
   } catch (error) {
     console.error('Error completing assignment:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al completar entrega' }, { status: 500 })
   }
 }

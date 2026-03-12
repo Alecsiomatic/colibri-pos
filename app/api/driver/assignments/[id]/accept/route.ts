@@ -9,33 +9,44 @@ export async function POST(
   try {
     const user = await getCurrentUser(request)
 
-    if (!user || !user.is_driver) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     const assignmentId = parseInt(params.id)
 
-    // Verificar que la asignación pertenece a este driver
+    // Buscar repartidor en delivery_drivers por user_id
+    const drivers = await executeQuery(
+      'SELECT id FROM delivery_drivers WHERE user_id = ? AND is_active = 1',
+      [user.id]
+    ) as any[]
+
+    if (!drivers || drivers.length === 0) {
+      return NextResponse.json({ error: 'Repartidor no encontrado' }, { status: 404 })
+    }
+
+    const driverId = drivers[0].id
+
+    // Verificar que la asignación pertenece a este repartidor en delivery_assignments
     const assignments = await executeQuery(
-      `SELECT * FROM driver_assignments
+      `SELECT * FROM delivery_assignments
        WHERE id = ? AND driver_id = ?`,
-      [assignmentId, user.id]
+      [assignmentId, driverId]
     ) as any[]
 
     if (!assignments || assignments.length === 0) {
-      return NextResponse.json({ error: 'Assignment not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Asignación no encontrada' }, { status: 404 })
     }
 
     const assignment = assignments[0]
 
-    // Verificar que está pendiente
     if (assignment.status !== 'pending') {
-      return NextResponse.json({ error: 'Assignment already processed' }, { status: 400 })
+      return NextResponse.json({ error: 'Esta asignación ya fue procesada' }, { status: 400 })
     }
 
-    // Aceptar la asignación
+    // Actualizar asignación a aceptada
     await executeQuery(
-      `UPDATE driver_assignments 
+      `UPDATE delivery_assignments 
        SET status = 'accepted', accepted_at = NOW()
        WHERE id = ?`,
       [assignmentId]
@@ -49,9 +60,17 @@ export async function POST(
       [assignment.order_id]
     )
 
-    return NextResponse.json({ success: true })
+    // Marcar repartidor como no disponible
+    await executeQuery(
+      `UPDATE delivery_drivers 
+       SET is_available = 0
+       WHERE id = ?`,
+      [driverId]
+    )
+
+    return NextResponse.json({ success: true, message: 'Pedido aceptado exitosamente' })
   } catch (error) {
     console.error('Error accepting assignment:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al aceptar asignación' }, { status: 500 })
   }
 }
