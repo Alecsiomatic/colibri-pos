@@ -150,5 +150,5 @@ async function processMessage(message: string, products: Product[]): Promise<str
   }
 
   // Respuesta predeterminada si no se detecta una intención específica
-  return "¡Hola! Soy el asistente virtual de Sonora Express. Puedo ayudarte con nuestro menú, precios, recomendaciones o tomar tu orden. ¿En qué puedo ayudarte hoy?"
+  return "¡Hola! Soy el asistente virtual del restaurante. Puedo ayudarte con nuestro menú, precios, recomendaciones o tomar tu orden. ¿En qué puedo ayudarte hoy?"
 }

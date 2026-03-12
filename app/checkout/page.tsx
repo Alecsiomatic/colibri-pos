@@ -40,7 +40,7 @@ import { useToast } from '@/hooks/use-notifications'
 const DeliveryMap = dynamic(() => import('@/components/DeliveryMap'), {
   ssr: false,
   loading: () => (
-    <div className="h-64 bg-slate-800/60 animate-pulse rounded-lg flex items-center justify-center">
+    <div className="h-64 bg-white/10 animate-pulse rounded-lg flex items-center justify-center">
       <Loader2 className="w-8 h-8 text-colibri-gold animate-spin" />
     </div>
   )
@@ -576,7 +576,7 @@ export default function CheckoutPage() {
 
   if (!hydrated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-colibri-gold animate-spin" />
       </div>
     )
@@ -584,8 +584,8 @@ export default function CheckoutPage() {
 
   if (itemCount === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black flex items-center justify-center">
-        <Card className="backdrop-blur-sm bg-slate-800/60 border-colibri-gold/20 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 flex items-center justify-center">
+        <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20 p-8">
           <div className="text-center">
             <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-colibri-gold" />
             <h2 className="text-2xl font-bold text-white mb-2">Carrito vacío</h2>
@@ -603,7 +603,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Finalizar Pedido</h1>
@@ -616,7 +616,7 @@ export default function CheckoutPage() {
             
             {/* Mesa selection for mesero */}
             {shouldUseMeseroCheckout(user) ? (
-              <Card className="backdrop-blur-sm bg-white/10 border-purple-500/20">
+              <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center">
                     <UserCheck className="h-5 w-5 mr-2" />
@@ -626,8 +626,8 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-4">
                   {loadingMesas ? (
                     <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
-                      <span className="ml-2 text-purple-300">Cargando mesas...</span>
+                      <Loader2 className="h-6 w-6 animate-spin text-colibri-gold" />
+                      <span className="ml-2 text-colibri-beige">Cargando mesas...</span>
                     </div>
                   ) : (
                     <>
@@ -659,7 +659,7 @@ export default function CheckoutPage() {
                             setTableInfo(prev => ({ ...prev, table: e.target.value }))
                             setMesaSeleccionada('')
                           }}
-                          className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                          className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                           placeholder="Número o nombre de mesa"
                         />
                         {errors.table && (
@@ -673,7 +673,7 @@ export default function CheckoutPage() {
                           id="table-notes"
                           value={tableInfo.notes}
                           onChange={(e) => setTableInfo(prev => ({ ...prev, notes: e.target.value }))}
-                          className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                          className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                           placeholder="Notas sobre la mesa o pedido..."
                           rows={2}
                         />
@@ -684,7 +684,7 @@ export default function CheckoutPage() {
               </Card>
             ) : (
               /* Customer info for regular users */
-              <Card className="backdrop-blur-sm bg-white/10 border-purple-500/20">
+              <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center">
                     <User className="h-5 w-5 mr-2" />
@@ -698,7 +698,7 @@ export default function CheckoutPage() {
                       id="name"
                       value={customerInfo.name}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
-                      className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                      className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                       placeholder="Tu nombre completo"
                     />
                     {errors.name && (
@@ -711,7 +711,7 @@ export default function CheckoutPage() {
                       id="phone"
                       value={customerInfo.phone}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                      className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                      className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                       placeholder="Tu número de teléfono"
                     />
                     {errors.phone && (
@@ -725,7 +725,7 @@ export default function CheckoutPage() {
                       type="email"
                       value={customerInfo.email}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
-                      className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                      className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                       placeholder="tu@email.com"
                     />
                     {errors.email && (
@@ -739,7 +739,7 @@ export default function CheckoutPage() {
             {/* Delivery Options - Only for non-mesero users */}
             {!shouldUseMeseroCheckout(user) && (
               <>
-                <Card className="backdrop-blur-sm bg-slate-900/80 border-colibri-gold/30">
+                <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <Truck className="h-5 w-5 mr-2 text-colibri-gold" />
@@ -751,7 +751,7 @@ export default function CheckoutPage() {
                       value={orderType} 
                       onValueChange={(value: 'delivery' | 'pickup') => setOrderType(value)}
                     >
-                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-slate-800/60 border border-colibri-green/40 hover:border-colibri-green transition-colors">
+                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-white/10 border border-colibri-green/40 hover:border-colibri-green transition-colors">
                         <RadioGroupItem value="delivery" id="delivery" />
                         <Label htmlFor="delivery" className="text-white flex-1 cursor-pointer">
                           <div className="flex items-center justify-between">
@@ -764,7 +764,7 @@ export default function CheckoutPage() {
                           <p className="text-colibri-beige text-sm mt-1">Entrega en 30-45 minutos</p>
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-slate-800/60 border border-colibri-wine/40 hover:border-colibri-wine transition-colors">
+                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-white/10 border border-colibri-wine/40 hover:border-colibri-wine transition-colors">
                         <RadioGroupItem value="pickup" id="pickup" />
                         <Label htmlFor="pickup" className="text-white flex-1 cursor-pointer">
                           <div className="flex items-center justify-between">
@@ -788,7 +788,7 @@ export default function CheckoutPage() {
                               Dirección de entrega *
                             </div>
                             {searchingAddress && (
-                              <span className="text-purple-300 text-xs flex items-center gap-1">
+                              <span className="text-colibri-beige text-xs flex items-center gap-1">
                                 <Loader2 className="w-3 h-3 animate-spin" />
                                 Buscando...
                               </span>
@@ -799,20 +799,20 @@ export default function CheckoutPage() {
                             value={deliveryInfo.address}
                             onChange={handleAddressInputChange}
                             onFocus={() => addressSuggestions.length > 0 && setShowSuggestions(true)}
-                            className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                            className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                             placeholder="Ej: Calle Ejemplo 123, San Luis Potosí, SLP"
                             autoComplete="off"
                           />
                           
                           {/* Sugerencias de direcciones */}
                           {showSuggestions && addressSuggestions.length > 0 && (
-                            <div className="address-suggestions absolute z-50 w-full mt-1 bg-slate-800 border border-colibri-gold/30 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                            <div className="address-suggestions absolute z-50 w-full mt-1 bg-black/80 border border-colibri-gold/30 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                               {addressSuggestions.map((suggestion, index) => (
                                 <button
                                   key={index}
                                   type="button"
                                   onClick={() => selectAddressSuggestion(suggestion)}
-                                  className="w-full px-4 py-3 text-left hover:bg-colibri-green/20 transition-colors border-b border-slate-700 last:border-0"
+                                  className="w-full px-4 py-3 text-left hover:bg-colibri-green/20 transition-colors border-b border-white/10 last:border-0"
                                 >
                                   <div className="flex items-start gap-2">
                                     <MapPin className="w-4 h-4 mt-1 text-colibri-gold flex-shrink-0" />
@@ -865,7 +865,7 @@ export default function CheckoutPage() {
                             id="notes"
                             value={deliveryInfo.notes}
                             onChange={(e) => setDeliveryInfo(prev => ({ ...prev, notes: e.target.value }))}
-                            className="bg-white/10 border-purple-300/30 text-white placeholder:text-purple-300"
+                            className="bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                             placeholder="Instrucciones especiales, preferencias..."
                             rows={2}
                           />
@@ -876,7 +876,7 @@ export default function CheckoutPage() {
                 </Card>
 
                 {/* Payment Method */}
-                <Card className="backdrop-blur-sm bg-white/10 border-purple-500/20">
+                <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <CreditCard className="h-5 w-5 mr-2" />
@@ -885,24 +885,24 @@ export default function CheckoutPage() {
                   </CardHeader>
                   <CardContent>
                     <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-white/5 border border-purple-300/20">
+                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-white/5 border border-colibri-gold/20">
                         <RadioGroupItem value="efectivo" id="efectivo" />
                         <Label htmlFor="efectivo" className="text-white flex-1 cursor-pointer">
                           <div className="flex items-center">
                             <span className="text-lg mr-2">$</span>
                             <span>Efectivo</span>
                           </div>
-                          <p className="text-purple-300 text-sm mt-1">Pago al recibir</p>
+                          <p className="text-colibri-beige text-sm mt-1">Pago al recibir</p>
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-white/5 border border-purple-300/20">
+                      <div className="flex items-center space-x-2 p-3 rounded-lg bg-white/5 border border-colibri-gold/20">
                         <RadioGroupItem value="mercadopago" id="mercadopago" />
                         <Label htmlFor="mercadopago" className="text-white flex-1 cursor-pointer">
                           <div className="flex items-center">
                             <CreditCard className="h-4 w-4 mr-2" />
                             <span>Tarjeta de crédito/débito</span>
                           </div>
-                          <p className="text-purple-300 text-sm mt-1">Paga con Mercado Pago</p>
+                          <p className="text-colibri-beige text-sm mt-1">Paga con Mercado Pago</p>
                         </Label>
                       </div>
                     </RadioGroup>
@@ -914,7 +914,7 @@ export default function CheckoutPage() {
 
           {/* Right Column - Order Summary */}
           <div className="space-y-6">
-            <Card className="backdrop-blur-sm bg-white/10 border-purple-500/20">
+            <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <ShoppingCart className="h-5 w-5 mr-2" />
@@ -926,7 +926,7 @@ export default function CheckoutPage() {
                   <div key={item.id} className="flex items-center space-x-3 p-3 rounded-lg bg-white/5">
                     <div className="flex-1">
                       <h4 className="font-medium text-white">{item.name}</h4>
-                      <p className="text-sm text-purple-300">${Number(item.price).toFixed(2)} c/u</p>
+                      <p className="text-sm text-colibri-beige">${Number(item.price).toFixed(2)} c/u</p>
                       
                       {/* Mostrar modificadores */}
                       {item.modifiers && item.modifiers.length > 0 && (
@@ -946,7 +946,7 @@ export default function CheckoutPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => updateQuantity(item.id, item.quantity - 1, item.modifiers)}
-                        className="h-8 w-8 p-0 border-purple-500/50 hover:bg-purple-500/20"
+                        className="h-8 w-8 p-0 border-colibri-gold/50 hover:bg-colibri-gold/20"
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
@@ -956,7 +956,7 @@ export default function CheckoutPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => updateQuantity(item.id, item.quantity + 1, item.modifiers)}
-                        className="h-8 w-8 p-0 border-purple-500/50 hover:bg-purple-500/20"
+                        className="h-8 w-8 p-0 border-colibri-gold/50 hover:bg-colibri-gold/20"
                       >
                         <Plus className="h-3 w-3" />
                       </Button>
@@ -976,11 +976,11 @@ export default function CheckoutPage() {
                   </div>
                 ))}
 
-                <Separator className="bg-purple-500/30" />
+                <Separator className="bg-colibri-gold/30" />
 
                 {/* Coupon Input */}
                 <div className="space-y-2">
-                  <label className="text-sm text-purple-300 flex items-center gap-2">
+                  <label className="text-sm text-colibri-beige flex items-center gap-2">
                     <Ticket className="w-4 h-4" /> ¿Tienes un cupón?
                   </label>
                   <div className="flex gap-2">
@@ -988,10 +988,10 @@ export default function CheckoutPage() {
                       value={couponCode}
                       onChange={e => { setCouponCode(e.target.value.toUpperCase()); setCouponError(null) }}
                       placeholder="CÓDIGO"
-                      className="bg-purple-900/30 border-purple-500/30 text-white uppercase tracking-wider text-sm flex-1"
+                      className="bg-colibri-wine/30 border-colibri-gold/30 text-white uppercase tracking-wider text-sm flex-1"
                     />
                     <Button type="button" onClick={handleApplyCoupon} disabled={couponLoading || !couponCode.trim()}
-                      variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-900/30 text-sm px-3">
+                      variant="outline" className="border-colibri-gold/30 text-colibri-beige hover:bg-colibri-wine/30 text-sm px-3">
                       {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Aplicar'}
                     </Button>
                   </div>
@@ -1062,13 +1062,13 @@ export default function CheckoutPage() {
                 )}
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-purple-300">
+                  <div className="flex justify-between text-colibri-beige">
                     <span>Subtotal</span>
                     <span>${total.toFixed(2)}</span>
                   </div>
                   {orderType === 'delivery' && (
                     <div className="space-y-1">
-                      <div className="flex justify-between text-purple-300">
+                      <div className="flex justify-between text-colibri-beige">
                         <span className="flex items-center gap-2">
                           Envío
                           {calculatingCost && (
@@ -1084,7 +1084,7 @@ export default function CheckoutPage() {
                         </span>
                       </div>
                       {deliveryData && (
-                        <div className="text-xs text-purple-400 space-y-0.5">
+                        <div className="text-xs text-colibri-gold space-y-0.5">
                           <div className="flex justify-between">
                             <span>📍 Distancia:</span>
                             <span>{deliveryData.distance} km</span>
@@ -1125,8 +1125,8 @@ export default function CheckoutPage() {
                       
                       {/* Mapa de delivery */}
                       {restaurantLocation && deliveryLocation && deliveryData?.route && (
-                        <div className="mt-4 pt-4 border-t border-purple-500/20">
-                          <p className="text-sm text-purple-300 mb-2 flex items-center gap-2">
+                        <div className="mt-4 pt-4 border-t border-colibri-gold/20">
+                          <p className="text-sm text-colibri-beige mb-2 flex items-center gap-2">
                             <MapPin className="w-4 h-4" />
                             Vista previa de la ruta
                           </p>
@@ -1167,7 +1167,7 @@ export default function CheckoutPage() {
                 <Button
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
+                  className="w-full bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 disabled:opacity-50"
                 >
                   {isProcessing ? (
                     <>

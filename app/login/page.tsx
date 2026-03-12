@@ -38,10 +38,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [businessName, setBusinessName] = useState('')
   
   const { login } = useAuth()
   const router = useRouter()
   const toast = useToast()
+
+  useEffect(() => {
+    fetch('/api/business-info').then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setBusinessName(d.name || '') }).catch(() => {})
+  }, [])
 
   // Actualizar credenciales si cambia el parámetro de rol
   useEffect(() => {
@@ -126,12 +132,12 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-white mb-2">
-            Supernova Burgers
+            {businessName || 'Bienvenido'}
           </h1>
-          <p className="text-purple-200">Sabores fuera de este mundo</p>
+          <p className="text-colibri-beige">Inicia sesión para continuar</p>
         </div>
 
-        <Card className="backdrop-blur-sm bg-white/10 border-purple-500/20">
+        <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-white">
               Iniciar Sesión

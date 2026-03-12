@@ -86,7 +86,7 @@ export default function OrdersPage() {
     const statusConfig = {
       pending: { label: 'Pendiente', color: 'bg-yellow-500', icon: Clock },
       confirmed: { label: 'Confirmado', color: 'bg-blue-500', icon: Package },
-      preparing: { label: 'Preparando', color: 'bg-purple-500', icon: Package },
+      preparing: { label: 'Preparando', color: 'bg-colibri-wine', icon: Package },
       ready: { label: 'Listo', color: 'bg-green-500', icon: Package },
       in_delivery: { label: 'En Camino', color: 'bg-orange-500', icon: Truck },
       delivered: { label: 'Entregado', color: 'bg-green-600', icon: Package },
@@ -128,8 +128,8 @@ export default function OrdersPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black flex items-center justify-center">
-        <Card className="backdrop-blur-sm bg-slate-800/60 border-colibri-gold/20">
+      <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 flex items-center justify-center">
+        <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
           <CardContent className="p-8 flex items-center space-x-4">
             <Loader2 className="h-6 w-6 animate-spin text-colibri-gold" />
             <span className="text-white">Verificando acceso...</span>
@@ -140,7 +140,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black py-12">
+    <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Button 
@@ -161,7 +161,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Filters and Search */}
-        <Card className="backdrop-blur-sm bg-slate-800/60 border-colibri-gold/20 mb-6">
+        <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20 mb-6">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
@@ -171,37 +171,37 @@ export default function OrdersPage() {
                     placeholder="Buscar por ID o producto..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
+                    className="pl-10 bg-white/10 border-colibri-gold/30 text-white placeholder:text-colibri-beige/50"
                   />
                 </div>
               </div>
               
               <div className="flex gap-2">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40 bg-slate-700/50 border-colibri-gold/30 text-white">
+                  <SelectTrigger className="w-40 bg-white/10 border-colibri-gold/30 text-white">
                     <SelectValue placeholder="Estado" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-colibri-gold/30">
-                    <SelectItem value="all" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Todos los estados</SelectItem>
-                    <SelectItem value="pending" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Pendiente</SelectItem>
-                    <SelectItem value="confirmed" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Confirmado</SelectItem>
-                    <SelectItem value="preparing" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Preparando</SelectItem>
-                    <SelectItem value="ready" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Listo</SelectItem>
-                    <SelectItem value="in_delivery" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">En Camino</SelectItem>
-                    <SelectItem value="delivered" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Entregado</SelectItem>
-                    <SelectItem value="cancelled" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Cancelado</SelectItem>
+                  <SelectContent className="bg-black/80 border-colibri-gold/30">
+                    <SelectItem value="all" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Todos los estados</SelectItem>
+                    <SelectItem value="pending" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Pendiente</SelectItem>
+                    <SelectItem value="confirmed" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Confirmado</SelectItem>
+                    <SelectItem value="preparing" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Preparando</SelectItem>
+                    <SelectItem value="ready" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Listo</SelectItem>
+                    <SelectItem value="in_delivery" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">En Camino</SelectItem>
+                    <SelectItem value="delivered" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Entregado</SelectItem>
+                    <SelectItem value="cancelled" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Cancelado</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={dateFilter} onValueChange={setDateFilter}>
-                  <SelectTrigger className="w-40 bg-slate-700/50 border-colibri-gold/30 text-white">
+                  <SelectTrigger className="w-40 bg-white/10 border-colibri-gold/30 text-white">
                     <SelectValue placeholder="Fecha" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-colibri-gold/30">
-                    <SelectItem value="all" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Todas las fechas</SelectItem>
-                    <SelectItem value="today" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Hoy</SelectItem>
-                    <SelectItem value="week" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Última semana</SelectItem>
-                    <SelectItem value="month" className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white">Último mes</SelectItem>
+                  <SelectContent className="bg-black/80 border-colibri-gold/30">
+                    <SelectItem value="all" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Todas las fechas</SelectItem>
+                    <SelectItem value="today" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Hoy</SelectItem>
+                    <SelectItem value="week" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Última semana</SelectItem>
+                    <SelectItem value="month" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">Último mes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -210,7 +210,7 @@ export default function OrdersPage() {
         </Card>
 
         {/* Orders List */}
-        <Card className="backdrop-blur-sm bg-slate-800/60 border-colibri-gold/20">
+        <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
           <CardHeader>
             <CardTitle className="text-white flex items-center justify-between">
               <div className="flex items-center">
@@ -276,7 +276,7 @@ export default function OrdersPage() {
                 {filteredOrders.map((order) => (
                   <div 
                     key={order.id} 
-                    className="p-6 bg-slate-700/30 rounded-lg border border-colibri-gold/20 hover:bg-slate-700/50 hover:border-colibri-gold/40 transition-all"
+                    className="p-6 bg-white/5 rounded-lg border border-colibri-gold/20 hover:bg-white/10 hover:border-colibri-gold/40 transition-all"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -314,7 +314,7 @@ export default function OrdersPage() {
                       <h4 className="text-white text-sm font-medium">Items del pedido:</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {(order.items || []).slice(0, 4).map((item: any, index: number) => (
-                          <div key={index} className="flex justify-between text-sm bg-slate-800/40 p-2 rounded">
+                          <div key={index} className="flex justify-between text-sm bg-white/5 p-2 rounded">
                             <span className="text-colibri-beige">
                               {item.quantity}x {item.name}
                             </span>
@@ -353,7 +353,7 @@ export default function OrdersPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-colibri-gold bg-slate-800/80 text-white hover:bg-colibri-gold hover:text-black flex items-center"
+                        className="border-colibri-gold bg-black/50 text-white hover:bg-colibri-gold hover:text-black flex items-center"
                         onClick={(e) => {
                           e.stopPropagation()
                           router.push(`/orders/${order.id}`)

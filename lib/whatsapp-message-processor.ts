@@ -331,7 +331,7 @@ export async function processWhatsAppMessage(
     // Mensaje del sistema con productos reales
     const systemMessage = {
       role: "system" as const,
-      content: `Eres un asistente experto de Sonora Express, una carnicería premium especializada en cortes de carne de alta calidad.
+      content: `Eres un asistente experto del restaurante, especializado en ayudar a los clientes con el menú y productos.
 
 PRODUCTOS REALES DISPONIBLES:
 ${productsContext}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -21,10 +21,16 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [businessName, setBusinessName] = useState('')
   
   const { register } = useAuth()
   const router = useRouter()
   const toast = useToast()
+
+  useEffect(() => {
+    fetch('/api/business-info').then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setBusinessName(d.name || '') }).catch(() => {})
+  }, [])
 
   const validateForm = () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -83,13 +89,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-colibri-green via-colibri-wine to-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-colibri-green via-colibri-wine to-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-white mb-2">
-            Supernova Burgers
+            {businessName || 'Crear Cuenta'}
           </h1>
-          <p className="text-colibri-beige">Únete a nuestro universo gastronómico</p>
+          <p className="text-colibri-beige">Regístrate para comenzar a ordenar</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
