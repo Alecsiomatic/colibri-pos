@@ -1,25 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import mysql from 'mysql2/promise'
+import { executeQuery } from '@/lib/db'
 import OpenAI from 'openai'
-
-const connection = mysql.createConnection({
-  host: 'srv440.hstgr.io',
-  user: 'u191251575_manu',
-  password: 'Cerounocero.com20182417',
-  database: 'u191251575_manu',
-  port: 3306,
-  charset: 'utf8mb4'
-})
 
 export async function POST(request: NextRequest) {
   try {
     const { reportData, period, analysisType = 'business', completeData } = await request.json()
     
     // Obtener configuración de OpenAI
-    const conn = await connection
-    const [businessResult] = await conn.execute(
+    const businessResult = await executeQuery<any>(
       'SELECT openai_api_key, openai_model, enable_ai_reports FROM business_info WHERE id = 1'
-    ) as any[]
+    )
     
     const businessInfo = businessResult[0]
     
@@ -30,9 +20,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('🔑 API Key configurada:', businessInfo.openai_api_key ? `${businessInfo.openai_api_key.substring(0, 20)}...` : 'NINGUNA')
-    console.log('🤖 Modelo configurado:', businessInfo.openai_model)
-    console.log('⚡ IA habilitada:', businessInfo.enable_ai_reports)
     
     const openai = new OpenAI({
       apiKey: businessInfo.openai_api_key
@@ -167,9 +154,7 @@ Proporciona un análisis detallado con recomendaciones específicas.
 `
     }
     
-    console.log('📤 Enviando solicitud a OpenAI...')
-    console.log('📊 Modelo a usar:', businessInfo.openai_model || 'gpt-3.5-turbo')
-    
+
     const completion = await openai.chat.completions.create({
       model: businessInfo.openai_model || 'gpt-3.5-turbo',
       messages: [

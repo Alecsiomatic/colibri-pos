@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('❌ Error fetching drivers:', error)
     return NextResponse.json(
-      { error: "Error al obtener repartidores", details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: "Error al obtener repartidores" },
       { status: 500 }
     )
   }

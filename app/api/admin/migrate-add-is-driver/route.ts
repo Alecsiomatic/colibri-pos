@@ -76,8 +76,7 @@ export const POST = requireAdmin(async (request) => {
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Error en migración: ' + error.message,
-        code: error.code 
+        message: 'Error en migración'
       },
       { status: 500 }
     )

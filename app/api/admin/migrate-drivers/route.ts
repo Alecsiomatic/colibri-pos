@@ -52,7 +52,7 @@ export const POST = requireAdmin(async (request) => {
         errors.push({
           userId: user.id,
           username: user.username,
-          error: error.message
+          error: 'Error de migración'
         })
       }
     }
@@ -67,7 +67,7 @@ export const POST = requireAdmin(async (request) => {
   } catch (error: any) {
     console.error('Error en migración de drivers:', error)
     return NextResponse.json(
-      { success: false, message: 'Error en migración: ' + error.message },
+      { success: false, message: 'Error en migración' },
       { status: 500 }
     )
   }

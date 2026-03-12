@@ -49,15 +49,15 @@ interface BusinessInfo {
 export default function ConfiguracionEmpresaPage() {
   const toast = useToast()
   const [businessInfo, setBusinessInfo] = useState<BusinessInfo>({
-    name: 'SUPER NOVA',
-    slogan: 'Restaurante & Delivery',
-    address: 'Av. Principal #123',
-    phone: '(555) 123-4567',
-    email: 'info@supernova.com',
-    website: 'www.supernova-delivery.com',
-    instagram: '@SuperNovaRestaurante',
-    facebook: '@SuperNovaOficial',
-    whatsapp: '+52 555 123 4567',
+    name: '',
+    slogan: '',
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    instagram: '',
+    facebook: '',
+    whatsapp: '',
     logo_url: null,
     google_maps_api_key: null,
     enable_driver_tracking: true,
@@ -358,7 +358,7 @@ export default function ConfiguracionEmpresaPage() {
                     value={businessInfo.name}
                     onChange={(e) => setBusinessInfo(prev => ({ ...prev, name: e.target.value }))}
                     className="mt-1"
-                    placeholder="Ej: SUPER NOVA"
+                    placeholder="Ej: Mi Restaurante"
                   />
                 </div>
 
@@ -501,7 +501,7 @@ export default function ConfiguracionEmpresaPage() {
                     value={businessInfo.email}
                     onChange={(e) => setBusinessInfo(prev => ({ ...prev, email: e.target.value }))}
                     className="mt-1"
-                    placeholder="Ej: info@supernova.com"
+                    placeholder="Ej: contacto@mirestaurante.com"
                   />
                 </div>
 
@@ -537,7 +537,7 @@ export default function ConfiguracionEmpresaPage() {
                     value={businessInfo.website}
                     onChange={(e) => setBusinessInfo(prev => ({ ...prev, website: e.target.value }))}
                     className="mt-1"
-                    placeholder="Ej: www.supernova-delivery.com"
+                    placeholder="Ej: www.mirestaurante.com"
                   />
                 </div>
 
@@ -550,7 +550,7 @@ export default function ConfiguracionEmpresaPage() {
                     value={businessInfo.instagram}
                     onChange={(e) => setBusinessInfo(prev => ({ ...prev, instagram: e.target.value }))}
                     className="mt-1"
-                    placeholder="Ej: @SuperNovaRestaurante"
+                    placeholder="Ej: @MiRestaurante"
                   />
                 </div>
 
@@ -563,7 +563,7 @@ export default function ConfiguracionEmpresaPage() {
                     value={businessInfo.facebook}
                     onChange={(e) => setBusinessInfo(prev => ({ ...prev, facebook: e.target.value }))}
                     className="mt-1"
-                    placeholder="Ej: @SuperNovaOficial"
+                    placeholder="Ej: @MiRestauranteOficial"
                   />
                 </div>
               </CardContent>
