@@ -50,13 +50,13 @@ function getOrderAge(createdAt: string): number {
 }
 
 function getTimerColor(minutes: number): string {
-  if (minutes < 10) return 'text-green-400'
+  if (minutes < 10) return 'text-colibri-green'
   if (minutes < 20) return 'text-yellow-400'
   return 'text-red-400'
 }
 
 function getCardBorder(minutes: number): string {
-  if (minutes < 10) return 'border-green-500/40'
+  if (minutes < 10) return 'border-colibri-green/40'
   if (minutes < 20) return 'border-yellow-500/40'
   return 'border-red-500/60'
 }
@@ -186,9 +186,12 @@ export default function KitchenPage() {
           setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
           prevDataRef.current = '' // Forzar sync en próximo poll
         }
+      } else {
+        alert('Error al actualizar pedido. Intenta de nuevo.')
       }
     } catch (err) {
       console.error('Error updating order:', err)
+      alert('Error de conexión al actualizar pedido.')
     } finally {
       busyRef.current = false
       setUpdatingId(null)
@@ -197,11 +200,13 @@ export default function KitchenPage() {
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {})
-      setIsFullscreen(true)
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(() => setIsFullscreen(false))
     } else {
-      document.exitFullscreen().catch(() => {})
-      setIsFullscreen(false)
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(() => setIsFullscreen(true))
     }
   }
 
@@ -234,7 +239,7 @@ export default function KitchenPage() {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <ChefHat className="w-16 h-16 text-orange-500 animate-bounce mx-auto mb-4" />
+          <ChefHat className="w-16 h-16 text-colibri-gold animate-bounce mx-auto mb-4" />
           <p className="text-white text-xl">Cargando cocina...</p>
         </div>
       </div>
@@ -246,9 +251,9 @@ export default function KitchenPage() {
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <Flame className="w-8 h-8 text-orange-500" />
+          <Flame className="w-8 h-8 text-colibri-gold" />
           <h1 className="text-2xl font-bold">Cocina</h1>
-          <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-sm font-medium">
+          <span className="bg-colibri-gold/20 text-colibri-gold px-3 py-1 rounded-full text-sm font-medium">
             {filteredOrders.length} pedido{filteredOrders.length !== 1 ? 's' : ''}
           </span>
         </div>
@@ -262,7 +267,7 @@ export default function KitchenPage() {
                 onClick={() => setFilter(fb.key)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   filter === fb.key
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-colibri-wine text-white'
                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
@@ -275,7 +280,7 @@ export default function KitchenPage() {
           {/* Sound toggle */}
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`p-2 rounded-lg transition-colors ${soundEnabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-800 text-gray-500'}`}
+            className={`p-2 rounded-lg transition-colors ${soundEnabled ? 'bg-colibri-green/20 text-colibri-green' : 'bg-gray-800 text-gray-500'}`}
             title={soundEnabled ? 'Sonido activado' : 'Sonido desactivado'}
           >
             {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
@@ -300,7 +305,7 @@ export default function KitchenPage() {
             onClick={() => setFilter(fb.key)}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm whitespace-nowrap ${
               filter === fb.key
-                ? 'bg-orange-500 text-white'
+                ? 'bg-colibri-wine text-white'
                 : 'bg-gray-800 text-gray-400'
             }`}
           >
@@ -370,9 +375,9 @@ interface KitchenColumnProps {
 }
 
 const COLUMN_COLORS = {
-  blue: { bg: 'bg-blue-500/10', header: 'bg-blue-500/20 text-blue-400', badge: 'bg-blue-500' },
-  yellow: { bg: 'bg-yellow-500/10', header: 'bg-yellow-500/20 text-yellow-400', badge: 'bg-yellow-500' },
-  orange: { bg: 'bg-orange-500/10', header: 'bg-orange-500/20 text-orange-400', badge: 'bg-orange-500' },
+  blue: { bg: 'bg-colibri-green/10', header: 'bg-colibri-green/20 text-colibri-green', badge: 'bg-colibri-green' },
+  yellow: { bg: 'bg-colibri-gold/10', header: 'bg-colibri-gold/20 text-colibri-gold', badge: 'bg-colibri-gold' },
+  orange: { bg: 'bg-colibri-wine/10', header: 'bg-colibri-wine/20 text-colibri-wine', badge: 'bg-colibri-wine' },
 }
 
 function KitchenColumn({ title, count, color, orders, actionLabel, onAction, updatingId, isReady }: KitchenColumnProps) {
@@ -446,7 +451,7 @@ function OrderCard({ order, actionLabel, onAction, isUpdating, isReady }: OrderC
               {item.modifiers && item.modifiers.length > 0 && (
                 <div className="mt-0.5">
                   {item.modifiers.map((mod, midx) => (
-                    <span key={midx} className="text-xs text-orange-400 block">
+                    <span key={midx} className="text-xs text-colibri-gold block">
                       + {mod.modifier}
                     </span>
                   ))}
@@ -480,7 +485,7 @@ function OrderCard({ order, actionLabel, onAction, isUpdating, isReady }: OrderC
           disabled={isUpdating}
           className={`w-full py-3 rounded-lg font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait ${
             isReady
-              ? 'bg-green-500 hover:bg-green-400 text-white shadow-lg shadow-green-500/30'
+              ? 'bg-colibri-green hover:bg-colibri-green/90 text-white shadow-lg shadow-colibri-green/30'
               : 'bg-gray-700 hover:bg-gray-600 text-white'
           }`}
         >
