@@ -13,14 +13,10 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.log('📍 Calculating delivery cost for:', deliveryAddress)
-    console.log('💰 Order total:', orderTotal)
-    
     const result = await calculateDeliveryCost(deliveryAddress, orderTotal)
     
     // Si está fuera de rango, retornar con success pero con flag outOfRange
     if (result.outOfRange) {
-      console.log('⚠️  Address out of range:', result.distance, 'km')
       return NextResponse.json({
         success: false,
         outOfRange: true,
@@ -30,8 +26,6 @@ export async function POST(request: NextRequest) {
         locations: result.locations
       })
     }
-    
-    console.log('✅ Delivery cost calculated:', result.cost)
     
     return NextResponse.json({
       success: true,
@@ -44,7 +38,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false,
-        error: error.message || 'Failed to calculate delivery cost'
+        error: 'Error al calcular costo de envío'
       },
       { status: 500 }
     )

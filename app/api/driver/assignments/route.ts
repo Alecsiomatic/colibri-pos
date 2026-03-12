@@ -78,8 +78,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("Error en GET /api/driver/assignments:", error)
     return NextResponse.json({ 
-      error: "Error al obtener asignaciones",
-      details: error.message 
+      error: "Error al obtener asignaciones"
     }, { status: 500 })
   }
 }

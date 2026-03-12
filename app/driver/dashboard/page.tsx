@@ -116,17 +116,16 @@ export default function DriverDashboard() {
             deliveryLng = parsed.lng
           } catch {
             // Si no es JSON, usar coordenadas de ejemplo cerca del restaurante
-            deliveryLat = restaurantLocation?.lat || 22.1565
-            deliveryLng = restaurantLocation?.lng || -100.9855
+            deliveryLat = restaurantLocation?.lat
+            deliveryLng = restaurantLocation?.lng
+            if (!deliveryLat || !deliveryLng) return
           }
         } else {
           console.warn('No hay dirección de entrega disponible')
           return
         }
 
-        console.log('🗺️ Calculando ruta desde driver hasta entrega...')
-        console.log('Driver:', driverLocation)
-        console.log('Entrega:', { lat: deliveryLat, lng: deliveryLng })
+
 
         // Llamar a la API para calcular la ruta
         const response = await fetch('/api/calculate-route', {
@@ -150,7 +149,7 @@ export default function DriverDashboard() {
             distance: routeData.distance,
             duration: routeData.duration
           })
-          console.log(`✅ Ruta calculada: ${routeData.distance}km, ${routeData.duration}min`)
+
         }
       } catch (error) {
         console.error('Error calculando ruta:', error)
@@ -179,7 +178,6 @@ export default function DriverDashboard() {
         return
       }
       const data = await response.json()
-      console.log('✅ Driver autenticado:', data)
       setDriver(data.driver)
     } catch (error) {
       console.error('Error en auth:', error)
@@ -254,7 +252,6 @@ export default function DriverDashboard() {
       const response = await fetch('/api/driver/assignments', { credentials: 'include' })
       if (response.ok) {
         const data = await response.json()
-        console.log('📋 Assignments cargadas:', data)
         setAssignments(data.assignments || [])
         const active = data.assignments?.find((a: Assignment) => a.status === 'accepted')
         setActiveDelivery(active || null)
@@ -331,7 +328,7 @@ export default function DriverDashboard() {
             </div>
             <div className="flex items-center space-x-2">
               {isTrackingLocation && (
-                <Badge className="bg-green-500 text-white flex items-center space-x-1">
+                <Badge className="bg-colibri-green text-white flex items-center space-x-1">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                   <span>Compartiendo ubicación</span>
                 </Badge>
@@ -341,7 +338,7 @@ export default function DriverDashboard() {
                   Error GPS
                 </Badge>
               )}
-              <Badge className="bg-green-500 text-white">En línea</Badge>
+              <Badge className="bg-colibri-green text-white">En línea</Badge>
             </div>
           </div>
         </div>
@@ -370,11 +367,12 @@ export default function DriverDashboard() {
                       ...restaurantLocation,
                       label: 'Restaurante'
                     } : undefined}
-                    deliveryLocation={{
-                      lat: 22.1565 + (Math.random() - 0.5) * 0.01,
-                      lng: -100.9855 + (Math.random() - 0.5) * 0.01,
-                      label: activeDelivery.order?.delivery_address || activeDelivery.delivery_address || 'Destino'
-                    }}
+                    deliveryLocation={(() => {
+                      const addr = activeDelivery.order?.delivery_address || activeDelivery.delivery_address
+                      let lat = restaurantLocation?.lat || 0, lng = restaurantLocation?.lng || 0
+                      try { const p = JSON.parse(addr || ''); lat = p.lat || lat; lng = p.lng || lng } catch {}
+                      return { lat, lng, label: addr || 'Destino' }
+                    })()}
                     route={route || undefined}
                     height="500px"
                   />
@@ -395,7 +393,7 @@ export default function DriverDashboard() {
                   
                   {driverLocation && (
                     <div className="mt-4 p-3 bg-slate-800/60 rounded-lg border border-colibri-green/20">
-                      <p className="text-green-400 text-sm flex items-center gap-2">
+                      <p className="text-colibri-green text-sm flex items-center gap-2">
                         <Navigation className="w-4 h-4" />
                         GPS Activo - Actualizando automáticamente
                       </p>
@@ -429,7 +427,7 @@ export default function DriverDashboard() {
                 <Button 
                   onClick={() => callCustomer(activeDelivery.order?.customer_phone || activeDelivery.customer_phone || '')} 
                   size="sm" 
-                  className="bg-green-500 hover:bg-green-600"
+                  className="bg-colibri-green hover:bg-colibri-green/90"
                   disabled={!activeDelivery.order?.customer_phone && !activeDelivery.customer_phone}
                 >
                   <Phone className="h-4 w-4 mr-2" />Llamar
@@ -453,7 +451,7 @@ export default function DriverDashboard() {
                 <Button 
                   onClick={() => openMaps(activeDelivery.order?.delivery_address || activeDelivery.delivery_address || '')} 
                   size="sm" 
-                  className="bg-blue-500 hover:bg-blue-600"
+                  className="bg-colibri-wine hover:bg-colibri-wine/90"
                   disabled={!activeDelivery.order?.delivery_address && !activeDelivery.delivery_address}
                 >
                   <Navigation className="h-4 w-4 mr-2" />Abrir
@@ -488,7 +486,7 @@ export default function DriverDashboard() {
               <Button 
                 onClick={() => handleComplete(activeDelivery.id)} 
                 disabled={actionLoading === activeDelivery.id} 
-                className="w-full h-16 bg-gradient-to-r from-colibri-green to-green-600 hover:from-colibri-green/90 hover:to-green-600/90 text-white text-lg font-bold shadow-xl"
+                className="w-full h-16 bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white text-lg font-bold shadow-xl"
               >
                 {actionLoading === activeDelivery.id ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
@@ -573,7 +571,7 @@ export default function DriverDashboard() {
                       {/* Total */}
                       <div className="flex items-center justify-between p-3 bg-slate-800/80 backdrop-blur-xl rounded-lg border border-colibri-green/30">
                         <div className="flex items-center space-x-2">
-                          <DollarSign className="h-5 w-5 text-green-400" />
+                          <DollarSign className="h-5 w-5 text-colibri-green" />
                           <span className="text-white font-semibold">Monto a cobrar</span>
                         </div>
                         <span className="text-colibri-gold font-black text-xl drop-shadow-[0_0_10px_rgba(171,153,118,0.5)]">

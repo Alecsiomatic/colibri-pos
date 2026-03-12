@@ -77,8 +77,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Error en POST /api/driver/accept:", error)
     return NextResponse.json({ 
-      error: "Error al aceptar asignación",
-      details: error.message 
+      error: "Error al aceptar asignación"
     }, { status: 500 })
   }
 }

@@ -41,8 +41,7 @@ export async function POST(request: NextRequest) {
       [lat, lng, user.id]
     )
     
-    console.log(`📍 Driver ${user.id} ubicación actualizada: ${lat}, ${lng}`)
-    
+
     return NextResponse.json({
       success: true,
       location: { lat, lng }

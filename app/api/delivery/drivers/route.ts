@@ -56,7 +56,6 @@ export const POST = requireAdmin(async (request) => {
       [name, phone, email || null, vehicle_type || null, license_plate || null],
     )) as any
 
-    console.log(`✅ Driver creado: ${name} (ID: ${result.insertId})`)
 
     return NextResponse.json({ 
       success: true, 
@@ -68,7 +67,7 @@ export const POST = requireAdmin(async (request) => {
     console.error("❌ Error al crear repartidor:", error)
     return NextResponse.json({ 
       success: false, 
-      message: "Error al crear repartidor: " + error.message 
+      message: "Error al crear repartidor"
     }, { status: 500 })
   }
 })

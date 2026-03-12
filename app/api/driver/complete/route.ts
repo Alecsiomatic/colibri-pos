@@ -83,8 +83,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Error en POST /api/driver/complete:", error)
     return NextResponse.json({ 
-      error: "Error al completar entrega",
-      details: error.message 
+      error: "Error al completar entrega"
     }, { status: 500 })
   }
 }

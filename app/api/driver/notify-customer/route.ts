@@ -49,11 +49,6 @@ ${process.env.NEXT_PUBLIC_BASE_URL || 'https://tu-restaurante.com'}/orders/${ord
 ¡Prepárate para recibir tu deliciosa comida! 🍕✨`
 
     // Aquí podrías integrar con WhatsApp API o sistema de notificaciones
-    console.log('Mensaje de notificación preparado:', {
-      customerPhone,
-      message,
-      orderId
-    })
 
     return NextResponse.json({
       success: true,
@@ -64,8 +59,7 @@ ${process.env.NEXT_PUBLIC_BASE_URL || 'https://tu-restaurante.com'}/orders/${ord
   } catch (error: any) {
     console.error("Error en POST /api/driver/notify-customer:", error)
     return NextResponse.json({ 
-      error: "Error al enviar notificación",
-      details: error.message 
+      error: "Error al enviar notificación"
     }, { status: 500 })
   }
 }
