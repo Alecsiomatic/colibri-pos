@@ -27,6 +27,7 @@ import {
   Receipt
 } from 'lucide-react'
 import Image from 'next/image'
+import { useAuth } from '@/hooks/use-auth'
 
 interface Product {
   id: number
@@ -95,12 +96,18 @@ export default function CajaPage() {
     average_ticket: 0
   })
   const [activeTab, setActiveTab] = useState('venta')
+  const { user: authUser } = useAuth()
+  const [businessName, setBusinessName] = useState('')
+  const [processingCheckout, setProcessingCheckout] = useState(false)
 
   useEffect(() => {
     checkShift()
     loadProducts()
     loadCategories()
     loadPendingOrders()
+    fetch('/api/business-info').then(r => r.json()).then(d => {
+      if (d.success) setBusinessName(d.business_name || '')
+    }).catch(() => {})
     
     const interval = setInterval(() => {
       loadPendingOrders()
@@ -163,14 +170,17 @@ export default function CajaPage() {
     if (!openingCash) return
 
     try {
-      const user = { id: 1, username: 'Cajero' }
+      if (!authUser) {
+        toast.error('Error', 'Debes iniciar sesión primero')
+        return
+      }
       
       const response = await fetch('/api/shifts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: user.id,
-          user_name: user.username,
+          user_id: authUser.id,
+          user_name: authUser.username,
           shift_type: getShiftType(),
           opening_cash: parseFloat(openingCash)
         })
@@ -193,10 +203,10 @@ export default function CajaPage() {
       
       if (data.success && data.orders) {
         const kiosko = data.orders.filter((o: PendingOrder) => 
-          o.order_source === 'kiosk' || o.customer_email === 'kiosk@supernova.com'
+          o.order_source === 'kiosk'
         )
         const online = data.orders.filter((o: PendingOrder) => 
-          o.order_source !== 'kiosk' && o.customer_email !== 'kiosk@supernova.com'
+          o.order_source !== 'kiosk'
         )
         
         setPendingKioskoOrders(kiosko)
@@ -265,6 +275,8 @@ export default function CajaPage() {
   }
 
   const handleCheckout = async () => {
+    if (processingCheckout) return
+
     if (!currentShift) {
       toast.error('Error', 'Debes abrir un turno primero')
       return
@@ -280,6 +292,7 @@ export default function CajaPage() {
       return
     }
 
+    setProcessingCheckout(true)
     try {
       const response = await fetch('/api/orders-mysql', {
         method: 'POST',
@@ -321,6 +334,8 @@ export default function CajaPage() {
       }
     } catch (error: any) {
       toast.error('Error', error.message)
+    } finally {
+      setProcessingCheckout(false)
     }
   }
 
@@ -406,7 +421,7 @@ export default function CajaPage() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white">💰 Caja - Supernova</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">💰 Caja{businessName ? ` - ${businessName}` : ''}</h1>
               <p className="text-xs sm:text-sm text-colibri-gold">
                 Turno: {currentShift.shift_type} | {currentShift.user_name}
               </p>
@@ -443,7 +458,7 @@ export default function CajaPage() {
               <Store className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Kiosko
               {pendingKioskoOrders.length > 0 && (
-                <Badge className="ml-1 sm:ml-2 bg-orange-600 text-white text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5">
+                <Badge className="ml-1 sm:ml-2 bg-colibri-wine text-white text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5">
                   {pendingKioskoOrders.length}
                 </Badge>
               )}
@@ -452,7 +467,7 @@ export default function CajaPage() {
               <Globe className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Online
               {pendingOnlineOrders.length > 0 && (
-                <Badge className="ml-1 sm:ml-2 bg-blue-600 text-white text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5">
+                <Badge className="ml-1 sm:ml-2 bg-colibri-green text-white text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5">
                   {pendingOnlineOrders.length}
                 </Badge>
               )}
@@ -595,7 +610,7 @@ export default function CajaPage() {
                         <Button
                           variant={paymentMethod === 'efectivo' ? 'default' : 'outline'}
                           onClick={() => setPaymentMethod('efectivo')}
-                          className={paymentMethod === 'efectivo' ? 'bg-green-600' : 'border-colibri-green text-colibri-gold'}
+                          className={paymentMethod === 'efectivo' ? 'bg-colibri-green text-white' : 'border-colibri-green text-colibri-gold'}
                         >
                           <DollarSign className="h-4 w-4 mr-2" />
                           Efectivo
@@ -603,7 +618,7 @@ export default function CajaPage() {
                         <Button
                           variant={paymentMethod === 'tarjeta' ? 'default' : 'outline'}
                           onClick={() => setPaymentMethod('tarjeta')}
-                          className={paymentMethod === 'tarjeta' ? 'bg-blue-600' : 'border-colibri-green text-colibri-gold'}
+                          className={paymentMethod === 'tarjeta' ? 'bg-colibri-wine text-white' : 'border-colibri-green text-colibri-gold'}
                         >
                           <CreditCard className="h-4 w-4 mr-2" />
                           Tarjeta
@@ -635,10 +650,10 @@ export default function CajaPage() {
 
                       <Button
                         onClick={handleCheckout}
-                        disabled={cart.length === 0}
-                        className="w-full bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white py-6 text-lg"
+                        disabled={cart.length === 0 || processingCheckout}
+                        className="w-full bg-gradient-to-r from-colibri-green to-colibri-wine hover:from-colibri-green/90 hover:to-colibri-wine/90 text-white py-6 text-lg disabled:opacity-50"
                       >
-                        Cobrar ${calculateTotal().toFixed(2)}
+                        {processingCheckout ? 'Procesando...' : `Cobrar $${calculateTotal().toFixed(2)}`}
                       </Button>
                     </div>
                   </CardContent>
@@ -661,21 +676,21 @@ export default function CajaPage() {
                 ) : (
                   <div className="space-y-4">
                     {pendingKioskoOrders.map(order => (
-                      <Card key={order.id} className="bg-slate-800/50 border-orange-600/50">
+                      <Card key={order.id} className="bg-slate-800/50 border-colibri-wine/50">
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <p className="text-white font-bold">Pedido #{order.id}</p>
                               <p className="text-sm text-gray-400">{order.customer_name}</p>
                             </div>
-                            <Badge className="bg-orange-600">${(order.total || 0).toFixed(2)}</Badge>
+                            <Badge className="bg-colibri-wine">${(order.total || 0).toFixed(2)}</Badge>
                           </div>
                           <div className="space-y-1 mb-3">
                             {order.items?.map((item: any, idx: number) => (
                               <p key={idx} className="text-sm text-gray-300">{item.quantity}x {item.name}</p>
                             ))}
                           </div>
-                          <Button onClick={() => handleConfirmOrder(order.id)} className="w-full bg-green-600 hover:bg-green-700">
+                          <Button onClick={() => handleConfirmOrder(order.id)} className="w-full bg-colibri-green hover:bg-colibri-green/90">
                             Confirmar Pedido
                           </Button>
                         </CardContent>
@@ -701,7 +716,7 @@ export default function CajaPage() {
                 ) : (
                   <div className="space-y-4">
                     {pendingOnlineOrders.map(order => (
-                      <Card key={order.id} className="bg-slate-800/50 border-blue-600/50">
+                      <Card key={order.id} className="bg-slate-800/50 border-colibri-green/50">
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start mb-3">
                             <div>
@@ -709,14 +724,14 @@ export default function CajaPage() {
                               <p className="text-sm text-gray-400">{order.customer_name}</p>
                               <p className="text-xs text-gray-500">{order.customer_email}</p>
                             </div>
-                            <Badge className="bg-blue-600">${(order.total || 0).toFixed(2)}</Badge>
+                            <Badge className="bg-colibri-green">${(order.total || 0).toFixed(2)}</Badge>
                           </div>
                           <div className="space-y-1 mb-3">
                             {order.items?.map((item: any, idx: number) => (
                               <p key={idx} className="text-sm text-gray-300">{item.quantity}x {item.name}</p>
                             ))}
                           </div>
-                          <Button onClick={() => handleConfirmOrder(order.id)} className="w-full bg-green-600 hover:bg-green-700">
+                          <Button onClick={() => handleConfirmOrder(order.id)} className="w-full bg-colibri-green hover:bg-colibri-green/90">
                             Confirmar Pedido
                           </Button>
                         </CardContent>
@@ -730,16 +745,16 @@ export default function CajaPage() {
 
           <TabsContent value="stats">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="bg-gradient-to-br from-green-900/50 to-slate-900/50 border-green-700/50">
+              <Card className="bg-gradient-to-br from-colibri-green/30 to-slate-900/50 border-colibri-green/50">
                 <CardContent className="p-4 text-center">
-                  <DollarSign className="h-8 w-8 mx-auto text-green-400 mb-2" />
+                  <DollarSign className="h-8 w-8 mx-auto text-colibri-gold mb-2" />
                   <p className="text-2xl font-bold text-white">${(shiftStats.total_sales || 0).toFixed(2)}</p>
                   <p className="text-sm text-gray-400">Ventas Totales</p>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-blue-900/50 to-slate-900/50 border-blue-700/50">
+              <Card className="bg-gradient-to-br from-colibri-wine/30 to-slate-900/50 border-colibri-wine/50">
                 <CardContent className="p-4 text-center">
-                  <Receipt className="h-8 w-8 mx-auto text-blue-400 mb-2" />
+                  <Receipt className="h-8 w-8 mx-auto text-colibri-wine mb-2" />
                   <p className="text-2xl font-bold text-white">{shiftStats.total_orders}</p>
                   <p className="text-sm text-gray-400">Pedidos</p>
                 </CardContent>
@@ -751,9 +766,9 @@ export default function CajaPage() {
                   <p className="text-sm text-gray-400">Ticket Promedio</p>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-yellow-900/50 to-slate-900/50 border-yellow-700/50">
+              <Card className="bg-gradient-to-br from-colibri-beige/20 to-slate-900/50 border-colibri-beige/50">
                 <CardContent className="p-4 text-center">
-                  <DollarSign className="h-8 w-8 mx-auto text-yellow-400 mb-2" />
+                  <DollarSign className="h-8 w-8 mx-auto text-colibri-beige mb-2" />
                   <p className="text-2xl font-bold text-white">${(shiftStats.cash_sales || 0).toFixed(2)}</p>
                   <p className="text-sm text-gray-400">Efectivo</p>
                 </CardContent>
