@@ -55,7 +55,19 @@ export async function getRestaurantConfig(): Promise<RestaurantConfig | null> {
     const [rows] = await pool.execute<any[]>(
       'SELECT * FROM restaurant_config ORDER BY id DESC LIMIT 1'
     )
-    return rows.length > 0 ? rows[0] as RestaurantConfig : null
+    if (rows.length === 0) return null
+    const row = rows[0]
+    // MySQL DECIMAL columns come as strings — convert to numbers
+    return {
+      ...row,
+      latitude: Number(row.latitude) || 0,
+      longitude: Number(row.longitude) || 0,
+      delivery_base_fee: Number(row.delivery_base_fee) || 0,
+      delivery_per_km_fee: Number(row.delivery_per_km_fee) || 0,
+      delivery_time_fee: Number(row.delivery_time_fee) || 0,
+      delivery_free_threshold: Number(row.delivery_free_threshold) || 0,
+      delivery_radius_km: Number(row.delivery_radius_km) || 10,
+    } as RestaurantConfig
   } catch (error) {
     console.error('❌ Error fetching restaurant config:', error)
     throw error

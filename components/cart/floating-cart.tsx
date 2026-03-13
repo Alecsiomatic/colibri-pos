@@ -84,7 +84,7 @@ export default function FloatingCart() {
                         {item.modifiers.map((mod: any, idx: number) => (
                           <p key={idx} className="text-xs text-slate-300">
                             • {mod.group}: <span className="text-colibri-gold">{mod.modifier}</span>
-                            {mod.price !== 0 && <span className="text-green-400"> (+${mod.price.toFixed(2)})</span>}
+                            {Number(mod.price) !== 0 && <span className="text-green-400"> (+${Number(mod.price).toFixed(2)})</span>}
                           </p>
                         ))}
                       </div>

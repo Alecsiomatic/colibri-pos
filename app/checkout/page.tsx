@@ -36,8 +36,43 @@ import {
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-notifications'
+import React from 'react'
 
-const DeliveryMap = dynamic(() => import('@/components/DeliveryMap'), {
+// Error Boundary for DeliveryMap
+class MapErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  componentDidCatch(error: any, info: any) {
+    console.error('🗺️ MapErrorBoundary caught:', error, info)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-[200px] bg-white/5 rounded-lg flex items-center justify-center text-colibri-beige text-sm">
+          <MapPin className="w-4 h-4 mr-2" />
+          No se pudo cargar el mapa de ruta
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+const DeliveryMap = dynamic(() => import('@/components/DeliveryMap').catch(() => {
+  return { default: () => (
+    <div className="h-[200px] bg-white/5 rounded-lg flex items-center justify-center text-colibri-beige text-sm">
+      No se pudo cargar el mapa
+    </div>
+  )}
+}), {
   ssr: false,
   loading: () => (
     <div className="h-64 bg-white/10 animate-pulse rounded-lg flex items-center justify-center">
@@ -139,8 +174,9 @@ export default function CheckoutPage() {
       )
       
       const data = await response.json()
-      setAddressSuggestions(data)
-      setShowSuggestions(data.length > 0)
+      const results = Array.isArray(data) ? data : []
+      setAddressSuggestions(results)
+      setShowSuggestions(results.length > 0)
     } catch (error) {
       console.error('Error searching address:', error)
       setAddressSuggestions([])
@@ -432,14 +468,20 @@ export default function CheckoutPage() {
       const data = await response.json()
       
       if (data.success) {
-        setDeliveryCost(data.cost)
+        setDeliveryCost(Number(data.cost) || 0)
         setDeliveryData(data)
         setCostError(null)
         
-        // Actualizar ubicaciones para el mapa
+        // Actualizar ubicaciones para el mapa — ensure numeric lat/lng
         if (data.locations) {
-          setRestaurantLocation(data.locations.restaurant)
-          setDeliveryLocation(data.locations.delivery)
+          setRestaurantLocation({
+            lat: Number(data.locations.restaurant?.lat) || 0,
+            lng: Number(data.locations.restaurant?.lng) || 0
+          })
+          setDeliveryLocation({
+            lat: Number(data.locations.delivery?.lat) || 0,
+            lng: Number(data.locations.delivery?.lng) || 0
+          })
         }
       } else if (data.outOfRange) {
         // Dirección fuera del radio de entrega
@@ -449,8 +491,14 @@ export default function CheckoutPage() {
         
         // Aún así mostrar ubicaciones en el mapa para referencia
         if (data.locations) {
-          setRestaurantLocation(data.locations.restaurant)
-          setDeliveryLocation(data.locations.delivery)
+          setRestaurantLocation({
+            lat: Number(data.locations.restaurant?.lat) || 0,
+            lng: Number(data.locations.restaurant?.lng) || 0
+          })
+          setDeliveryLocation({
+            lat: Number(data.locations.delivery?.lat) || 0,
+            lng: Number(data.locations.delivery?.lng) || 0
+          })
         }
       } else {
         setCostError(data.error || 'No se pudo calcular el costo')
@@ -934,7 +982,7 @@ export default function CheckoutPage() {
                           {item.modifiers.map((mod: any, idx: number) => (
                             <p key={idx} className="text-xs text-gray-400">
                               • {mod.group}: <span className="text-cyan-300">{mod.modifier}</span>
-                              {mod.price !== 0 && <span className="text-green-400"> (+${mod.price.toFixed(2)})</span>}
+                              {Number(mod.price) !== 0 && <span className="text-green-400"> (+${Number(mod.price).toFixed(2)})</span>}
                             </p>
                           ))}
                         </div>
@@ -1130,18 +1178,20 @@ export default function CheckoutPage() {
                             <MapPin className="w-4 h-4" />
                             Vista previa de la ruta
                           </p>
-                          <DeliveryMap
-                            restaurantLocation={{
-                              ...restaurantLocation,
-                              label: 'Restaurante'
-                            }}
-                            deliveryLocation={{
-                              ...deliveryLocation,
-                              label: 'Tu dirección'
-                            }}
-                            route={deliveryData.route}
-                            height="200px"
-                          />
+                          <MapErrorBoundary>
+                            <DeliveryMap
+                              restaurantLocation={{
+                                ...restaurantLocation,
+                                label: 'Restaurante'
+                              }}
+                              deliveryLocation={{
+                                ...deliveryLocation,
+                                label: 'Tu dirección'
+                              }}
+                              route={deliveryData.route}
+                              height="200px"
+                            />
+                          </MapErrorBoundary>
                         </div>
                       )}
                     </div>
