@@ -26,11 +26,13 @@ import {
   Crown,
   CalendarDays,
   Palette,
+  Globe,
 } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Pedidos", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Pedidos Online", href: "/admin/pedidosonline", icon: Globe },
   { name: "Cocina (KDS)", href: "/cocina", icon: ChefHat },
   { name: "Productos", href: "/admin/products", icon: Package },
   { name: "Modificadores", href: "/admin/modificadores", icon: Sliders },
