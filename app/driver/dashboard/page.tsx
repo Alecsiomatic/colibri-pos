@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Component, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,14 +8,47 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MapPin, Phone, Clock, Package, CheckCircle, Navigation, DollarSign, User, AlertCircle, ChevronRight, Loader2, Home, List } from 'lucide-react'
 
-const DeliveryMap = dynamic(() => import('@/components/DeliveryMap'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[500px] bg-slate-800/60 animate-pulse rounded-lg flex items-center justify-center">
-      <Loader2 className="w-8 h-8 text-colibri-gold animate-spin" />
-    </div>
-  )
-})
+const DeliveryMap = dynamic(
+  () => import('@/components/DeliveryMap').catch(() => {
+    return { default: () => (
+      <div className="h-[500px] bg-slate-800/60 rounded-lg flex items-center justify-center">
+        <p className="text-colibri-beige text-sm">No se pudo cargar el mapa. Recarga la página.</p>
+      </div>
+    )}
+  }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[500px] bg-slate-800/60 animate-pulse rounded-lg flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-colibri-gold animate-spin" />
+      </div>
+    )
+  }
+)
+
+// Error boundary local para el mapa — evita que un crash de Leaflet tire toda la página
+class MapErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: ReactNode}) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error: Error) { console.error('MapErrorBoundary:', error) }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-[500px] bg-slate-800/60 rounded-lg flex flex-col items-center justify-center gap-3">
+          <AlertCircle className="h-8 w-8 text-colibri-gold" />
+          <p className="text-colibri-beige text-sm">Error al cargar el mapa</p>
+          <button onClick={() => this.setState({ hasError: false })} className="text-xs text-colibri-gold underline">
+            Reintentar
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 interface Order {
   id: number
@@ -358,6 +391,7 @@ export default function DriverDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <MapErrorBoundary>
                   <DeliveryMap
                     driverLocation={driverLocation ? {
                       ...driverLocation,
@@ -370,12 +404,15 @@ export default function DriverDashboard() {
                     deliveryLocation={(() => {
                       const addr = activeDelivery.order?.delivery_address || activeDelivery.delivery_address
                       let lat = restaurantLocation?.lat || 0, lng = restaurantLocation?.lng || 0
-                      try { const p = JSON.parse(addr || ''); lat = p.lat || lat; lng = p.lng || lng } catch {}
-                      return { lat, lng, label: addr || 'Destino' }
+                      if (addr) {
+                        try { const p = JSON.parse(addr); if (p.lat && p.lng) { lat = Number(p.lat); lng = Number(p.lng) } } catch {}
+                      }
+                      return { lat: lat || 0, lng: lng || 0, label: (typeof addr === 'string' ? addr : 'Destino') }
                     })()}
                     route={route || undefined}
                     height="500px"
                   />
+                  </MapErrorBoundary>
                   
                   {/* Información de la ruta */}
                   {routeInfo && (

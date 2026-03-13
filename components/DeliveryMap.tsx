@@ -36,10 +36,20 @@ function AutoFitBounds({ locations }: { locations: Location[] }) {
   
   useEffect(() => {
     if (locations.length > 0) {
-      const bounds = L.latLngBounds(
-        locations.map(loc => [loc.lat, loc.lng])
-      )
-      map.fitBounds(bounds, { padding: [50, 50] })
+      try {
+        const validLocs = locations.filter(loc => 
+          typeof loc.lat === 'number' && typeof loc.lng === 'number' && 
+          isFinite(loc.lat) && isFinite(loc.lng) && (loc.lat !== 0 || loc.lng !== 0)
+        )
+        if (validLocs.length > 0) {
+          const bounds = L.latLngBounds(
+            validLocs.map(loc => [loc.lat, loc.lng])
+          )
+          map.fitBounds(bounds, { padding: [50, 50] })
+        }
+      } catch (e) {
+        console.error('Error in AutoFitBounds:', e)
+      }
     }
   }, [locations, map])
   
@@ -87,11 +97,15 @@ export default function DeliveryMap({
   const restaurantIcon = createCustomIcon('🍽️', '#ab9976')
   const homeIcon = createCustomIcon('🏠', '#6c222a')
   
+  const isValidLoc = (loc?: Location) => 
+    loc && typeof loc.lat === 'number' && typeof loc.lng === 'number' && 
+    isFinite(loc.lat) && isFinite(loc.lng) && (loc.lat !== 0 || loc.lng !== 0)
+
   const locations = [
     driverLocation,
     restaurantLocation,
     deliveryLocation
-  ].filter(Boolean) as Location[]
+  ].filter(isValidLoc) as Location[]
   
   const center = locations[0] || { lat: 22.1565, lng: -100.9855 } // SLP por defecto
   
@@ -112,31 +126,31 @@ export default function DeliveryMap({
       <AutoFitBounds locations={locations} />
       
       {/* Marcador del Driver */}
-      {driverLocation && (
-        <Marker position={[driverLocation.lat, driverLocation.lng]} icon={driverIcon}>
+      {isValidLoc(driverLocation) && (
+        <Marker position={[driverLocation!.lat, driverLocation!.lng]} icon={driverIcon}>
           <Popup>
             <div className="font-semibold text-sm">🚗 Repartidor</div>
-            {driverLocation.label && <div className="text-xs">{driverLocation.label}</div>}
+            {driverLocation!.label && <div className="text-xs">{driverLocation!.label}</div>}
           </Popup>
         </Marker>
       )}
       
       {/* Marcador del Restaurante */}
-      {restaurantLocation && (
-        <Marker position={[restaurantLocation.lat, restaurantLocation.lng]} icon={restaurantIcon}>
+      {isValidLoc(restaurantLocation) && (
+        <Marker position={[restaurantLocation!.lat, restaurantLocation!.lng]} icon={restaurantIcon}>
           <Popup>
             <div className="font-semibold text-sm">🍽️ Restaurante</div>
-            {restaurantLocation.label && <div className="text-xs">{restaurantLocation.label}</div>}
+            {restaurantLocation!.label && <div className="text-xs">{restaurantLocation!.label}</div>}
           </Popup>
         </Marker>
       )}
       
       {/* Marcador de Entrega */}
-      {deliveryLocation && (
-        <Marker position={[deliveryLocation.lat, deliveryLocation.lng]} icon={homeIcon}>
+      {isValidLoc(deliveryLocation) && (
+        <Marker position={[deliveryLocation!.lat, deliveryLocation!.lng]} icon={homeIcon}>
           <Popup>
             <div className="font-semibold text-sm">🏠 Destino</div>
-            {deliveryLocation.label && <div className="text-xs">{deliveryLocation.label}</div>}
+            {deliveryLocation!.label && <div className="text-xs">{deliveryLocation!.label}</div>}
           </Popup>
         </Marker>
       )}
