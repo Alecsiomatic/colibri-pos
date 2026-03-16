@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, Component, ReactNode } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,8 +19,42 @@ import {
   Loader2
 } from 'lucide-react'
 
+// Error Boundary for DeliveryMap
+class MapErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  componentDidCatch(error: any, info: any) {
+    console.error('🗺️ MapErrorBoundary caught:', error, info)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-[400px] bg-slate-800/60 rounded-lg flex items-center justify-center text-colibri-beige text-sm">
+          <MapPin className="w-4 h-4 mr-2" />
+          No se pudo cargar el mapa de seguimiento
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 // Cargar mapa dinámicamente
-const DeliveryMap = dynamic(() => import('@/components/DeliveryMap'), {
+const DeliveryMap = dynamic(() => import('@/components/DeliveryMap').catch(() => {
+  return { default: () => (
+    <div className="h-[400px] bg-slate-800/60 rounded-lg flex items-center justify-center text-colibri-beige text-sm">
+      No se pudo cargar el mapa
+    </div>
+  )}
+}), {
   ssr: false,
   loading: () => (
     <div className="h-96 bg-slate-800/60 animate-pulse rounded-lg flex items-center justify-center">
@@ -89,8 +123,26 @@ export default function OrderTrackingPage() {
       
       if (data.success && data.order) {
         // Convertir total a número si viene como string
-        if (data.order.total && typeof data.order.total === 'string') {
-          data.order.total = parseFloat(data.order.total)
+        data.order.total = Number(data.order.total) || 0
+        
+        // Ensure location coordinates are numbers
+        if (data.order.restaurant_location) {
+          data.order.restaurant_location = {
+            lat: Number(data.order.restaurant_location.lat) || 0,
+            lng: Number(data.order.restaurant_location.lng) || 0
+          }
+        }
+        if (data.order.delivery_location) {
+          data.order.delivery_location = {
+            lat: Number(data.order.delivery_location.lat) || 0,
+            lng: Number(data.order.delivery_location.lng) || 0
+          }
+        }
+        if (data.order.driver_location) {
+          data.order.driver_location = {
+            lat: Number(data.order.driver_location.lat) || 0,
+            lng: Number(data.order.driver_location.lng) || 0
+          }
         }
         
         setOrder(data.order)
@@ -250,24 +302,26 @@ export default function OrderTrackingPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <DeliveryMap
-                driverLocation={order.driver_location ? {
-                  lat: order.driver_location.lat,
-                  lng: order.driver_location.lng,
-                  label: order.driver?.username || 'Repartidor'
-                } : undefined}
-                restaurantLocation={order.restaurant_location ? {
-                  lat: order.restaurant_location.lat,
-                  lng: order.restaurant_location.lng,
-                  label: 'Supernova Restaurant'
-                } : undefined}
-                deliveryLocation={{
-                  lat: order.delivery_location.lat,
-                  lng: order.delivery_location.lng,
-                  label: parseAddress(order.delivery_address)
-                }}
-                height="500px"
-              />
+              <MapErrorBoundary>
+                <DeliveryMap
+                  driverLocation={order.driver_location ? {
+                    lat: order.driver_location.lat,
+                    lng: order.driver_location.lng,
+                    label: order.driver?.username || 'Repartidor'
+                  } : undefined}
+                  restaurantLocation={order.restaurant_location ? {
+                    lat: order.restaurant_location.lat,
+                    lng: order.restaurant_location.lng,
+                    label: 'Supernova Restaurant'
+                  } : undefined}
+                  deliveryLocation={{
+                    lat: order.delivery_location!.lat,
+                    lng: order.delivery_location!.lng,
+                    label: parseAddress(order.delivery_address)
+                  }}
+                  height="500px"
+                />
+              </MapErrorBoundary>
               
               {order.driver && (
                 <div className="mt-4 p-4 bg-slate-800/60 rounded-lg border border-colibri-gold/20">
@@ -311,7 +365,7 @@ export default function OrderTrackingPage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-colibri-beige">Total</span>
-                <span className="text-white font-bold text-xl">${order.total.toFixed(2)}</span>
+                <span className="text-white font-bold text-xl">${Number(order.total).toFixed(2)}</span>
               </div>
               
               <Separator className="bg-colibri-gold/20" />
