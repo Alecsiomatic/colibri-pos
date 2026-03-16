@@ -419,7 +419,7 @@ export default function DriverDashboard() {
                     <div className="mt-4 grid grid-cols-2 gap-3">
                       <div className="p-3 bg-gradient-to-br from-colibri-gold/20 to-colibri-wine/10 rounded-lg border border-colibri-gold/30">
                         <p className="text-colibri-gold text-xs font-semibold mb-1">Distancia</p>
-                        <p className="text-white text-lg font-bold">{routeInfo.distance.toFixed(1)} km</p>
+                        <p className="text-white text-lg font-bold">{Number(routeInfo.distance).toFixed(1)} km</p>
                       </div>
                       <div className="p-3 bg-gradient-to-br from-colibri-wine/20 to-colibri-gold/10 rounded-lg border border-colibri-wine/30">
                         <p className="text-colibri-gold text-xs font-semibold mb-1">Tiempo estimado</p>
