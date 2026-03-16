@@ -91,7 +91,7 @@ export default function DriverDashboard() {
   const [driverLocation, setDriverLocation] = useState<{lat: number, lng: number} | null>(null)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
   const [restaurantLocation, setRestaurantLocation] = useState<{lat: number, lng: number} | null>(null)
-  const [route, setRoute] = useState<Array<[number, number]> | null>(null)
+  const [route, setRoute] = useState<any>(null)
   const [routeInfo, setRouteInfo] = useState<{distance: number, duration: number} | null>(null)
 
   useEffect(() => { checkAuth() }, [])
@@ -119,14 +119,12 @@ export default function DriverDashboard() {
     }
   }
 
-  // Iniciar tracking cuando hay entrega activa
+  // Iniciar tracking siempre que haya driver autenticado (para mostrar ubicación en mapa)
   useEffect(() => {
-    if (activeDelivery && !isTrackingLocation) {
+    if (driver && !isTrackingLocation) {
       startLocationTracking()
-    } else if (!activeDelivery && isTrackingLocation) {
-      stopLocationTracking()
     }
-  }, [activeDelivery])
+  }, [driver])
 
   // Calcular ruta cuando hay entrega activa y ubicación del driver
   useEffect(() => {
@@ -378,6 +376,33 @@ export default function DriverDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Mapa con ubicación del driver cuando NO hay entrega activa */}
+        {!activeDelivery && driverLocation && (
+          <Card className="bg-slate-900/90 backdrop-blur-xl border-colibri-gold/30">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <MapPin className="text-colibri-gold" />
+                Tu Ubicación
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MapErrorBoundary>
+                <DeliveryMap
+                  driverLocation={{ ...driverLocation, label: 'Tu ubicación' }}
+                  restaurantLocation={restaurantLocation ? { ...restaurantLocation, label: 'Restaurante' } : undefined}
+                  height="300px"
+                />
+              </MapErrorBoundary>
+              <div className="mt-3 p-3 bg-slate-800/60 rounded-lg border border-colibri-green/20">
+                <p className="text-colibri-green text-sm flex items-center gap-2">
+                  <Navigation className="w-4 h-4" />
+                  GPS Activo — Esperando pedidos
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Active Delivery */}
         {activeDelivery && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

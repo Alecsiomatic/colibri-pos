@@ -45,15 +45,10 @@ export async function POST(request: NextRequest) {
     }
 
     const route = data.routes[0]
-    
-    // Convertir coordenadas de [lng, lat] a [lat, lng] para Leaflet
-    const routeCoordinates: Array<[number, number]> = route.geometry.coordinates.map(
-      coord => [coord[1], coord[0]]
-    )
 
     return NextResponse.json({
-      route: routeCoordinates,
-      distance: (route.distance / 1000).toFixed(2), // metros a km
+      route: route.geometry, // GeoJSON {type:"LineString", coordinates:[[lng,lat],...]}
+      distance: Math.round(route.distance / 10) / 100, // metros a km (number)
       duration: Math.ceil(route.duration / 60), // segundos a minutos
       origin,
       destination
