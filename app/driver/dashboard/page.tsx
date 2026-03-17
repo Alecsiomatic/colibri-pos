@@ -27,12 +27,12 @@ const DeliveryMap = dynamic(
 )
 
 // Error boundary local para el mapa — evita que un crash de Leaflet tire toda la página
-class MapErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+class MapErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, errorMsg: string}> {
   constructor(props: {children: ReactNode}) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, errorMsg: '' }
   }
-  static getDerivedStateFromError() { return { hasError: true } }
+  static getDerivedStateFromError(error: Error) { return { hasError: true, errorMsg: error?.message || String(error) } }
   componentDidCatch(error: Error) { console.error('MapErrorBoundary:', error) }
   render() {
     if (this.state.hasError) {
@@ -40,7 +40,8 @@ class MapErrorBoundary extends Component<{children: ReactNode}, {hasError: boole
         <div className="h-[500px] bg-slate-800/60 rounded-lg flex flex-col items-center justify-center gap-3">
           <AlertCircle className="h-8 w-8 text-colibri-gold" />
           <p className="text-colibri-beige text-sm">Error al cargar el mapa</p>
-          <button onClick={() => this.setState({ hasError: false })} className="text-xs text-colibri-gold underline">
+          <p className="text-red-400 text-xs max-w-md text-center break-all px-4">{this.state.errorMsg}</p>
+          <button onClick={() => this.setState({ hasError: false, errorMsg: '' })} className="text-xs text-colibri-gold underline">
             Reintentar
           </button>
         </div>
