@@ -91,7 +91,9 @@ export default function OrdersPage() {
       in_delivery: { label: 'En Camino', color: 'bg-orange-500', icon: Truck },
       en_camino: { label: 'En Camino', color: 'bg-orange-500', icon: Truck },
       delivered: { label: 'Entregado', color: 'bg-green-600', icon: Package },
-      cancelled: { label: 'Cancelado', color: 'bg-red-500', icon: Package }
+      entregado: { label: 'Entregado', color: 'bg-green-600', icon: Package },
+      cancelled: { label: 'Cancelado', color: 'bg-red-500', icon: Package },
+      cancelado: { label: 'Cancelado', color: 'bg-red-500', icon: Package }
     }
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending

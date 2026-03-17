@@ -105,7 +105,7 @@ export default function OrderTrackingPage() {
     
     // Auto-refresh cada 10 segundos si el pedido está en delivery
     const interval = setInterval(() => {
-      if (order && order.status !== 'delivered' && order.status !== 'cancelled') {
+      if (order && order.status !== 'delivered' && order.status !== 'entregado' && order.status !== 'cancelled' && order.status !== 'cancelado') {
         fetchOrder(true)
       }
     }, 10000)
@@ -167,7 +167,9 @@ export default function OrderTrackingPage() {
       'on-route': { label: 'En camino', color: 'bg-purple-500', icon: Truck },
       en_camino: { label: 'En camino', color: 'bg-purple-500', icon: Truck },
       delivered: { label: 'Entregado', color: 'bg-green-600', icon: CheckCircle },
-      cancelled: { label: 'Cancelado', color: 'bg-red-500', icon: Clock }
+      entregado: { label: 'Entregado', color: 'bg-green-600', icon: CheckCircle },
+      cancelled: { label: 'Cancelado', color: 'bg-red-500', icon: Clock },
+      cancelado: { label: 'Cancelado', color: 'bg-red-500', icon: Clock }
     }
     
     return statusMap[status] || statusMap.pending
@@ -267,25 +269,25 @@ export default function OrderTrackingPage() {
                 time={new Date(order.created_at).toLocaleTimeString('es-MX')}
               />
               <TimelineStep 
-                completed={['confirmed', 'preparing', 'ready', 'on-route', 'en_camino', 'delivered'].includes(order.status)}
+                completed={['confirmed', 'preparing', 'ready', 'on-route', 'en_camino', 'delivered', 'entregado'].includes(order.status)}
                 label="Confirmado"
                 time={order.status !== 'pending' ? 'Confirmado' : ''}
               />
               <TimelineStep 
-                completed={['preparing', 'ready', 'on-route', 'en_camino', 'delivered'].includes(order.status)}
+                completed={['preparing', 'ready', 'on-route', 'en_camino', 'delivered', 'entregado'].includes(order.status)}
                 label="Preparando"
               />
               <TimelineStep 
-                completed={['ready', 'on-route', 'en_camino', 'delivered'].includes(order.status)}
+                completed={['ready', 'on-route', 'en_camino', 'delivered', 'entregado'].includes(order.status)}
                 label="Listo para Entregar"
               />
               <TimelineStep 
-                completed={['on-route', 'en_camino', 'delivered'].includes(order.status)}
+                completed={['on-route', 'en_camino', 'delivered', 'entregado'].includes(order.status)}
                 label="En Camino"
                 icon={Truck}
               />
               <TimelineStep 
-                completed={order.status === 'delivered'}
+                completed={order.status === 'delivered' || order.status === 'entregado'}
                 label="Entregado"
                 icon={CheckCircle}
               />
