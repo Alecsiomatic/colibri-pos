@@ -326,8 +326,26 @@ export default function DriverDashboard() {
     }
   }
 
-  const openMaps = (address: string) => {
-    if (address) window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank')
+  // Extraer texto legible de delivery_address (puede ser JSON con {street, lat, lng} o string plano)
+  const formatAddress = (addr: any): string => {
+    if (!addr) return 'Dirección no disponible'
+    if (typeof addr === 'object') {
+      return addr.street || addr.address || addr.direccion || 'Dirección no disponible'
+    }
+    if (typeof addr === 'string') {
+      try {
+        const parsed = JSON.parse(addr)
+        return parsed.street || parsed.address || parsed.direccion || addr
+      } catch {
+        return addr
+      }
+    }
+    return String(addr)
+  }
+
+  const openMaps = (address: any) => {
+    const display = formatAddress(address)
+    if (display && display !== 'Dirección no disponible') window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(display)}`, '_blank')
   }
   const callCustomer = (phone: string) => {
     if (phone) window.open(`tel:${phone}`)
@@ -433,7 +451,7 @@ export default function DriverDashboard() {
                       if (addr) {
                         try { const p = JSON.parse(addr); if (p.lat && p.lng) { lat = Number(p.lat); lng = Number(p.lng) } } catch {}
                       }
-                      return { lat: lat || 0, lng: lng || 0, label: (typeof addr === 'string' ? addr : 'Destino') }
+                      return { lat: lat || 0, lng: lng || 0, label: formatAddress(addr) }
                     })()}
                     route={route || undefined}
                     height="500px"
@@ -503,7 +521,7 @@ export default function DriverDashboard() {
                 <div className="flex-1">
                   <p className="text-sm text-white font-semibold">Dirección de entrega</p>
                   <p className="text-white font-medium">
-                    {activeDelivery.order?.delivery_address || activeDelivery.delivery_address || 'Dirección no disponible'}
+                    {formatAddress(activeDelivery.delivery_address || activeDelivery.order?.delivery_address)}
                   </p>
                   {(activeDelivery.order?.delivery_notes || activeDelivery.delivery_notes) && (
                     <p className="text-sm text-colibri-beige mt-1">
@@ -625,7 +643,7 @@ export default function DriverDashboard() {
                         <MapPin className="h-5 w-5 text-red-400" />
                         <div className="flex-1">
                           <p className="text-white">
-                            {assignment.order?.delivery_address || assignment.delivery_address || 'Dirección no disponible'}
+                            {formatAddress(assignment.delivery_address || assignment.order?.delivery_address)}
                           </p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-colibri-gold" />
