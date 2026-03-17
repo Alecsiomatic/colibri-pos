@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -22,1216 +22,1055 @@ import {
   QrCode,
   Printer,
   ChefHat,
-  DollarSign,
-  Target,
-  Sparkles,
-  ArrowRight,
-  Star,
-  Shield,
-  Wifi,
   Cloud,
   MessageSquare,
   PlayCircle,
-  ExternalLink,
+  ArrowRight,
+  Star,
+  Shield,
+  Sparkles,
   Gift,
-  Calculator,
+  Phone,
+  MonitorSmartphone,
+  Layers,
+  MousePointerClick,
 } from "lucide-react"
 
+// ── Hook: Intersection Observer for scroll animations ──
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true)
+      },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+
+  return { ref, inView }
+}
+
+// ── Animated Counter ──
+function AnimatedCounter({
+  target,
+  prefix = "",
+  suffix = "",
+  duration = 2000,
+}: {
+  target: number
+  prefix?: string
+  suffix?: string
+  duration?: number
+}) {
+  const [count, setCount] = useState(0)
+  const { ref, inView } = useInView()
+
+  useEffect(() => {
+    if (!inView) return
+    let start = 0
+    const step = target / (duration / 16)
+    const timer = setInterval(() => {
+      start += step
+      if (start >= target) {
+        setCount(target)
+        clearInterval(timer)
+      } else {
+        setCount(Math.floor(start))
+      }
+    }, 16)
+    return () => clearInterval(timer)
+  }, [inView, target, duration])
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      {count.toLocaleString()}
+      {suffix}
+    </span>
+  )
+}
+
+// ── Floating Particles Background ──
+function ParticlesBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full bg-white/10"
+          style={{
+            width: `${3 + (i % 5)}px`,
+            height: `${3 + (i % 5)}px`,
+            left: `${(i * 5.3) % 100}%`,
+            top: `${(i * 7.1) % 100}%`,
+            animation: `float-particle ${12 + (i % 8)}s linear infinite`,
+            animationDelay: `${(i * 0.7) % 5}s`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ── Feature Card with hover animation ──
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  highlight,
+  delay,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  description: string
+  highlight: string
+  delay: number
+}) {
+  const { ref, inView } = useInView()
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <Card className="group relative h-full p-6 bg-white/80 backdrop-blur-sm border border-colibri-gold/20 hover:border-colibri-green/50 hover:shadow-2xl hover:shadow-colibri-green/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-colibri-green/5 to-transparent rounded-bl-full transition-all duration-500 group-hover:w-48 group-hover:h-48" />
+        <div className="relative z-10">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-colibri-green to-colibri-wine flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-500">
+            <Icon className="w-7 h-7 text-white" />
+          </div>
+          <Badge className="mb-3 text-[10px] bg-colibri-green/10 text-colibri-green border-colibri-green/20">
+            {highlight}
+          </Badge>
+          <h3 className="text-lg font-bold text-colibri-green mb-2 group-hover:text-colibri-wine transition-colors">
+            {title}
+          </h3>
+          <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+// ── Step Card Component ──
+function StepCard({
+  step,
+  index,
+}: {
+  step: { number: string; title: string; description: string; icon: React.ComponentType<{ className?: string }> }
+  index: number
+}) {
+  const { ref, inView } = useInView()
+  const Ic = step.icon
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+      style={{ transitionDelay: `${index * 200}ms` }}
+    >
+      <div className="relative text-center group">
+        <div className="text-8xl font-black text-white/5 absolute -top-6 left-1/2 -translate-x-1/2 select-none group-hover:text-white/10 transition-colors duration-500">
+          {step.number}
+        </div>
+        <div className="relative pt-8">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/20 group-hover:scale-110 transition-all duration-500 border border-white/10">
+            <Ic className="w-10 h-10 text-colibri-gold" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+          <p className="text-colibri-beige/70">{step.description}</p>
+        </div>
+        {index < 2 && (
+          <div className="hidden md:block absolute top-1/3 -right-4 translate-x-1/2">
+            <ArrowRight className="w-8 h-8 text-colibri-gold/30" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Demo Role Card ──
+function DemoRoleCard({
+  emoji,
+  role,
+  desc,
+  color,
+  delay,
+}: {
+  emoji: string
+  role: string
+  desc: string
+  color: string
+  delay: number
+}) {
+  const { ref, inView } = useInView()
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-500 ${inView ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <div
+        className={`bg-gradient-to-br ${color} rounded-2xl p-5 text-center text-white hover:scale-105 hover:shadow-xl transition-all duration-300 cursor-default`}
+      >
+        <div className="text-3xl mb-2">{emoji}</div>
+        <p className="font-bold text-sm">{role}</p>
+        <p className="text-[11px] text-white/70">{desc}</p>
+      </div>
+    </div>
+  )
+}
+
+// ── Testimonial Card ──
+function TestimonialCard({
+  name,
+  biz,
+  quote,
+  stars,
+  delay,
+}: {
+  name: string
+  biz: string
+  quote: string
+  stars: number
+  delay: number
+}) {
+  const { ref, inView } = useInView()
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <Card className="h-full p-8 bg-white border border-colibri-gold/20 hover:shadow-xl hover:shadow-colibri-green/5 transition-all duration-500 hover:-translate-y-1">
+        <div className="flex gap-1 mb-4">
+          {Array.from({ length: stars }).map((_, i) => (
+            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          ))}
+        </div>
+        <p className="text-gray-600 text-sm leading-relaxed mb-6">
+          &ldquo;{quote}&rdquo;
+        </p>
+        <div className="border-t border-gray-100 pt-4">
+          <p className="font-bold text-colibri-green text-sm">{name}</p>
+          <p className="text-xs text-gray-500">{biz}</p>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+// ── WhatsApp SVG Icon ──
+const WhatsAppIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    className="w-6 h-6 mr-3 fill-current group-hover:scale-110 transition-transform"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+  </svg>
+)
+
+const WhatsAppIconSmall = () => (
+  <svg
+    viewBox="0 0 24 24"
+    className="w-8 h-8 fill-white"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+  </svg>
+)
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAIN LANDING PAGE
+// ══════════════════════════════════════════════════════════════════════════════
 export default function LandingPage() {
-  // Cotizador state
-  const [selectedCentral, setSelectedCentral] = useState<"renta" | "compra" | null>(null)
-  const [selectedKiosko, setSelectedKiosko] = useState<"renta" | "compra" | null>(null)
-  const [selectedCocina, setSelectedCocina] = useState<"impresora" | "display" | "hibrida" | null>(null)
-  const [includeDelivery, setIncludeDelivery] = useState(false)
-  const [includeDashboard, setIncludeDashboard] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const [navVisible, setNavVisible] = useState(false)
 
-  const calculateQuote = () => {
-    let inicio = 0
-    let mensual = 0
-
-    // Módulo Central (REQUERIDO)
-    if (selectedCentral === "renta") {
-      inicio += 3900
-      mensual += 1290
-    } else if (selectedCentral === "compra") {
-      inicio += 12900
-      mensual += 590
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+      setNavVisible(window.scrollY > 400)
     }
-
-    // Módulo Kiosko
-    if (selectedKiosko === "renta") {
-      inicio += 4900
-      mensual += 1690
-    } else if (selectedKiosko === "compra") {
-      inicio += 16900
-      mensual += 690
-    }
-
-    // Módulo Cocina
-    if (selectedCocina === "impresora") {
-      inicio += 900
-      mensual += 350
-    } else if (selectedCocina === "display") {
-      inicio += 2900
-      mensual += 890
-    } else if (selectedCocina === "hibrida") {
-      inicio += 3500
-      mensual += 1190
-    }
-
-    // Software adicional
-    if (includeDelivery) mensual += 990
-    if (includeDashboard) mensual += 690
-
-    return { inicio, mensual }
-  }
-
-  const quote = calculateQuote()
-  const hasSelection = selectedCentral !== null
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const features = [
     {
       icon: ShoppingCart,
       title: "Sistema POS Completo",
-      description: "Terminal punto de venta profesional con gestión de productos, categorías, modificadores y inventario en tiempo real.",
+      description:
+        "Terminal punto de venta profesional con productos, categor\u00edas, modificadores e inventario en tiempo real.",
       highlight: "Control total",
     },
     {
       icon: Utensils,
-      title: "Gestión de Mesas",
-      description: "Administra tu comedor con sistema de mesas interactivo. Asignación de meseros, división de cuentas y cierre automático.",
+      title: "Gesti\u00f3n de Mesas",
+      description:
+        "Comedor interactivo con asignaci\u00f3n de meseros, divisi\u00f3n de cuentas y cierre autom\u00e1tico.",
       highlight: "Para restaurantes",
     },
     {
       icon: Truck,
       title: "Delivery Integrado",
-      description: "Sistema completo de pedidos a domicilio con tracking GPS en tiempo real, asignación automática de repartidores y gestión de zonas.",
-      highlight: "Aumenta ventas 40%",
+      description:
+        "Pedidos a domicilio con tracking GPS en tiempo real, asignaci\u00f3n de repartidores y gesti\u00f3n de zonas.",
+      highlight: "+40% ventas",
     },
     {
       icon: QrCode,
-      title: "Menú Digital QR",
-      description: "Tus clientes ordenan desde su celular escaneando QR. Sin apps, sin contacto, sin errores. Actualizaciones instantáneas.",
+      title: "Men\u00fa Digital QR",
+      description:
+        "Tus clientes ordenan desde su celular escaneando QR. Sin apps, sin contacto, sin errores.",
       highlight: "Sin meseros",
     },
     {
       icon: Smartphone,
-      title: "Kiosko de Autoservicio",
-      description: "Pantalla táctil para que clientes ordenen directamente. Reduce tiempos de espera y aumenta ticket promedio 30%.",
-      highlight: "Más ventas",
+      title: "Kiosko Autoservicio",
+      description:
+        "Pantalla t\u00e1ctil para que clientes ordenen directamente. Reduce esperas y aumenta ticket promedio.",
+      highlight: "+30% ticket",
     },
     {
       icon: CreditCard,
-      title: "Múltiples Métodos de Pago",
-      description: "Efectivo, tarjetas, transferencias y MercadoPago integrado. Cobra como quieras, donde quieras.",
+      title: "M\u00faltiples Pagos",
+      description:
+        "Efectivo, tarjetas, transferencias y MercadoPago integrado. Cobra como quieras.",
       highlight: "Todo incluido",
     },
     {
       icon: Receipt,
       title: "Turnos de Caja",
-      description: "Control exhaustivo de apertura y cierre de caja. Arqueos automáticos, reportes de diferencias y cuadre perfecto.",
+      description:
+        "Control de apertura/cierre de caja. Arqueos autom\u00e1ticos, reportes y cuadre perfecto.",
       highlight: "Cero errores",
     },
     {
       icon: BarChart3,
       title: "Reportes Avanzados",
-      description: "Analítica en tiempo real: ventas, productos más vendidos, horarios pico, desempeño de meseros y mucho más.",
+      description:
+        "Anal\u00edtica en tiempo real: ventas, productos top, horarios pico, desempe\u00f1o del equipo.",
       highlight: "Data que vende",
     },
     {
       icon: Printer,
-      title: "Impresión Automática",
-      description: "Comandas a cocina por USB, red o Bluetooth. Separa por estaciones: grill, fríos, bar. Cero confusión.",
+      title: "Impresi\u00f3n Autom\u00e1tica",
+      description:
+        "Comandas a cocina por USB, red o Bluetooth. Separa por estaciones: grill, fr\u00edos, bar.",
       highlight: "Cocina ordenada",
     },
     {
       icon: Users,
-      title: "Multi-Usuario con Roles",
-      description: "Admin, cajeros, meseros, cocineros, repartidores. Cada uno ve y hace solo lo que debe. Seguridad total.",
-      highlight: "Control empresarial",
+      title: "Multi-Usuario",
+      description:
+        "Admin, cajeros, meseros, cocineros, repartidores. Cada uno ve solo lo que debe.",
+      highlight: "Control total",
     },
     {
       icon: ChefHat,
-      title: "Modificadores Ilimitados",
-      description: "Extras, tamaños, ingredientes, personalizaciones. Todo lo que tus clientes pidan, el sistema lo maneja.",
-      highlight: "Sin límites",
+      title: "Modificadores",
+      description:
+        "Extras, tama\u00f1os, ingredientes, personalizaciones. Todo lo que tus clientes pidan.",
+      highlight: "Sin l\u00edmites",
     },
     {
       icon: Cloud,
       title: "100% En La Nube",
-      description: "Accede desde cualquier dispositivo, en cualquier lugar. Backups automáticos. Nunca pierdes información.",
-      highlight: "Siempre disponible",
+      description:
+        "Accede desde cualquier dispositivo. Backups autom\u00e1ticos. Nunca pierdes informaci\u00f3n.",
+      highlight: "Siempre activo",
     },
   ]
 
-  const benefits = [
+  const steps = [
     {
-      metric: "$15,000",
-      label: "En bonos incluidos",
-      description: "Ingeniería + Capacitación + Renovación",
-    },
-    {
-      metric: "< 24h",
-      label: "Garantía de reemplazo",
-      description: "O tu mensualidad es gratis",
+      number: "01",
+      title: "Te contactamos",
+      description:
+        "Agenda una llamada y analizamos las necesidades de tu restaurante",
+      icon: Phone,
     },
     {
-      metric: "+20%",
-      label: "Ticket promedio",
-      description: "Con kiosko o devolvemos tu dinero",
+      number: "02",
+      title: "Configuramos todo",
+      description:
+        "Dise\u00f1amos tu men\u00fa digital, configuramos tu sistema y capacitamos a tu equipo",
+      icon: MonitorSmartphone,
     },
     {
-      metric: "$60K",
-      label: "Ahorras en hardware",
-      description: "Sin descapitalizar tu negocio",
-    },
-  ]
-
-  const testimonials = [
-    {
-      name: "Carlos Mendoza",
-      business: "Tacos El Patrón - CDMX",
-      image: "/testimonial-1.jpg",
-      quote: "En 2 meses recuperamos la inversión. El delivery integrado y el kiosko nos permitieron atender 3x más pedidos en hora pico. Nuestras ventas subieron 45% sin contratar más personal.",
-      rating: 5,
-    },
-    {
-      name: "Ana García",
-      business: "Café La Esquina - Guadalajara",
-      image: "/testimonial-2.jpg",
-      quote: "El menú QR y el sistema de mesas nos cambió la vida. Los clientes piden desde su mesa y todo llega directo a cocina. Cero errores, cero papelitos. El ticket promedio subió 30%.",
-      rating: 5,
-    },
-    {
-      name: "Roberto Silva",
-      business: "Wings & Beer - Monterrey",
-      image: "/testimonial-3.jpg",
-      quote: "Los reportes son increíbles. Ahora sé qué producto vende más, en qué horario y cuánto gano realmente. Optimizamos el menú y eliminamos lo que no servía. Rentabilidad +35%.",
-      rating: 5,
-    },
-  ]
-
-  const pricing = {
-    monthly: {
-      basico: { price: 1290, label: "mensual", setup: 3900 },
-      profesional: { price: 3330, label: "mensual", setup: 9700 },
-      empresarial: { price: 5310, label: "mensual", setup: 13200 },
-    },
-    annual: {
-      basico: { price: 1290, label: "mensual", setup: 3900, total: 15480 },
-      profesional: { price: 3330, label: "mensual", setup: 9700, total: 39960 },
-      empresarial: { price: 5310, label: "mensual", setup: 13200, total: 63720 },
-    },
-  }
-
-  const plans = [
-    {
-      name: "Básico",
-      description: "Estación Central (Renta)",
-      color: "from-colibri-green to-colibri-gold",
-      features: [
-        "🖥️ Mini PC i5 + Monitor Touch 16.1\"",
-        "📋 Licencia de Software Ilimitada",
-        "🎨 Ingeniería de Menú ($6,000 incluido)",
-        "🎓 Capacitación Completa ($5,000 incluido)",
-        "🔄 Renovación Tecnológica ($4,000 incluido)",
-        "⚡ Garantía: Reemplazo &lt; 24h o paga cero",
-        "🛡️ Protección total sin límites",
-        "🔧 Soporte técnico prioritario",
-        "📊 Sistema POS completo",
-        "🍽️ Gestión de productos y mesas",
-      ],
-      popular: false,
-      setupFee: "$3,900 MXN único",
-      bonuses: "$15,000 MXN en bonos incluidos",
-    },
-    {
-      name: "Profesional",
-      description: "Central + Kiosko + Cocina",
-      color: "from-colibri-wine to-colibri-green",
-      features: [
-        "✅ Todo en Básico +",
-        "📱 Kiosko Auto-Servicio Touch",
-        "🎯 Garantía +20% ticket o dinero de vuelta",
-        "🖨️ Impresora o Kitchen Display",
-        "🚚 Delivery Propio + QR en Mesa ($990/mes)",
-        "⚡ Venta sugestiva automática",
-        "📈 Aumenta ventas sin presión humana",
-        "🔄 3 módulos de hardware incluidos",
-        "👥 Usuarios ilimitados",
-        "📊 Reportes avanzados en tiempo real",
-        "💳 MercadoPago integrado",
-        "🎁 Bonos totales: $15,000 + garantías",
-      ],
-      popular: true,
-      setupFee: "$9,700 MXN único",
-      bonuses: "Incluye todos los bonos + garantía de ticket",
-    },
-    {
-      name: "Empresarial",
-      description: "Solución completa multi-sucursal",
-      color: "from-colibri-gold to-colibri-wine",
-      features: [
-        "✅ Todo en Profesional +",
-        "🏢 Dashboard CEO Multi-Sucursal ($690/mes)",
-        "📊 Control total desde un solo lugar",
-        "🔍 Decisiones basadas en datos",
-        "📈 Información consolidada al instante",
-        "🔄 Módulos ilimitados",
-        "👥 Equipo completo capacitado",
-        "🎯 Gerente de cuenta dedicado",
-        "⚡ Soporte 24/7 prioritario",
-        "🛡️ Todas las garantías premium",
-        "🔧 Personalización avanzada",
-        "💼 Ideal para cadenas y franquicias",
-      ],
-      popular: false,
-      setupFee: "$13,200 MXN único",
-      bonuses: "Máximo valor + soporte empresarial",
+      number: "03",
+      title: "\u00a1A vender!",
+      description:
+        "Tu restaurante opera con tecnolog\u00eda de primer nivel desde el d\u00eda 1",
+      icon: Zap,
     },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-colibri-beige/30 to-white">
-      {/* Hero Section */}
-      <div
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage: "url(/resta.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      {/* ── Sticky Nav ── */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${navVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-colibri-green/95 via-colibri-wine/90 to-colibri-gold/85" />
+        <div className="bg-white/90 backdrop-blur-xl border-b border-colibri-gold/20 shadow-lg">
+          <div className="container mx-auto px-4 flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/logo-colibri.png"
+                alt="Colibr\u00ed-REST"
+                width={36}
+                height={36}
+              />
+              <span className="font-bold text-colibri-green text-lg">
+                Colibr\u00ed-REST
+              </span>
+            </div>
+            <div className="hidden md:flex items-center gap-6 text-sm text-gray-600">
+              <a
+                href="#features"
+                className="hover:text-colibri-green transition-colors"
+              >
+                Caracter\u00edsticas
+              </a>
+              <a
+                href="#demo"
+                className="hover:text-colibri-green transition-colors"
+              >
+                Demo
+              </a>
+              <a
+                href="#pricing"
+                className="hover:text-colibri-green transition-colors"
+              >
+                Precios
+              </a>
+            </div>
+            <a
+              href="https://wa.me/5214447001387?text=Hola%2C%20me%20interesa%20Colibr%C3%AD-REST%20para%20mi%20restaurante"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-colibri-green to-colibri-wine text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" /> Cotizar
+              </Button>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      {/* ── HERO ── */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 scale-110"
+          style={{
+            backgroundImage: "url(/resta.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transform: `translateY(${scrollY * 0.3}px) scale(1.1)`,
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-colibri-green/95 via-colibri-wine/85 to-colibri-green/90" />
+        <ParticlesBackground />
 
         <div className="relative z-10 container mx-auto px-4 py-20">
           <div className="max-w-5xl mx-auto text-center">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <Image
-                src="/logo-colibri.png"
-                alt="Colibrí-REST"
-                width={120}
-                height={120}
-                className="drop-shadow-2xl animate-float"
-              />
+            {/* Logo with glow */}
+            <div className="flex justify-center mb-8 animate-[fadeInDown_1s_ease-out]">
+              <div className="relative">
+                <div className="absolute inset-0 blur-3xl bg-colibri-gold/30 rounded-full scale-150" />
+                <Image
+                  src="/logo-colibri.png"
+                  alt="Colibr\u00ed-REST"
+                  width={130}
+                  height={130}
+                  className="relative drop-shadow-2xl animate-[float_6s_ease-in-out_infinite]"
+                />
+              </div>
             </div>
 
             {/* Badge */}
-            <Badge className="mb-6 bg-white/20 text-white border-white/30 text-sm px-4 py-2 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 mr-2 inline" />
-              Sistema #1 para restaurantes en México
-            </Badge>
+            <div className="animate-[fadeInUp_0.8s_ease-out_0.2s_both]">
+              <Badge className="mb-6 bg-white/15 text-white border-white/25 text-sm px-5 py-2.5 backdrop-blur-md hover:bg-white/25 transition-colors cursor-default">
+                <Sparkles className="w-4 h-4 mr-2 inline animate-pulse" />
+                Sistema #1 para restaurantes en M\u00e9xico
+              </Badge>
+            </div>
 
             {/* Headline */}
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Reinventamos Tu Restaurante
-              <br />
-              <span className="text-colibri-beige">Con Tecnología Que Funciona</span>
+            <h1 className="animate-[fadeInUp_0.8s_ease-out_0.4s_both]">
+              <span className="block text-5xl md:text-7xl lg:text-8xl font-black text-white mb-4 leading-[0.95] tracking-tight">
+                Reinventamos
+              </span>
+              <span className="block text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-[0.95] tracking-tight">
+                <span className="bg-gradient-to-r from-colibri-beige via-colibri-gold to-colibri-beige bg-clip-text text-transparent">
+                  Tu Restaurante
+                </span>
+              </span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Cada pedido fluye sin esfuerzo. Cada mesa atendida con precisión. Cada decisión respaldada por datos.
-              <br />
-              <span className="font-semibold text-colibri-beige">Elige entre Renta con garantía total o Compra para máxima flexibilidad fiscal.</span>
+            <p className="text-lg md:text-xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed animate-[fadeInUp_0.8s_ease-out_0.6s_both]">
+              Cada pedido fluye sin esfuerzo. Cada mesa atendida con precisi\u00f3n.
+              Cada decisi\u00f3n respaldada por datos.
+              <span className="block mt-2 font-semibold text-colibri-beige">
+                12 m\u00f3dulos. Una sola plataforma.
+              </span>
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button
-                asChild
-                size="lg"
-                className="bg-white text-colibri-green hover:bg-colibri-beige text-lg px-8 py-6 shadow-2xl"
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-[fadeInUp_0.8s_ease-out_0.8s_both]">
+              <a
+                href="https://wa.me/5214447001387?text=Hola%2C%20me%20interesa%20Colibr%C3%AD-REST%20para%20mi%20restaurante"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <Link href="#pricing">
-                  <Zap className="w-5 h-5 mr-2" />
-                  Ver Planes y Precios
-                </Link>
-              </Button>
+                <Button
+                  size="lg"
+                  className="bg-white text-colibri-green hover:bg-colibri-beige text-lg px-10 py-7 shadow-2xl hover:shadow-white/25 hover:scale-105 transition-all duration-300 group"
+                >
+                  <MessageSquare className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                  Cotizar por WhatsApp
+                </Button>
+              </a>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 backdrop-blur-sm"
+                className="border-2 border-white/40 text-white hover:bg-white/10 text-lg px-10 py-7 backdrop-blur-sm hover:border-white/70 transition-all duration-300"
               >
                 <Link href="#demo">
-                  <MessageSquare className="w-5 h-5 mr-2" />
+                  <PlayCircle className="w-5 h-5 mr-2" />
                   Ver Demo en Vivo
                 </Link>
               </Button>
             </div>
 
-            {/* Social Proof */}
-            <div className="flex flex-wrap justify-center items-center gap-8 text-white/80">
-              <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                <span>Hosting seguro en México</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span>4.9/5 en Google</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                <span>+300 restaurantes confían en nosotros</span>
-              </div>
+            {/* Social proof */}
+            <div className="flex flex-wrap justify-center items-center gap-6 mt-12 animate-[fadeInUp_0.8s_ease-out_1s_both]">
+              {[
+                { icon: Shield, text: "Hosting seguro en M\u00e9xico", fill: false },
+                { icon: Star, text: "4.9/5 en Google", fill: true },
+                { icon: Users, text: "+300 restaurantes", fill: false },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 text-white/75 text-sm bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm"
+                >
+                  <item.icon
+                    className={`w-4 h-4 ${item.fill ? "fill-yellow-400 text-yellow-400" : ""}`}
+                  />
+                  <span>{item.text}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <ArrowRight className="w-8 h-8 text-white rotate-90" />
-        </div>
-      </div>
-
-      {/* Demo Section */}
-      <section className="py-20 bg-white" id="demo">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20">
-              <PlayCircle className="w-4 h-4 mr-2 inline" />
-              Prueba el Sistema
-            </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
-              Experimenta Colibrí-REST en Acción
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
-              No necesitas registrarte. Inicia sesión con cualquiera de nuestros usuarios demo y explora todo el sistema.
-              <br />
-              <span className="font-semibold text-colibri-wine">100% funcional con datos reales.</span>
-            </p>
-
-            <div className="flex flex-col items-center gap-6">
-              <Link href="/login">
-                <Button className="bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-wine/90 hover:to-colibri-green/90 text-white text-2xl px-12 py-8 rounded-2xl shadow-2xl hover:shadow-colibri-wine/50 transition-all hover:scale-105">
-                  <PlayCircle className="w-8 h-8 mr-3" />
-                  INICIAR DEMO
-                </Button>
-              </Link>
-              
-              <div className="bg-colibri-beige/30 rounded-xl p-6 max-w-2xl">
-                <p className="text-sm text-gray-600 mb-4 font-semibold">👥 Usuarios disponibles para probar:</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div className="bg-white rounded-lg p-3 border border-colibri-wine/20">
-                    <p className="font-bold text-colibri-green">👨‍💼 Admin</p>
-                    <p className="text-xs text-gray-500">Panel completo</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-3 border border-colibri-green/20">
-                    <p className="font-bold text-colibri-green">💰 Cajero</p>
-                    <p className="text-xs text-gray-500">Punto de venta</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-3 border border-colibri-gold/20">
-                    <p className="font-bold text-colibri-green">🍽️ Mesero</p>
-                    <p className="text-xs text-gray-500">Gestión mesas</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-3 border border-colibri-wine/20">
-                    <p className="font-bold text-colibri-green">🚚 Repartidor</p>
-                    <p className="text-xs text-gray-500">Delivery</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-4">
-                  🔐 Selecciona tu rol en la página de login y las credenciales se cargarán automáticamente
-                </p>
-              </div>
-            </div>
+          <div className="w-10 h-16 rounded-full border-2 border-white/40 flex items-start justify-center p-2">
+            <div className="w-1.5 h-3 bg-white/80 rounded-full animate-[scrollPulse_2s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20">
-              <Target className="w-4 h-4 mr-2 inline" />
-              Resultados Reales
-            </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
-              Los Números No Mienten
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Esto es lo que logran nuestros clientes en promedio durante los primeros 90 días
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {benefits.map((benefit, index) => (
-              <Card
-                key={index}
-                className="p-8 text-center glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 transition-all duration-300"
-              >
-                <div className="text-5xl font-bold text-colibri-wine mb-2">{benefit.metric}</div>
-                <div className="text-lg font-semibold text-colibri-green mb-2">{benefit.label}</div>
-                <div className="text-sm text-gray-600">{benefit.description}</div>
-              </Card>
+      {/* ── BENEFITS (Animated Counters) ── */}
+      <section className="py-20 bg-gradient-to-b from-colibri-green to-colibri-green/95 relative overflow-hidden">
+        <ParticlesBackground />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                value: 300,
+                prefix: "+",
+                suffix: "",
+                label: "Restaurantes activos",
+                icon: Utensils,
+              },
+              {
+                value: 12,
+                prefix: "",
+                suffix: "",
+                label: "M\u00f3dulos integrados",
+                icon: Layers,
+              },
+              {
+                value: 40,
+                prefix: "+",
+                suffix: "%",
+                label: "Aumento en ventas",
+                icon: TrendingUp,
+              },
+              {
+                value: 24,
+                prefix: "<",
+                suffix: "h",
+                label: "Reemplazo garantizado",
+                icon: Clock,
+              },
+            ].map((stat, i) => (
+              <div key={i} className="text-center group">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 group-hover:scale-110 transition-all duration-500">
+                  <stat.icon className="w-8 h-8 text-colibri-gold" />
+                </div>
+                <div className="text-4xl md:text-5xl font-black text-white mb-1">
+                  <AnimatedCounter
+                    target={stat.value}
+                    prefix={stat.prefix}
+                    suffix={stat.suffix}
+                  />
+                </div>
+                <p className="text-colibri-beige/80 text-sm font-medium">
+                  {stat.label}
+                </p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gradient-to-b from-colibri-beige/20 to-white">
+      {/* ── FEATURES (12 Systems) ── */}
+      <section
+        className="py-24 bg-gradient-to-b from-white to-colibri-beige/20"
+        id="features"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <Badge className="mb-4 bg-colibri-green/10 text-colibri-green border-colibri-green/20">
-              <Sparkles className="w-4 h-4 mr-2 inline" />
-              Todo Incluido
+            <Badge className="mb-4 bg-colibri-green/10 text-colibri-green border-colibri-green/20 text-xs">
+              <Sparkles className="w-3 h-3 mr-1 inline" /> Todo Incluido
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
-              12 Sistemas En Uno Solo
+            <h2 className="text-4xl md:text-6xl font-black text-colibri-green mb-4 tracking-tight">
+              12 Sistemas
+              <br />
+              <span className="bg-gradient-to-r from-colibri-wine to-colibri-green bg-clip-text text-transparent">
+                En Uno Solo
+              </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              No necesitas contratar 10 proveedores diferentes. Colibrí-REST lo tiene TODO.
-              <br />Y cada módulo habla con los demás en tiempo real.
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              No necesitas 10 proveedores diferentes. Cada m\u00f3dulo habla con los
+              dem\u00e1s en tiempo real.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {features.map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <Card
-                  key={index}
-                  className="p-6 glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 transition-all duration-300 group"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gradient-to-br from-colibri-green to-colibri-wine rounded-xl text-white group-hover:scale-110 transition-transform">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <Badge className="mb-2 bg-colibri-wine/10 text-colibri-wine text-xs border-0">
-                        {feature.highlight}
-                      </Badge>
-                      <h3 className="text-xl font-bold text-colibri-green mb-2">{feature.title}</h3>
-                      <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {features.map((feature, index) => (
+              <FeatureCard key={index} {...feature} delay={index * 80} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-white">
+      {/* ── HOW IT WORKS ── */}
+      <section className="py-24 bg-colibri-green relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(171,153,118,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(108,34,42,0.15),transparent_50%)]" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-white/10 text-colibri-beige border-white/20 text-xs">
+              <MousePointerClick className="w-3 h-3 mr-1 inline" /> As\u00ed de
+              f\u00e1cil
+            </Badge>
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              3 Pasos Para
+              <br />
+              <span className="text-colibri-gold">Empezar</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {steps.map((step, i) => (
+              <StepCard key={i} step={step} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── DEMO SECTION ── */}
+      <section
+        className="py-24 bg-gradient-to-b from-white to-colibri-beige/30"
+        id="demo"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20">
-              <MessageSquare className="w-4 h-4 mr-2 inline" />
-              Testimonios
+            <Badge className="mb-4 bg-colibri-wine/10 text-colibri-wine border-colibri-wine/20 text-xs">
+              <PlayCircle className="w-3 h-3 mr-1 inline" /> Prueba gratis
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
-              Ellos Ya Lo Están Usando
+            <h2 className="text-4xl md:text-6xl font-black text-colibri-green mb-4 tracking-tight">
+              Pru\u00e9balo
+              <br />
+              <span className="bg-gradient-to-r from-colibri-wine to-colibri-green bg-clip-text text-transparent">
+                Ahora Mismo
+              </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Y están ganando más dinero, con menos estrés, y clientes más felices
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Sin registro. Sin tarjeta. Entra como cualquier rol y explora el
+              sistema completo con datos reales.
             </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            {/* Demo big button */}
+            <div className="text-center mb-10">
+              <Link href="/login">
+                <Button className="bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-wine/90 hover:to-colibri-green/90 text-white text-xl md:text-2xl px-12 py-8 rounded-2xl shadow-2xl hover:shadow-colibri-wine/30 transition-all hover:scale-105 group">
+                  <PlayCircle className="w-7 h-7 mr-3 group-hover:scale-110 transition-transform" />
+                  INICIAR DEMO EN VIVO
+                </Button>
+              </Link>
+            </div>
+
+            {/* Role cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[
+                {
+                  emoji: "\ud83d\udc68\u200d\ud83d\udcbc",
+                  role: "Admin",
+                  desc: "Panel completo",
+                  color: "from-colibri-green to-emerald-700",
+                },
+                {
+                  emoji: "\ud83d\udcb0",
+                  role: "Cajero",
+                  desc: "Punto de venta",
+                  color: "from-colibri-wine to-red-800",
+                },
+                {
+                  emoji: "\ud83c\udf7d\ufe0f",
+                  role: "Mesero",
+                  desc: "Gesti\u00f3n mesas",
+                  color: "from-colibri-gold to-amber-700",
+                },
+                {
+                  emoji: "\ud83d\ude9a",
+                  role: "Repartidor",
+                  desc: "Delivery GPS",
+                  color: "from-blue-700 to-blue-900",
+                },
+                {
+                  emoji: "\ud83d\udc64",
+                  role: "Cliente",
+                  desc: "Pedir online",
+                  color: "from-purple-700 to-purple-900",
+                },
+              ].map((r, i) => (
+                <DemoRoleCard key={i} {...r} delay={i * 100} />
+              ))}
+            </div>
+
+            <p className="text-center text-sm text-gray-500 mt-6">
+              \ud83d\udd10 Selecciona tu rol en la p\u00e1gina de login y las
+              credenciales se cargar\u00e1n autom\u00e1ticamente
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-colibri-gold/10 text-colibri-wine border-colibri-gold/20 text-xs">
+              <Star className="w-3 h-3 mr-1 inline fill-colibri-gold text-colibri-gold" />{" "}
+              Casos reales
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-black text-colibri-green mb-4 tracking-tight">
+              Lo Que Dicen
+              <br />
+              <span className="text-colibri-wine">Nuestros Clientes</span>
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <Card
-                key={index}
-                className="p-6 glass-effect border-colibri-gold/30 hover:shadow-colibri-green/50 transition-all duration-300"
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-colibri-green to-colibri-wine rounded-full flex items-center justify-center text-white font-bold">
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-colibri-green">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.business}</div>
-                  </div>
-                </div>
-              </Card>
+            {[
+              {
+                name: "Carlos M.",
+                biz: "Tacos El Patr\u00f3n \u2014 CDMX",
+                quote:
+                  "En 2 meses recuperamos la inversi\u00f3n. El delivery integrado y el kiosko nos permitieron atender 3x m\u00e1s pedidos en hora pico.",
+                stars: 5,
+              },
+              {
+                name: "Ana G.",
+                biz: "Caf\u00e9 La Esquina \u2014 Guadalajara",
+                quote:
+                  "El men\u00fa QR y el sistema de mesas nos cambi\u00f3 la vida. Los clientes piden desde su mesa y todo llega directo a cocina.",
+                stars: 5,
+              },
+              {
+                name: "Roberto S.",
+                biz: "Wings & Beer \u2014 Monterrey",
+                quote:
+                  "Los reportes son incre\u00edbles. Optimizamos el men\u00fa y eliminamos lo que no serv\u00eda. Rentabilidad +35% en 3 meses.",
+                stars: 5,
+              },
+            ].map((t, i) => (
+              <TestimonialCard key={i} {...t} delay={i * 150} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Inversión Section */}
-      <section className="py-20 bg-gradient-to-b from-colibri-beige/20 to-white" id="pricing">
+      {/* ── PRICING ── */}
+      <section
+        className="py-24 bg-gradient-to-b from-colibri-beige/20 to-white"
+        id="pricing"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <Badge className="mb-4 bg-colibri-green/10 text-colibri-green border-colibri-green/20">
-              <Gift className="w-4 h-4 mr-2 inline" />
-              Tu Inversión
+            <Badge className="mb-4 bg-colibri-green/10 text-colibri-green border-colibri-green/20 text-xs">
+              <Gift className="w-3 h-3 mr-1 inline" /> Planes
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-colibri-green mb-4">
-              Una Oferta Imposible de Rechazar
+            <h2 className="text-4xl md:text-6xl font-black text-colibri-green mb-4 tracking-tight">
+              Planes y Precios
             </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Estamos preparando planes incre\u00edbles para ti
+            </p>
           </div>
 
-          {/* Valor vs Inversión */}
-          <div className="max-w-5xl mx-auto mb-20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-8 text-center bg-gradient-to-br from-colibri-green/10 to-colibri-wine/10 border-colibri-green/30">
-                <div className="text-sm text-colibri-wine mb-2">Valor Total de los Bonos</div>
-                <div className="text-5xl font-bold text-colibri-green mb-2">$15,000</div>
-                <div className="text-sm text-gray-600">MXN</div>
-                <div className="text-xs text-gray-500 mt-2">Ingeniería + Capacitación + Renovación Programada</div>
-              </Card>
+          <div className="max-w-3xl mx-auto">
+            <Card className="relative overflow-hidden border-2 border-colibri-gold/30 p-12 text-center bg-gradient-to-br from-white to-colibri-beige/30">
+              <div className="absolute top-0 left-0 w-40 h-40 bg-colibri-green/5 rounded-br-full" />
+              <div className="absolute bottom-0 right-0 w-40 h-40 bg-colibri-wine/5 rounded-tl-full" />
 
-              <Card className="p-8 text-center bg-gradient-to-br from-colibri-wine/10 to-colibri-gold/10 border-colibri-wine/30">
-                <div className="text-sm text-colibri-wine mb-2">Tu Inversión Real</div>
-                <div className="text-5xl font-bold text-colibri-wine mb-2">$3,900</div>
-                <div className="text-sm text-gray-600">MXN</div>
-                <div className="text-xs text-gray-500 mt-2">Setup Fee Único</div>
-              </Card>
-
-              <Card className="p-8 text-center bg-gradient-to-br from-colibri-gold/10 to-colibri-green/10 border-colibri-gold/30">
-                <div className="text-sm text-colibri-wine mb-2">Desde</div>
-                <div className="text-5xl font-bold text-colibri-wine mb-2">$1,290</div>
-                <div className="text-sm text-gray-600">/mes + IVA</div>
-                <div className="text-xs text-gray-500 mt-2">Módulo Estación Central (Renta)</div>
-              </Card>
-            </div>
-
-            <Card className="mt-8 p-8 bg-gradient-to-r from-colibri-green/5 to-colibri-wine/5 border-colibri-green/30">
-              <div className="text-center mb-4">
-                <Gift className="w-8 h-8 text-colibri-wine mx-auto mb-2" />
-                <h3 className="text-xl font-bold text-colibri-green mb-2">🎁 Lo que obtienes HOY:</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-colibri-green shrink-0" />
-                  <span>Ingeniería de Menú Profesional ($6,000)</span>
+              <div className="relative z-10">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-colibri-green to-colibri-wine flex items-center justify-center shadow-xl">
+                  <Clock className="w-10 h-10 text-white" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-colibri-green shrink-0" />
-                  <span>Capacitación Hands-On Completa ($5,000)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-colibri-green shrink-0" />
-                  <span>Garantía de Renovación Tecnológica ($4,000)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-colibri-green shrink-0" />
-                  <span>Garantía Triple de Continuidad O Paga Cero</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-colibri-green shrink-0" />
-                  <span>Soporte VIP 24/7 con Prioridad</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-colibri-green shrink-0" />
-                  <span><strong>Ahorro Real:</strong> Evitas descapitalizar $60K-$80K MXN</span>
-                </div>
-              </div>
-              <div className="text-center mt-6">
-                <p className="text-xs text-gray-500 mb-4">en hardware obsoleto que perderá valor en 24 meses</p>
-                <Button className="bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-wine/90 hover:to-colibri-green/90 text-white">
-                  ¡Quiero Obtener $15,000 en Valor por Solo $3,900!
-                </Button>
-              </div>
-            </Card>
-          </div>
-
-          {/* Garantía de Desempeño */}
-          <div className="max-w-4xl mx-auto mb-20">
-            <Card className="p-10 bg-gradient-to-br from-colibri-wine/10 to-colibri-green/10 border-colibri-wine/30">
-              <div className="text-center mb-8">
-                <Badge className="mb-4 bg-colibri-wine text-white">
-                  <Target className="w-4 h-4 mr-2 inline" />
-                  Garantía de Desempeño
-                </Badge>
-                <h3 className="text-3xl font-bold text-colibri-green mb-4">
-                  Garantía de Aumento de Ticket Promedio
+                <h3 className="text-3xl md:text-4xl font-black text-colibri-green mb-4">
+                  Pr\u00f3ximamente
                 </h3>
-                <p className="text-lg text-gray-600">(Módulo Kiosko)</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 mb-6">
-                <p className="text-center text-lg text-gray-700 mb-4">
-                  Si después de <strong className="text-colibri-wine">90 días</strong> usando el Kiosko, tu ticket promedio no se incrementa...
+                <p className="text-lg text-gray-600 mb-8 max-w-lg mx-auto">
+                  Estamos finalizando los planes perfectos para tu restaurante.
+                  <br />
+                  <span className="font-semibold text-colibri-wine">
+                    Mientras tanto, cotiza directamente con nosotros y obt\u00e9n un
+                    precio especial de pre-lanzamiento.
+                  </span>
                 </p>
-                <p className="text-center text-xl font-bold text-colibri-wine">
-                  Te devolvemos la Cuota de Instalación del Kiosko y te regalamos los primeros 3 meses de licencia
-                </p>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-start gap-3">
-                  <Target className="w-6 h-6 text-colibri-wine shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-colibri-green mb-1">🎯 Venta Sugestiva Automática</h4>
-                    <p className="text-sm text-gray-600">El kiosko sugiere complementos, upgrades y promociones en el momento exacto. Aumenta ventas sin presión humana.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <TrendingUp className="w-6 h-6 text-colibri-wine shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-colibri-green mb-1">💎 Objetivo: +20% en Ticket Promedio</h4>
-                    <p className="text-sm text-gray-600">Basado en datos reales de restaurantes similares. Si no lo logras en 90 días, recuperas tu inversión.</p>
-                  </div>
-                </div>
+                <a
+                  href="https://wa.me/5214447001387?text=Hola%2C%20me%20interesa%20conocer%20los%20precios%20de%20Colibr%C3%AD-REST"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-lg px-10 py-7 rounded-2xl shadow-2xl hover:shadow-green-500/25 hover:scale-105 transition-all duration-300 group"
+                  >
+                    <WhatsAppIcon />
+                    Cotizar por WhatsApp
+                  </Button>
+                </a>
+
+                <p className="text-sm text-gray-500 mt-6 flex items-center justify-center gap-2">
+                  <Gift className="w-4 h-4 text-colibri-wine" />
+                  Pregunta por nuestros bonos de pre-lanzamiento
+                </p>
               </div>
             </Card>
-          </div>
-
-          {/* Cotizador Personalizado */}
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <Badge className="mb-4 bg-colibri-gold/10 text-colibri-wine border-colibri-gold/30">
-                <Calculator className="w-4 h-4 mr-2 inline" />
-                Cotizador Personalizado
-              </Badge>
-              <h2 className="text-4xl font-bold text-colibri-green mb-4">
-                🧮 Arma Tu Solución Ideal
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Selecciona los módulos que necesitas y obtén tu cotización personalizada al instante. Envíala directamente a WhatsApp con todos los detalles.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Módulo 1: Estación Central */}
-              <div className="lg:col-span-3">
-                <Card className="p-8 bg-gradient-to-br from-colibri-green/5 to-white border-colibri-green/30">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-colibri-green mb-2">Módulo 1: Estación Central (Caja)</h3>
-                      <p className="text-sm text-gray-600">Mini PC i5 + Monitor Touch 16.1" + Licencia Ilimitada</p>
-                      <Badge className="mt-2 bg-colibri-wine text-white">REQUERIDO</Badge>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedCentral === "renta"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedCentral("renta")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Renta Todo Incluido</h4>
-                          <p className="text-xs text-gray-500">Protección total sin límites</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedCentral === "renta" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedCentral === "renta" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-3xl font-bold text-colibri-wine">$3,900 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-colibri-green">$1,290 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Equipo nuevo si falla</li>
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Tranquilidad absoluta</li>
-                      </ul>
-                    </Card>
-
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedCentral === "compra"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedCentral("compra")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Compra Inteligente</h4>
-                          <p className="text-xs text-gray-500">Deducible fiscalmente</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedCentral === "compra" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedCentral === "compra" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-3xl font-bold text-colibri-wine">$12,900 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-colibri-green">$590 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Activo de tu empresa</li>
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Libertad total</li>
-                      </ul>
-                    </Card>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Módulo 2: Kiosko */}
-              <div className="lg:col-span-3">
-                <Card className="p-8 bg-gradient-to-br from-colibri-wine/5 to-white border-colibri-wine/30">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-colibri-green mb-2">Módulo 2: Kiosko Auto-Servicio</h3>
-                      <p className="text-sm text-gray-600">Pantalla Touch 21.5" + Venta Sugestiva + Garantía +20% Ticket</p>
-                      <Badge className="mt-2 bg-colibri-gold text-colibri-wine">OPCIONAL</Badge>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedKiosko === "renta"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedKiosko(selectedKiosko === "renta" ? null : "renta")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Renta Todo Incluido</h4>
-                          <p className="text-xs text-gray-500">Instalado y listo</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedKiosko === "renta" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedKiosko === "renta" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-3xl font-bold text-colibri-wine">$4,900 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-colibri-green">$1,690 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Seguridad garantizada</li>
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Sin complicaciones</li>
-                      </ul>
-                    </Card>
-
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedKiosko === "compra"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedKiosko(selectedKiosko === "compra" ? null : "compra")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Compra Inteligente</h4>
-                          <p className="text-xs text-gray-500">Ventas automáticas 24/7</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedKiosko === "compra" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedKiosko === "compra" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-3xl font-bold text-colibri-wine">$16,900 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-colibri-green">$690 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Incrementa ticket promedio</li>
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Inversión que se paga sola</li>
-                      </ul>
-                    </Card>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Módulo 3: Cocina */}
-              <div className="lg:col-span-3">
-                <Card className="p-8 bg-gradient-to-br from-colibri-gold/5 to-white border-colibri-gold/30">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-colibri-green mb-2">Módulo 3: Gestión de Cocina</h3>
-                      <p className="text-sm text-gray-600">Impresora Térmica, Kitchen Display o Estación Híbrida</p>
-                      <Badge className="mt-2 bg-colibri-gold text-colibri-wine">OPCIONAL</Badge>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedCocina === "impresora"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedCocina(selectedCocina === "impresora" ? null : "impresora")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Impresora Esencial</h4>
-                          <p className="text-xs text-gray-500">Confiable y probada</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedCocina === "impresora" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedCocina === "impresora" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-2xl font-bold text-colibri-wine">$900 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-xl font-bold text-colibri-green">$350 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-xs text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-colibri-green shrink-0" /> Perfecta para empezar</li>
-                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-colibri-green shrink-0" /> Cero curva de aprendizaje</li>
-                      </ul>
-                    </Card>
-
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedCocina === "display"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedCocina(selectedCocina === "display" ? null : "display")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Kitchen Display Digital</h4>
-                          <p className="text-xs text-gray-500">Cocina sin papel</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedCocina === "display" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedCocina === "display" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-2xl font-bold text-colibri-wine">$2,900 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-xl font-bold text-colibri-green">$890 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-xs text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-colibri-green shrink-0" /> Todo visible en pantalla</li>
-                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-colibri-green shrink-0" /> Velocidad incomparable</li>
-                      </ul>
-                    </Card>
-
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedCocina === "hibrida"
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setSelectedCocina(selectedCocina === "hibrida" ? null : "hibrida")}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Estación Híbrida Pro</h4>
-                          <p className="text-xs text-gray-500">Lo mejor de ambos mundos</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedCocina === "hibrida" ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {selectedCocina === "hibrida" && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-sm text-gray-600">Inicio:</div>
-                        <div className="text-2xl font-bold text-colibri-wine">$3,500 <span className="text-sm text-gray-500">MXN</span></div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-xl font-bold text-colibri-green">$1,190 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-xs text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-colibri-green shrink-0" /> Flexibilidad total</li>
-                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-colibri-green shrink-0" /> El favorito de los chefs</li>
-                      </ul>
-                    </Card>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Módulo 4: Software Adicional */}
-              <div className="lg:col-span-3">
-                <Card className="p-8 bg-gradient-to-br from-colibri-beige/30 to-white border-colibri-green/30">
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-colibri-green mb-2">Módulo 4: Potenciadores de Software</h3>
-                    <p className="text-sm text-gray-600">Funcionalidades premium que multiplican tus ventas</p>
-                    <Badge className="mt-2 bg-colibri-gold text-colibri-wine">OPCIONAL</Badge>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        includeDelivery
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setIncludeDelivery(!includeDelivery)}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Delivery Propio + QR en Mesa</h4>
-                          <p className="text-xs text-gray-500">Tu marca, tus clientes</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          includeDelivery ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {includeDelivery && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-colibri-green">$990 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Adiós a las comisiones</li>
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Pedidos desde el móvil</li>
-                      </ul>
-                    </Card>
-
-                    <Card
-                      className={`p-6 cursor-pointer transition-all ${
-                        includeDashboard
-                          ? "border-colibri-wine border-2 shadow-lg"
-                          : "border-gray-300 hover:border-colibri-green"
-                      }`}
-                      onClick={() => setIncludeDashboard(!includeDashboard)}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-colibri-green mb-1">Dashboard CEO Multi-Sucursal</h4>
-                          <p className="text-xs text-gray-500">Controla todo desde un lugar</p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          includeDashboard ? "border-colibri-wine bg-colibri-wine" : "border-gray-300"
-                        }`}>
-                          {includeDashboard && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-colibri-green">$690 <span className="text-sm text-gray-500">MXN/mes</span></div>
-                      </div>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Decisiones basadas en datos</li>
-                        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-colibri-green shrink-0" /> Información al instante</li>
-                      </ul>
-                    </Card>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Resumen de Cotización */}
-              <div className="lg:col-span-3">
-                <Card className="p-8 bg-gradient-to-br from-colibri-wine/10 to-colibri-green/10 border-colibri-wine/50 shadow-2xl">
-                  <div className="text-center mb-6">
-                    <Calculator className="w-12 h-12 text-colibri-wine mx-auto mb-4" />
-                    <h3 className="text-3xl font-bold text-colibri-green mb-2">Tu Cotización</h3>
-                    {!hasSelection && (
-                      <p className="text-gray-600">Selecciona al menos el Módulo Central para ver tu cotización</p>
-                    )}
-                  </div>
-
-                  {hasSelection && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">Cuota de Inicio</div>
-                        <div className="text-5xl font-bold text-colibri-wine mb-2">
-                          ${quote.inicio.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-gray-500">MXN</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">Pago Mensual</div>
-                        <div className="text-5xl font-bold text-colibri-green mb-2">
-                          ${quote.mensual.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-gray-500">MXN</div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="text-center mt-8">
-                    <p className="text-sm text-gray-600 mb-4">
-                      Incluye bonos por valor de <strong className="text-colibri-wine">$15,000 MXN</strong>
-                    </p>
-                    <p className="text-xs text-gray-500 mb-6">
-                      *Precios + IVA. Incluye ingeniería de menú, instalación premium y capacitación total.
-                    </p>
-                    <Button
-                      disabled={!hasSelection}
-                      className="bg-gradient-to-r from-colibri-wine to-colibri-green hover:from-colibri-wine/90 hover:to-colibri-green/90 text-white text-lg px-8 py-6 disabled:opacity-50"
-                      onClick={() => {
-                        const mensaje = `¡Hola! Me interesa Colibrí-REST con:\n\n${selectedCentral ? `✅ Estación Central (${selectedCentral})\n` : ""}${selectedKiosko ? `✅ Kiosko (${selectedKiosko})\n` : ""}${selectedCocina ? `✅ Cocina (${selectedCocina})\n` : ""}${includeDelivery ? "✅ Delivery + QR\n" : ""}${includeDashboard ? "✅ Dashboard CEO\n" : ""}\n💰 Inversión inicial: $${quote.inicio.toLocaleString()} MXN\n💳 Mensualidad: $${quote.mensual.toLocaleString()} MXN\n\n¿Pueden enviarme más información?`
-                        window.open(`https://wa.me/5215512345678?text=${encodeURIComponent(mensaje)}`, "_blank")
-                      }}
-                    >
-                      <MessageSquare className="w-5 h-5 mr-2" />
-                      Enviar Cotización por WhatsApp
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Final CTA Section */}
-      <section
-        className="py-20 relative overflow-hidden"
-        style={{
-          backgroundImage: "url(/resta.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-colibri-green/95 via-colibri-wine/90 to-colibri-gold/95" />
+      {/* ── FINAL CTA ── */}
+      <section className="relative py-24 overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url(/resta.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-colibri-green/95 via-colibri-wine/90 to-colibri-green/95" />
+        <ParticlesBackground />
 
         <div className="relative z-10 container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              ¿Listo Para Transformar Tu Restaurante?
-            </h2>
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-              Más de $15,000 MXN en bonos incluidos. Garantía de reemplazo en 24h o paga cero ese mes.
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
+              \u00bfListo Para
               <br />
-              <span className="font-semibold text-colibri-beige">Renta desde $1,290/mes o compra con deducción fiscal completa.</span>
+              <span className="text-colibri-gold">
+                Transformar Tu Restaurante?
+              </span>
+            </h2>
+            <p className="text-xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed">
+              \u00danete a los +300 restaurantes que ya venden m\u00e1s con
+              Colibr\u00ed-REST.
+              <br />
+              <span className="font-semibold text-colibri-beige">
+                La primera consulta es gratuita.
+              </span>
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button asChild size="lg" className="bg-white text-colibri-green hover:bg-colibri-beige text-lg px-8 py-6 shadow-2xl">
-                <Link href="#pricing">
-                  <Zap className="w-5 h-5 mr-2" />
-                  Ver Planes Completos
-                </Link>
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+              <a
+                href="https://wa.me/5214447001387?text=Hola%2C%20quiero%20una%20demo%20personalizada%20de%20Colibr%C3%AD-REST"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  size="lg"
+                  className="bg-white text-colibri-green hover:bg-colibri-beige text-lg px-10 py-7 shadow-2xl hover:scale-105 transition-all duration-300 group"
+                >
+                  <MessageSquare className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                  Hablar con un Asesor
+                </Button>
+              </a>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 backdrop-blur-sm"
+                className="border-2 border-white/40 text-white hover:bg-white/10 text-lg px-10 py-7 backdrop-blur-sm transition-all"
               >
                 <Link href="#demo">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Contactar Ventas
+                  <PlayCircle className="w-5 h-5 mr-2" />
+                  Probar Demo Gratis
                 </Link>
               </Button>
             </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-6 text-white/80 text-sm">
-              <div className="flex items-center gap-2">
-                <Check className="w-5 h-5" />
-                <span>$15,000 en bonos incluidos</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-5 h-5" />
-                <span>Garantía {"<"} 24h o paga cero</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-5 h-5" />
-                <span>Soporte premium 24/7</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-5 h-5" />
-                <span>Renta o compra, tú decides</span>
-              </div>
+            <div className="flex flex-wrap justify-center items-center gap-4 text-white/75 text-sm">
+              {[
+                "Sin compromiso",
+                "Setup en 24h",
+                "Soporte premium",
+                "Garant\u00eda total",
+              ].map((t, i) => (
+                <div key={i} className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-colibri-gold" />
+                  <span>{t}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-colibri-green text-white py-12">
+      {/* ── FOOTER ── */}
+      <footer className="bg-colibri-green text-white py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Image src="/logo-colibri.png" alt="Colibrí-REST" width={40} height={40} />
-                <span className="font-bold text-xl">Colibrí-REST</span>
+              <div className="flex items-center gap-3 mb-4">
+                <Image
+                  src="/logo-colibri.png"
+                  alt="Colibr\u00ed-REST"
+                  width={44}
+                  height={44}
+                />
+                <span className="font-bold text-xl">Colibr\u00ed-REST</span>
               </div>
-              <p className="text-white/80 text-sm">
-                El sistema completo para restaurantes que quieren vender más y trabajar menos.
+              <p className="text-white/70 text-sm leading-relaxed">
+                El sistema completo para restaurantes que quieren vender m\u00e1s y
+                trabajar menos.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Producto</h4>
-              <ul className="space-y-2 text-sm text-white/80">
+              <h4 className="font-semibold mb-4 text-colibri-gold">Producto</h4>
+              <ul className="space-y-2.5 text-sm text-white/70">
                 <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Características
-                  </Link>
+                  <a
+                    href="#features"
+                    className="hover:text-white transition-colors"
+                  >
+                    Caracter\u00edsticas
+                  </a>
                 </li>
                 <li>
-                  <Link href="#pricing" className="hover:text-white transition-colors">
+                  <a
+                    href="#pricing"
+                    className="hover:text-white transition-colors"
+                  >
                     Precios
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Demo
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Empresa</h4>
-              <ul className="space-y-2 text-sm text-white/80">
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Sobre Nosotros
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Contacto
-                  </Link>
+                  <a
+                    href="#demo"
+                    className="hover:text-white transition-colors"
+                  >
+                    Demo en Vivo
+                  </a>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-white/80">
+              <h4 className="font-semibold mb-4 text-colibri-gold">Contacto</h4>
+              <ul className="space-y-2.5 text-sm text-white/70">
                 <li>
-                  <Link href="#" className="hover:text-white transition-colors">
+                  <a
+                    href="https://wa.me/5214447001387"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    <Phone className="w-3.5 h-3.5" /> WhatsApp
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4 text-colibri-gold">Legal</h4>
+              <ul className="space-y-2.5 text-sm text-white/70">
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="hover:text-white transition-colors"
+                  >
                     Privacidad
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Términos
+                  <Link
+                    href="/tos"
+                    className="hover:text-white transition-colors"
+                  >
+                    T\u00e9rminos
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-white/20 pt-8 text-center text-sm text-white/60">
-            <p>&copy; 2025 Colibrí-REST. Todos los derechos reservados.</p>
+          <div className="border-t border-white/15 pt-8 text-center text-sm text-white/50">
+            <p>
+              &copy; 2026 Colibr\u00ed-REST. Todos los derechos reservados.
+            </p>
           </div>
         </div>
       </footer>
+
+      {/* ── Floating WhatsApp Button ── */}
+      <a
+        href="https://wa.me/5214447001387?text=Hola%2C%20me%20interesa%20Colibr%C3%AD-REST"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 group"
+        aria-label="WhatsApp"
+      >
+        <WhatsAppIconSmall />
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping" />
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full" />
+      </a>
     </div>
   )
 }

@@ -215,7 +215,7 @@ export default function UserMenu({ session }: { session: Session | null }) {
           >
             <Avatar className="h-10 w-10 border border-purple-600">
               <AvatarImage
-                src={session.user.user_metadata?.avatar_url || "/supernova-logo.png"}
+                src={session.user.user_metadata?.avatar_url || "/logo-colibri.png"}
                 alt={session.user.email || "Usuario"}
               />
               <AvatarFallback className="bg-purple-900 text-purple-300 font-semibold">

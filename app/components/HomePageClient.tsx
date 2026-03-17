@@ -235,25 +235,42 @@ export default function HomePageClient() {
     <main className="flex min-h-screen flex-col">
       {/* Hero Section */}
       <section className="relative min-h-[70vh] w-full flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black" />
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url(/cosmic-background.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black" />
+
+        {/* Demo banner */}
+        <div className="absolute top-0 left-0 right-0 z-20 bg-colibri-wine/90 backdrop-blur-sm py-2 text-center">
+          <p className="text-white text-sm font-medium">
+            🎯 <span className="font-bold">DEMO EN VIVO</span> — Así se ve tu restaurante con Colibrí-REST &middot;
+            <a href="/landing" className="underline ml-1 hover:text-colibri-gold transition-colors">← Volver al sitio</a>
+          </p>
+        </div>
 
         <div className="relative z-10 container mx-auto px-4 py-20 flex flex-col lg:flex-row items-center justify-between gap-12">
           <div className="flex-1 text-center lg:text-left">
             <Image
               src="/supernova-logo.png"
-              alt="Supernova Burgers & Wings"
+              alt="Restaurante Demo"
               width={200}
               height={200}
               className="mx-auto lg:mx-0 mb-8 animate-pulse-neon"
             />
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
               <span className="bg-gradient-to-r from-colibri-gold via-colibri-wine to-colibri-green bg-clip-text text-transparent">
-                Supernova
+                Super Nova
               </span>
               <br />
               <span className="text-3xl md:text-5xl">Burgers & Wings</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 text-neon">Sabores que están fuera de este mundo</p>
+            <p className="text-xl md:text-2xl text-gray-300 mb-2 text-neon">Sabores que están fuera de este mundo</p>
+            <p className="text-sm text-colibri-gold/70 mb-8 italic">✨ Restaurante de demostración — Powered by Colibrí-REST</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button
                 asChild
@@ -276,7 +293,7 @@ export default function HomePageClient() {
           <div className="flex-1 relative">
             <Image
               src="/neon-burger.png"
-              alt="Hamburguesa Supernova"
+              alt="Hamburguesa Demo"
               width={600}
               height={600}
               className="w-full max-w-lg mx-auto animate-float"
@@ -295,8 +312,7 @@ export default function HomePageClient() {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-colibri-green to-colibri-wine mx-auto mb-6"></div>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              Descubre nuestras hamburguesas y alitas con sabores de otro planeta. Haz clic en las imágenes para
-              explorar.
+              Descubre nuestras hamburguesas y alitas con sabores de otro planeta.
             </p>
           </div>
 
@@ -320,12 +336,11 @@ export default function HomePageClient() {
       <section className="py-16 px-4 bg-black/50 backdrop-blur">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-colibri-gold to-colibri-wine bg-clip-text text-transparent">
-            Experiencia Supernova
+            La Experiencia
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-colibri-gold to-colibri-wine mx-auto mb-8"></div>
           <p className="text-lg mb-8 text-gray-300">
-            Descubre por qué nuestras hamburguesas y alitas son las más solicitadas de la galaxia. Ingredientes premium,
-            sabores únicos y una experiencia fuera de este mundo.
+            Ingredientes premium, sabores únicos y una experiencia fuera de este mundo.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400">
             <div className="flex flex-col items-center">
@@ -344,10 +359,17 @@ export default function HomePageClient() {
               <div className="w-16 h-16 bg-gradient-to-br from-colibri-gold to-colibri-green rounded-full flex items-center justify-center mb-3 neon-glow">
                 <span className="text-2xl">🚀</span>
               </div>
-              <p>Entrega rápida a velocidad luz</p>
+              <p>Entrega rápida a domicilio</p>
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Powered by banner */}
+      <section className="py-6 bg-gradient-to-r from-colibri-green to-colibri-wine text-center">
+        <p className="text-white text-sm">
+          Este restaurante funciona con <a href="/landing" className="font-bold underline hover:text-colibri-gold transition-colors">Colibrí-REST</a> — El sistema #1 para restaurantes en México
+        </p>
       </section>
     </main>
   )

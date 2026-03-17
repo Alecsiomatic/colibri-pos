@@ -253,7 +253,7 @@ export default function QROrderPage() {
               <div>
                 <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                   <Sparkles className="h-6 w-6" />
-                  Supernova
+                  Menú Digital
                 </h1>
                 <p className="text-purple-300 text-sm">
                   Mesa: <span className="font-bold">{table.table_name}</span>

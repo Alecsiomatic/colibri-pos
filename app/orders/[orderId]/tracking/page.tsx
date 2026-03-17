@@ -315,7 +315,7 @@ export default function OrderTrackingPage() {
                   restaurantLocation={order.restaurant_location ? {
                     lat: order.restaurant_location.lat,
                     lng: order.restaurant_location.lng,
-                    label: 'Supernova Restaurant'
+                    label: 'Restaurante'
                   } : undefined}
                   deliveryLocation={{
                     lat: order.delivery_location!.lat,
