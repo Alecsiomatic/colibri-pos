@@ -160,7 +160,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           delivery_type: orderData.delivery_type,
           waiter_order: orderData.waiter_order,
           table: orderData.table,
-          order_source: orderData.order_type || orderData.order_source || 'online',
+          order_source: orderData.order_type || orderData.order_source || 'web',
           discount_amount: orderData.discount_amount,
           discount_detail: orderData.discount_detail,
           coupon_code: orderData.coupon_code,

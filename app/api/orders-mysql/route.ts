@@ -60,8 +60,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (orderSource) {
-      query += ' AND o.order_source = ?'
-      params.push(orderSource)
+      if (orderSource === 'online') {
+        // Para pedidos online: incluir delivery/pickup que no sean de mesero
+        query += " AND o.delivery_type IN ('delivery', 'pickup') AND (o.waiter_order = 0 OR o.waiter_order IS NULL) AND o.status != 'open_table'"
+      } else {
+        query += ' AND o.order_source = ?'
+        params.push(orderSource)
+      }
     }
 
     query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?'
@@ -180,7 +185,9 @@ export async function POST(request: NextRequest) {
     const delivery_address = body.delivery_address || null;
     const payment_method = body.payment_method || 'efectivo';
     const notes = body.notes || null;
-    const orderSource = body.order_source || body.orderSource || 'online';
+    const orderSource = body.order_source || body.orderSource || 'web';
+    // Asegurar que orderSource no sea vacío
+    const finalOrderSource = orderSource && orderSource.trim() !== '' ? orderSource : 'web';
     const shiftId = body.shift_id || body.shiftId || null;
     const cashReceived = body.cash_received || body.cashReceived || null;
     const changeGiven = body.change_given || body.changeGiven || null;
@@ -361,7 +368,7 @@ export async function POST(request: NextRequest) {
           payment_method || 'efectivo',
           notes || null,
           orderStatus || 'pending',
-          orderSource || 'caja',
+          finalOrderSource || 'web',
           shiftId || null,
           cashReceived || null,
           changeGiven || null,
