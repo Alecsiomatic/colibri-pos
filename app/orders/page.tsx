@@ -31,7 +31,7 @@ import { useOrders } from '@/hooks/use-orders'
 import { useToast } from '@/hooks/use-notifications'
 
 export default function OrdersPage() {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const { orders, userOrders, loading, refetch } = useOrders()
   const toast = useToast()
   const router = useRouter()
@@ -41,12 +41,12 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
 
-  // Redirect if not logged in
+  // Redirect if not logged in (wait for auth check to finish)
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/login')
     }
-  }, [user, router])
+  }, [user, authLoading, router])
   
   // Usar orders si es admin, userOrders si es cliente
   const displayOrders = user?.is_admin ? orders : userOrders

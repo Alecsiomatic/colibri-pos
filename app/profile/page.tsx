@@ -40,7 +40,7 @@ import { useOrders } from '@/hooks/use-orders'
 import { useToast } from '@/hooks/use-notifications'
 
 export default function ProfilePage() {
-  const { user, updatePassword, logout } = useAuth()
+  const { user, updatePassword, logout, isLoading: authLoading } = useAuth()
   const { orders, loading: ordersLoading } = useOrders()
   const toast = useToast()
   const router = useRouter()
@@ -59,12 +59,12 @@ export default function ProfilePage() {
   const [loyaltyTransactions, setLoyaltyTransactions] = useState<any[]>([])
   const [loyaltyLoading, setLoyaltyLoading] = useState(true)
 
-  // Redirect if not logged in
+  // Redirect if not logged in (wait for auth check to finish)
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/login')
     }
-  }, [user, router])
+  }, [user, authLoading, router])
 
   // Fetch loyalty data
   useEffect(() => {
