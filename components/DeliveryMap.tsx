@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import 'leaflet/dist/leaflet.css'
+import { useEffect, useRef, useState } from 'react'
 
 interface Location {
   lat: number
@@ -18,6 +17,10 @@ interface DeliveryMapProps {
   className?: string
 }
 
+const isValidLoc = (loc?: Location) =>
+  loc && typeof loc.lat === 'number' && typeof loc.lng === 'number' &&
+  isFinite(loc.lat) && isFinite(loc.lng) && (loc.lat !== 0 || loc.lng !== 0)
+
 export default function DeliveryMap({
   driverLocation,
   restaurantLocation,
@@ -26,165 +29,142 @@ export default function DeliveryMap({
   height = '400px',
   className = ''
 }: DeliveryMapProps) {
-  const [mounted, setMounted] = useState(false)
-  const [mapError, setMapError] = useState<string | null>(null)
-  // Store leaflet modules in state after dynamic import
-  const [leafletModules, setLeafletModules] = useState<any>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<any>(null)
+  const markersRef = useRef<any[]>([])
+  const polylineRef = useRef<any>(null)
+  const [ready, setReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const LRef = useRef<any>(null)
 
+  // 1. Import leaflet and create map — once
   useEffect(() => {
+    if (!containerRef.current) return
     let cancelled = false
-    // Import leaflet + react-leaflet only on client side, inside useEffect
-    Promise.all([
-      import('leaflet'),
-      import('react-leaflet')
-    ]).then(([L, RL]) => {
+
+    import('leaflet').then((mod) => {
       if (cancelled) return
-      // Fix default icon paths
-      const LDefault = L.default || L
-      delete (LDefault.Icon.Default.prototype as any)._getIconUrl
-      LDefault.Icon.Default.mergeOptions({
+      const L = mod.default || mod
+
+      // CSS
+      if (!document.querySelector('link[href*="leaflet.css"]')) {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css'
+        document.head.appendChild(link)
+      }
+
+      // Fix default icons
+      delete (L.Icon.Default.prototype as any)._getIconUrl
+      L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
       })
-      setLeafletModules({ L: LDefault, RL })
-      setMounted(true)
+
+      LRef.current = L
+
+      const map = L.map(containerRef.current!, {
+        center: [22.1565, -100.9855],
+        zoom: 13,
+      })
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map)
+
+      mapRef.current = map
+      setReady(true)
+
+      // Fix tiles not loading on dynamic containers
+      setTimeout(() => map.invalidateSize(), 200)
     }).catch((err) => {
-      console.error('Error loading leaflet:', err)
-      setMapError(err?.message || 'Error cargando módulos del mapa')
+      if (!cancelled) setError(err?.message || 'Error cargando mapa')
     })
-    return () => { cancelled = true }
+
+    return () => {
+      cancelled = true
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
   }, [])
 
-  if (mapError) {
+  // 2. Sync markers + polyline on prop changes
+  useEffect(() => {
+    if (!ready || !mapRef.current || !LRef.current) return
+    const L = LRef.current
+    const map = mapRef.current
+
+    // Clear old markers
+    markersRef.current.forEach(m => m.remove())
+    markersRef.current = []
+    if (polylineRef.current) {
+      polylineRef.current.remove()
+      polylineRef.current = null
+    }
+
+    const makeIcon = (emoji: string, color: string) =>
+      L.divIcon({
+        html: `<div style="background:${color};width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3)">${emoji}</div>`,
+        className: '',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+      })
+
+    const points: [number, number][] = []
+
+    if (isValidLoc(driverLocation)) {
+      const m = L.marker([driverLocation!.lat, driverLocation!.lng], { icon: makeIcon('🚗', '#1f4f37') })
+        .addTo(map).bindPopup(`<b>🚗 Repartidor</b>${driverLocation!.label ? `<br/>${driverLocation!.label}` : ''}`)
+      markersRef.current.push(m)
+      points.push([driverLocation!.lat, driverLocation!.lng])
+    }
+
+    if (isValidLoc(restaurantLocation)) {
+      const m = L.marker([restaurantLocation!.lat, restaurantLocation!.lng], { icon: makeIcon('🍽️', '#ab9976') })
+        .addTo(map).bindPopup(`<b>🍽️ Restaurante</b>${restaurantLocation!.label ? `<br/>${restaurantLocation!.label}` : ''}`)
+      markersRef.current.push(m)
+      points.push([restaurantLocation!.lat, restaurantLocation!.lng])
+    }
+
+    if (isValidLoc(deliveryLocation)) {
+      const m = L.marker([deliveryLocation!.lat, deliveryLocation!.lng], { icon: makeIcon('🏠', '#6c222a') })
+        .addTo(map).bindPopup(`<b>🏠 Destino</b>${deliveryLocation!.label ? `<br/>${deliveryLocation!.label}` : ''}`)
+      markersRef.current.push(m)
+      points.push([deliveryLocation!.lat, deliveryLocation!.lng])
+    }
+
+    // Route polyline — GeoJSON format: coordinates are [lng, lat]
+    if (route && route.coordinates && Array.isArray(route.coordinates)) {
+      const positions = route.coordinates.map((c: number[]) => [c[1], c[0]])
+      polylineRef.current = L.polyline(positions, { color: '#1f4f37', weight: 4, opacity: 0.7 }).addTo(map)
+    }
+
+    // Fit bounds
+    if (points.length > 0) {
+      try {
+        map.fitBounds(L.latLngBounds(points), { padding: [50, 50] })
+      } catch {}
+    }
+  }, [ready, driverLocation, restaurantLocation, deliveryLocation, route])
+
+  if (error) {
     return (
       <div className={`bg-slate-800/60 rounded-lg flex flex-col items-center justify-center gap-2 ${className}`} style={{ height }}>
         <p className="text-colibri-beige text-sm">No se pudo cargar el mapa</p>
-        <p className="text-red-400 text-xs">{mapError}</p>
+        <p className="text-red-400 text-xs">{error}</p>
       </div>
     )
   }
-
-  if (!mounted || !leafletModules) {
-    return (
-      <div className={`bg-slate-800/60 animate-pulse rounded-lg flex items-center justify-center ${className}`} style={{ height }}>
-        <div className="text-colibri-beige text-sm">Cargando mapa...</div>
-      </div>
-    )
-  }
-
-  const { L, RL } = leafletModules
-  const { MapContainer, TileLayer, Marker, Popup, Polyline } = RL
-
-  // Iconos personalizados
-  const createCustomIcon = (emoji: string, color: string) => {
-    return L.divIcon({
-      html: `<div style="background: ${color}; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${emoji}</div>`,
-      className: '',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40]
-    })
-  }
-
-  const driverIcon = createCustomIcon('🚗', '#1f4f37')
-  const restaurantIcon = createCustomIcon('🍽️', '#ab9976')
-  const homeIcon = createCustomIcon('🏠', '#6c222a')
-
-  const isValidLoc = (loc?: Location) =>
-    loc && typeof loc.lat === 'number' && typeof loc.lng === 'number' &&
-    isFinite(loc.lat) && isFinite(loc.lng) && (loc.lat !== 0 || loc.lng !== 0)
-
-  const locations = [driverLocation, restaurantLocation, deliveryLocation].filter(isValidLoc) as Location[]
-  const center = locations[0] || { lat: 22.1565, lng: -100.9855 }
 
   return (
-    <MapContainer
-      center={[center.lat, center.lng]}
-      zoom={13}
-      style={{ height, width: '100%', borderRadius: '0.5rem' }}
+    <div
+      ref={containerRef}
       className={className}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      <AutoFitBoundsInner locations={locations} L={L} />
-
-      {isValidLoc(driverLocation) && (
-        <Marker position={[driverLocation!.lat, driverLocation!.lng]} icon={driverIcon}>
-          <Popup>
-            <div className="font-semibold text-sm">🚗 Repartidor</div>
-            {driverLocation!.label && <div className="text-xs">{driverLocation!.label}</div>}
-          </Popup>
-        </Marker>
-      )}
-
-      {isValidLoc(restaurantLocation) && (
-        <Marker position={[restaurantLocation!.lat, restaurantLocation!.lng]} icon={restaurantIcon}>
-          <Popup>
-            <div className="font-semibold text-sm">🍽️ Restaurante</div>
-            {restaurantLocation!.label && <div className="text-xs">{restaurantLocation!.label}</div>}
-          </Popup>
-        </Marker>
-      )}
-
-      {isValidLoc(deliveryLocation) && (
-        <Marker position={[deliveryLocation!.lat, deliveryLocation!.lng]} icon={homeIcon}>
-          <Popup>
-            <div className="font-semibold text-sm">🏠 Destino</div>
-            {deliveryLocation!.label && <div className="text-xs">{deliveryLocation!.label}</div>}
-          </Popup>
-        </Marker>
-      )}
-
-      {route && route.coordinates && (
-        <Polyline
-          positions={route.coordinates.map((coord: number[]) => [coord[1], coord[0]])}
-          color="#1f4f37"
-          weight={4}
-          opacity={0.7}
-        />
-      )}
-    </MapContainer>
+      style={{ height, width: '100%', borderRadius: '0.5rem' }}
+    />
   )
-}
-
-// Inner component that uses useMap — must be child of MapContainer
-function AutoFitBoundsInner({ locations, L }: { locations: Location[]; L: any }) {
-  // Import useMap dynamically too
-  const [useMapHook, setUseMapHook] = useState<any>(null)
-  
-  useEffect(() => {
-    import('react-leaflet').then((mod) => {
-      setUseMapHook(() => mod.useMap)
-    })
-  }, [])
-
-  if (!useMapHook) return null
-  return <AutoFitBoundsImpl locations={locations} L={L} useMap={useMapHook} />
-}
-
-function AutoFitBoundsImpl({ locations, L, useMap }: { locations: Location[]; L: any; useMap: any }) {
-  const map = useMap()
-  
-  useEffect(() => {
-    if (locations.length > 0) {
-      try {
-        const validLocs = locations.filter((loc: Location) =>
-          typeof loc.lat === 'number' && typeof loc.lng === 'number' &&
-          isFinite(loc.lat) && isFinite(loc.lng) && (loc.lat !== 0 || loc.lng !== 0)
-        )
-        if (validLocs.length > 0) {
-          const bounds = L.latLngBounds(validLocs.map((loc: Location) => [loc.lat, loc.lng]))
-          map.fitBounds(bounds, { padding: [50, 50] })
-        }
-      } catch (e) {
-        console.error('Error in AutoFitBounds:', e)
-      }
-    }
-  }, [locations, map, L])
-  
-  return null
 }
