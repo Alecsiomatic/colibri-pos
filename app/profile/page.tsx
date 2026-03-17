@@ -165,7 +165,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green to-slate-950 flex items-center justify-center">
         <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
           <CardContent className="p-8 flex items-center space-x-4">
             <Loader2 className="h-6 w-6 animate-spin text-colibri-gold" />
@@ -177,7 +177,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green to-slate-950 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Button 

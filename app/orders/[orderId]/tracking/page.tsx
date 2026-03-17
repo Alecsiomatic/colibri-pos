@@ -165,6 +165,7 @@ export default function OrderTrackingPage() {
       preparing: { label: 'Preparando', color: 'bg-orange-500', icon: Package },
       ready: { label: 'Listo', color: 'bg-green-500', icon: CheckCircle },
       'on-route': { label: 'En camino', color: 'bg-purple-500', icon: Truck },
+      en_camino: { label: 'En camino', color: 'bg-purple-500', icon: Truck },
       delivered: { label: 'Entregado', color: 'bg-green-600', icon: CheckCircle },
       cancelled: { label: 'Cancelado', color: 'bg-red-500', icon: Clock }
     }
@@ -266,20 +267,20 @@ export default function OrderTrackingPage() {
                 time={new Date(order.created_at).toLocaleTimeString('es-MX')}
               />
               <TimelineStep 
-                completed={['confirmed', 'preparing', 'ready', 'on-route', 'delivered'].includes(order.status)}
+                completed={['confirmed', 'preparing', 'ready', 'on-route', 'en_camino', 'delivered'].includes(order.status)}
                 label="Confirmado"
                 time={order.status !== 'pending' ? 'Confirmado' : ''}
               />
               <TimelineStep 
-                completed={['preparing', 'ready', 'on-route', 'delivered'].includes(order.status)}
+                completed={['preparing', 'ready', 'on-route', 'en_camino', 'delivered'].includes(order.status)}
                 label="Preparando"
               />
               <TimelineStep 
-                completed={['ready', 'on-route', 'delivered'].includes(order.status)}
+                completed={['ready', 'on-route', 'en_camino', 'delivered'].includes(order.status)}
                 label="Listo para Entregar"
               />
               <TimelineStep 
-                completed={['on-route', 'delivered'].includes(order.status)}
+                completed={['on-route', 'en_camino', 'delivered'].includes(order.status)}
                 label="En Camino"
                 icon={Truck}
               />

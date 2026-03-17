@@ -57,6 +57,22 @@ export async function GET(
     )
     
     // Construir objeto de respuesta con ubicaciones
+    // Parsear driver_location desde JSON string (current_location)
+    let parsedDriverLocation = null
+    if (order.driver_location) {
+      try {
+        const loc = typeof order.driver_location === 'string' 
+          ? JSON.parse(order.driver_location) 
+          : order.driver_location
+        if (loc && loc.lat && loc.lng) {
+          parsedDriverLocation = {
+            lat: parseFloat(loc.lat),
+            lng: parseFloat(loc.lng)
+          }
+        }
+      } catch { /* ignorar JSON inválido */ }
+    }
+
     const response: any = {
       success: true,
       order: {
@@ -66,11 +82,7 @@ export async function GET(
           username: order.driver_username,
           phone: order.driver_phone
         } : null,
-        driver_location: order.driver_lat && order.driver_lng ? {
-          lat: parseFloat(order.driver_lat),
-          lng: parseFloat(order.driver_lng),
-          updated_at: order.driver_location_updated_at
-        } : null,
+        driver_location: parsedDriverLocation,
         restaurant_location: restaurantRows.length > 0 ? {
           lat: parseFloat(restaurantRows[0].latitude),
           lng: parseFloat(restaurantRows[0].longitude)

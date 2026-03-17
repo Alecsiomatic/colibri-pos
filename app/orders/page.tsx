@@ -89,6 +89,7 @@ export default function OrdersPage() {
       preparing: { label: 'Preparando', color: 'bg-colibri-wine', icon: Package },
       ready: { label: 'Listo', color: 'bg-green-500', icon: Package },
       in_delivery: { label: 'En Camino', color: 'bg-orange-500', icon: Truck },
+      en_camino: { label: 'En Camino', color: 'bg-orange-500', icon: Truck },
       delivered: { label: 'Entregado', color: 'bg-green-600', icon: Package },
       cancelled: { label: 'Cancelado', color: 'bg-red-500', icon: Package }
     }
@@ -128,7 +129,7 @@ export default function OrdersPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green to-slate-950 flex items-center justify-center">
         <Card className="backdrop-blur-sm bg-white/10 border-colibri-gold/20">
           <CardContent className="p-8 flex items-center space-x-4">
             <Loader2 className="h-6 w-6 animate-spin text-colibri-gold" />
@@ -140,7 +141,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-colibri-green/20 via-black to-colibri-wine/20 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-colibri-green to-slate-950 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Button 
