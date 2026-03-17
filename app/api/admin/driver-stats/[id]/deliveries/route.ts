@@ -29,7 +29,7 @@ export async function GET(
       FROM delivery_assignments da
       JOIN orders o ON da.order_id = o.id
       WHERE da.driver_id = ?
-      AND o.status = 'delivered'
+      AND o.status IN ('entregado', 'delivered')
       ORDER BY da.completed_at DESC
       LIMIT 20
     `, [driverId]) as any[]

@@ -17,28 +17,28 @@ export const GET = requireAdmin(async (request: NextRequest) => {
         COALESCE(u.username, dd.name) as username,
         
         -- Total de entregas
-        COUNT(DISTINCT CASE WHEN o.status = 'delivered' THEN da.order_id END) as total_deliveries,
+        COUNT(DISTINCT CASE WHEN o.status IN ('entregado', 'delivered') THEN da.order_id END) as total_deliveries,
         
         -- Entregas activas (en camino)
-        COUNT(DISTINCT CASE WHEN o.status IN ('assigned_to_driver', 'accepted_by_driver', 'in_delivery') THEN da.order_id END) as active_deliveries,
+        COUNT(DISTINCT CASE WHEN o.status IN ('asignado_repartidor', 'en_camino') THEN da.order_id END) as active_deliveries,
         
         -- Completadas hoy
         COUNT(DISTINCT CASE 
-          WHEN o.status = 'delivered' 
+          WHEN o.status IN ('entregado', 'delivered') 
           AND DATE(da.completed_at) = CURDATE() 
           THEN da.order_id 
         END) as completed_today,
         
         -- Completadas esta semana
         COUNT(DISTINCT CASE 
-          WHEN o.status = 'delivered' 
+          WHEN o.status IN ('entregado', 'delivered') 
           AND YEARWEEK(da.completed_at, 1) = YEARWEEK(CURDATE(), 1)
           THEN da.order_id 
         END) as completed_this_week,
         
         -- Completadas este mes
         COUNT(DISTINCT CASE 
-          WHEN o.status = 'delivered' 
+          WHEN o.status IN ('entregado', 'delivered') 
           AND MONTH(da.completed_at) = MONTH(CURDATE())
           AND YEAR(da.completed_at) = YEAR(CURDATE())
           THEN da.order_id 
@@ -56,17 +56,17 @@ export const GET = requireAdmin(async (request: NextRequest) => {
         CASE 
           WHEN COUNT(DISTINCT da.order_id) > 0 
           THEN ROUND(
-            (COUNT(DISTINCT CASE WHEN o.status = 'delivered' THEN da.order_id END) * 100.0) / 
+            (COUNT(DISTINCT CASE WHEN o.status IN ('entregado', 'delivered') THEN da.order_id END) * 100.0) / 
             COUNT(DISTINCT da.order_id)
           , 0)
           ELSE 0
         END as success_rate,
         
         -- Total ganado (suma de órdenes entregadas)
-        COALESCE(SUM(CASE WHEN o.status = 'delivered' THEN o.total END), 0) as total_earnings,
+        COALESCE(SUM(CASE WHEN o.status IN ('entregado', 'delivered') THEN o.total END), 0) as total_earnings,
         
         -- Última entrega
-        MAX(CASE WHEN o.status = 'delivered' THEN da.completed_at END) as last_delivery
+        MAX(CASE WHEN o.status IN ('entregado', 'delivered') THEN da.completed_at END) as last_delivery
         
       FROM delivery_drivers dd
       LEFT JOIN users u ON dd.user_id = u.id
