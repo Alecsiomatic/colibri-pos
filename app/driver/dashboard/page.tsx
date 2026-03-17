@@ -377,16 +377,6 @@ export default function DriverDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Debug panel temporal */}
-        <div className="p-3 bg-slate-800 rounded-lg border border-yellow-500/50 text-xs text-white space-y-1">
-          <p className="text-yellow-400 font-bold">🔍 Debug Info</p>
-          <p>Driver: {driver ? `✅ ${driver.name} (id:${driver.id})` : '❌ null'}</p>
-          <p>Assignments: {assignments.length} total | Active: {activeDelivery ? `✅ #${activeDelivery.order_id} (${activeDelivery.status})` : '❌ null'}</p>
-          <p>GPS: {driverLocation ? `✅ ${driverLocation.lat.toFixed(4)},${driverLocation.lng.toFixed(4)}` : '❌ null'} | Tracking: {isTrackingLocation ? '✅' : '❌'} | Error: {locationError || 'none'}</p>
-          <p>Restaurant: {restaurantLocation ? `✅ ${restaurantLocation.lat},${restaurantLocation.lng}` : '❌ null'}</p>
-          <p>Route: {route ? `✅ coords:${route?.coordinates?.length || 'no-coords'}` : '❌ null'}</p>
-        </div>
-
         {/* Mapa con ubicación del driver cuando NO hay entrega activa */}
         {!activeDelivery && driverLocation && (
           <Card className="bg-slate-900/90 backdrop-blur-xl border-colibri-gold/30">
