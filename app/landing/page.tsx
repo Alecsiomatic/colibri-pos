@@ -309,26 +309,26 @@ export default function LandingPage() {
       icon: ShoppingCart,
       title: "Sistema POS Completo",
       description:
-        "Terminal punto de venta profesional con productos, categor\u00edas, modificadores e inventario en tiempo real.",
+        "Terminal punto de venta profesional con productos, categorías, modificadores e inventario en tiempo real.",
       highlight: "Control total",
     },
     {
       icon: Utensils,
-      title: "Gesti\u00f3n de Mesas",
+      title: "Gestión de Mesas",
       description:
-        "Comedor interactivo con asignaci\u00f3n de meseros, divisi\u00f3n de cuentas y cierre autom\u00e1tico.",
+        "Comedor interactivo con asignación de meseros, división de cuentas y cierre automático.",
       highlight: "Para restaurantes",
     },
     {
       icon: Truck,
       title: "Delivery Integrado",
       description:
-        "Pedidos a domicilio con tracking GPS en tiempo real, asignaci\u00f3n de repartidores y gesti\u00f3n de zonas.",
+        "Pedidos a domicilio con tracking GPS en tiempo real, asignación de repartidores y gestión de zonas.",
       highlight: "+40% ventas",
     },
     {
       icon: QrCode,
-      title: "Men\u00fa Digital QR",
+      title: "Menú Digital QR",
       description:
         "Tus clientes ordenan desde su celular escaneando QR. Sin apps, sin contacto, sin errores.",
       highlight: "Sin meseros",
@@ -337,12 +337,12 @@ export default function LandingPage() {
       icon: Smartphone,
       title: "Kiosko Autoservicio",
       description:
-        "Pantalla t\u00e1ctil para que clientes ordenen directamente. Reduce esperas y aumenta ticket promedio.",
+        "Pantalla táctil para que clientes ordenen directamente. Reduce esperas y aumenta ticket promedio.",
       highlight: "+30% ticket",
     },
     {
       icon: CreditCard,
-      title: "M\u00faltiples Pagos",
+      title: "Múltiples Pagos",
       description:
         "Efectivo, tarjetas, transferencias y MercadoPago integrado. Cobra como quieras.",
       highlight: "Todo incluido",
@@ -351,21 +351,21 @@ export default function LandingPage() {
       icon: Receipt,
       title: "Turnos de Caja",
       description:
-        "Control de apertura/cierre de caja. Arqueos autom\u00e1ticos, reportes y cuadre perfecto.",
+        "Control de apertura/cierre de caja. Arqueos automáticos, reportes y cuadre perfecto.",
       highlight: "Cero errores",
     },
     {
       icon: BarChart3,
       title: "Reportes Avanzados",
       description:
-        "Anal\u00edtica en tiempo real: ventas, productos top, horarios pico, desempe\u00f1o del equipo.",
+        "Analítica en tiempo real: ventas, productos top, horarios pico, desempeño del equipo.",
       highlight: "Data que vende",
     },
     {
       icon: Printer,
-      title: "Impresi\u00f3n Autom\u00e1tica",
+      title: "Impresión Automática",
       description:
-        "Comandas a cocina por USB, red o Bluetooth. Separa por estaciones: grill, fr\u00edos, bar.",
+        "Comandas a cocina por USB, red o Bluetooth. Separa por estaciones: grill, fríos, bar.",
       highlight: "Cocina ordenada",
     },
     {
@@ -379,14 +379,14 @@ export default function LandingPage() {
       icon: ChefHat,
       title: "Modificadores",
       description:
-        "Extras, tama\u00f1os, ingredientes, personalizaciones. Todo lo que tus clientes pidan.",
-      highlight: "Sin l\u00edmites",
+        "Extras, tamaños, ingredientes, personalizaciones. Todo lo que tus clientes pidan.",
+      highlight: "Sin límites",
     },
     {
       icon: Cloud,
       title: "100% En La Nube",
       description:
-        "Accede desde cualquier dispositivo. Backups autom\u00e1ticos. Nunca pierdes informaci\u00f3n.",
+        "Accede desde cualquier dispositivo. Backups automáticos. Nunca pierdes información.",
       highlight: "Siempre activo",
     },
   ]
@@ -403,14 +403,14 @@ export default function LandingPage() {
       number: "02",
       title: "Configuramos todo",
       description:
-        "Dise\u00f1amos tu men\u00fa digital, configuramos tu sistema y capacitamos a tu equipo",
+        "Diseñamos tu menú digital, configuramos tu sistema y capacitamos a tu equipo",
       icon: MonitorSmartphone,
     },
     {
       number: "03",
-      title: "\u00a1A vender!",
+      title: "¡A vender!",
       description:
-        "Tu restaurante opera con tecnolog\u00eda de primer nivel desde el d\u00eda 1",
+        "Tu restaurante opera con tecnología de primer nivel desde el día 1",
       icon: Zap,
     },
   ]
@@ -426,12 +426,12 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <Image
                 src="/logo-colibri.png"
-                alt="Colibr\u00ed-REST"
+                alt="Colibrí-REST"
                 width={36}
                 height={36}
               />
               <span className="font-bold text-colibri-green text-lg">
-                Colibr\u00ed-REST
+                Colibrí-REST
               </span>
             </div>
             <div className="hidden md:flex items-center gap-6 text-sm text-gray-600">
@@ -439,7 +439,7 @@ export default function LandingPage() {
                 href="#features"
                 className="hover:text-colibri-green transition-colors"
               >
-                Caracter\u00edsticas
+                Características
               </a>
               <a
                 href="#demo"
@@ -492,7 +492,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 blur-3xl bg-colibri-gold/30 rounded-full scale-150" />
                 <Image
                   src="/logo-colibri.png"
-                  alt="Colibr\u00ed-REST"
+                  alt="Colibrí-REST"
                   width={130}
                   height={130}
                   className="relative drop-shadow-2xl animate-[float_6s_ease-in-out_infinite]"
@@ -504,7 +504,7 @@ export default function LandingPage() {
             <div className="animate-[fadeInUp_0.8s_ease-out_0.2s_both]">
               <Badge className="mb-6 bg-white/15 text-white border-white/25 text-sm px-5 py-2.5 backdrop-blur-md hover:bg-white/25 transition-colors cursor-default">
                 <Sparkles className="w-4 h-4 mr-2 inline animate-pulse" />
-                Sistema #1 para restaurantes en M\u00e9xico
+                Sistema #1 para restaurantes en México
               </Badge>
             </div>
 
@@ -522,10 +522,10 @@ export default function LandingPage() {
 
             {/* Subheadline */}
             <p className="text-lg md:text-xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed animate-[fadeInUp_0.8s_ease-out_0.6s_both]">
-              Cada pedido fluye sin esfuerzo. Cada mesa atendida con precisi\u00f3n.
-              Cada decisi\u00f3n respaldada por datos.
+              Cada pedido fluye sin esfuerzo. Cada mesa atendida con precisión.
+              Cada decisión respaldada por datos.
               <span className="block mt-2 font-semibold text-colibri-beige">
-                12 m\u00f3dulos. Una sola plataforma.
+                12 módulos. Una sola plataforma.
               </span>
             </p>
 
@@ -560,7 +560,7 @@ export default function LandingPage() {
             {/* Social proof */}
             <div className="flex flex-wrap justify-center items-center gap-6 mt-12 animate-[fadeInUp_0.8s_ease-out_1s_both]">
               {[
-                { icon: Shield, text: "Hosting seguro en M\u00e9xico", fill: false },
+                { icon: Shield, text: "Hosting seguro en México", fill: false },
                 { icon: Star, text: "4.9/5 en Google", fill: true },
                 { icon: Users, text: "+300 restaurantes", fill: false },
               ].map((item, i) => (
@@ -603,7 +603,7 @@ export default function LandingPage() {
                 value: 12,
                 prefix: "",
                 suffix: "",
-                label: "M\u00f3dulos integrados",
+                label: "Módulos integrados",
                 icon: Layers,
               },
               {
@@ -659,8 +659,8 @@ export default function LandingPage() {
               </span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              No necesitas 10 proveedores diferentes. Cada m\u00f3dulo habla con los
-              dem\u00e1s en tiempo real.
+              No necesitas 10 proveedores diferentes. Cada módulo habla con los
+              demás en tiempo real.
             </p>
           </div>
 
@@ -680,8 +680,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-white/10 text-colibri-beige border-white/20 text-xs">
-              <MousePointerClick className="w-3 h-3 mr-1 inline" /> As\u00ed de
-              f\u00e1cil
+              <MousePointerClick className="w-3 h-3 mr-1 inline" /> Así de
+              fácil
             </Badge>
             <h2 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
               3 Pasos Para
@@ -709,7 +709,7 @@ export default function LandingPage() {
               <PlayCircle className="w-3 h-3 mr-1 inline" /> Prueba gratis
             </Badge>
             <h2 className="text-4xl md:text-6xl font-black text-colibri-green mb-4 tracking-tight">
-              Pru\u00e9balo
+              Pruébalo
               <br />
               <span className="bg-gradient-to-r from-colibri-wine to-colibri-green bg-clip-text text-transparent">
                 Ahora Mismo
@@ -736,31 +736,31 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {[
                 {
-                  emoji: "\ud83d\udc68\u200d\ud83d\udcbc",
+                  emoji: "👨‍💼",
                   role: "Admin",
                   desc: "Panel completo",
                   color: "from-colibri-green to-emerald-700",
                 },
                 {
-                  emoji: "\ud83d\udcb0",
+                  emoji: "💰",
                   role: "Cajero",
                   desc: "Punto de venta",
                   color: "from-colibri-wine to-red-800",
                 },
                 {
-                  emoji: "\ud83c\udf7d\ufe0f",
+                  emoji: "🍽️",
                   role: "Mesero",
-                  desc: "Gesti\u00f3n mesas",
+                  desc: "Gestión mesas",
                   color: "from-colibri-gold to-amber-700",
                 },
                 {
-                  emoji: "\ud83d\ude9a",
+                  emoji: "🚚",
                   role: "Repartidor",
                   desc: "Delivery GPS",
                   color: "from-blue-700 to-blue-900",
                 },
                 {
-                  emoji: "\ud83d\udc64",
+                  emoji: "👤",
                   role: "Cliente",
                   desc: "Pedir online",
                   color: "from-purple-700 to-purple-900",
@@ -771,8 +771,8 @@ export default function LandingPage() {
             </div>
 
             <p className="text-center text-sm text-gray-500 mt-6">
-              \ud83d\udd10 Selecciona tu rol en la p\u00e1gina de login y las
-              credenciales se cargar\u00e1n autom\u00e1ticamente
+              🔐 Selecciona tu rol en la página de login y las
+              credenciales se cargarán automáticamente
             </p>
           </div>
         </div>
@@ -797,23 +797,23 @@ export default function LandingPage() {
             {[
               {
                 name: "Carlos M.",
-                biz: "Tacos El Patr\u00f3n \u2014 CDMX",
+                biz: "Tacos El Patrón — CDMX",
                 quote:
-                  "En 2 meses recuperamos la inversi\u00f3n. El delivery integrado y el kiosko nos permitieron atender 3x m\u00e1s pedidos en hora pico.",
+                  "En 2 meses recuperamos la inversión. El delivery integrado y el kiosko nos permitieron atender 3x más pedidos en hora pico.",
                 stars: 5,
               },
               {
                 name: "Ana G.",
-                biz: "Caf\u00e9 La Esquina \u2014 Guadalajara",
+                biz: "Café La Esquina — Guadalajara",
                 quote:
-                  "El men\u00fa QR y el sistema de mesas nos cambi\u00f3 la vida. Los clientes piden desde su mesa y todo llega directo a cocina.",
+                  "El menú QR y el sistema de mesas nos cambió la vida. Los clientes piden desde su mesa y todo llega directo a cocina.",
                 stars: 5,
               },
               {
                 name: "Roberto S.",
-                biz: "Wings & Beer \u2014 Monterrey",
+                biz: "Wings & Beer — Monterrey",
                 quote:
-                  "Los reportes son incre\u00edbles. Optimizamos el men\u00fa y eliminamos lo que no serv\u00eda. Rentabilidad +35% en 3 meses.",
+                  "Los reportes son increíbles. Optimizamos el menú y eliminamos lo que no servía. Rentabilidad +35% en 3 meses.",
                 stars: 5,
               },
             ].map((t, i) => (
@@ -837,7 +837,7 @@ export default function LandingPage() {
               Planes y Precios
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Estamos preparando planes incre\u00edbles para ti
+              Estamos preparando planes increíbles para ti
             </p>
           </div>
 
@@ -851,13 +851,13 @@ export default function LandingPage() {
                   <Clock className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-3xl md:text-4xl font-black text-colibri-green mb-4">
-                  Pr\u00f3ximamente
+                  Próximamente
                 </h3>
                 <p className="text-lg text-gray-600 mb-8 max-w-lg mx-auto">
                   Estamos finalizando los planes perfectos para tu restaurante.
                   <br />
                   <span className="font-semibold text-colibri-wine">
-                    Mientras tanto, cotiza directamente con nosotros y obt\u00e9n un
+                    Mientras tanto, cotiza directamente con nosotros y obtén un
                     precio especial de pre-lanzamiento.
                   </span>
                 </p>
@@ -903,15 +903,15 @@ export default function LandingPage() {
         <div className="relative z-10 container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
-              \u00bfListo Para
+              ¿Listo Para
               <br />
               <span className="text-colibri-gold">
                 Transformar Tu Restaurante?
               </span>
             </h2>
             <p className="text-xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed">
-              \u00danete a los +300 restaurantes que ya venden m\u00e1s con
-              Colibr\u00ed-REST.
+              Únete a los +300 restaurantes que ya venden más con
+              Colibrí-REST.
               <br />
               <span className="font-semibold text-colibri-beige">
                 La primera consulta es gratuita.
@@ -950,7 +950,7 @@ export default function LandingPage() {
                 "Sin compromiso",
                 "Setup en 24h",
                 "Soporte premium",
-                "Garant\u00eda total",
+                "Garantía total",
               ].map((t, i) => (
                 <div key={i} className="flex items-center gap-1.5">
                   <Check className="w-4 h-4 text-colibri-gold" />
@@ -970,14 +970,14 @@ export default function LandingPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Image
                   src="/logo-colibri.png"
-                  alt="Colibr\u00ed-REST"
+                  alt="Colibrí-REST"
                   width={44}
                   height={44}
                 />
-                <span className="font-bold text-xl">Colibr\u00ed-REST</span>
+                <span className="font-bold text-xl">Colibrí-REST</span>
               </div>
               <p className="text-white/70 text-sm leading-relaxed">
-                El sistema completo para restaurantes que quieren vender m\u00e1s y
+                El sistema completo para restaurantes que quieren vender más y
                 trabajar menos.
               </p>
             </div>
@@ -990,7 +990,7 @@ export default function LandingPage() {
                     href="#features"
                     className="hover:text-white transition-colors"
                   >
-                    Caracter\u00edsticas
+                    Características
                   </a>
                 </li>
                 <li>
@@ -1044,7 +1044,7 @@ export default function LandingPage() {
                     href="/tos"
                     className="hover:text-white transition-colors"
                   >
-                    T\u00e9rminos
+                    Términos
                   </Link>
                 </li>
               </ul>
@@ -1053,7 +1053,7 @@ export default function LandingPage() {
 
           <div className="border-t border-white/15 pt-8 text-center text-sm text-white/50">
             <p>
-              &copy; 2026 Colibr\u00ed-REST. Todos los derechos reservados.
+              &copy; 2026 Colibrí-REST. Todos los derechos reservados.
             </p>
           </div>
         </div>
